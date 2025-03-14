@@ -62,7 +62,7 @@ export default function Sidebar() {
       collapsible
       collapsed={collapsed}
       onCollapse={(value) => setCollapsed(value)}
-      width={250}
+      width={270}
       className="!bg-[#ffffff] !border !border-[#cccccc] !border-t-0 sidebar"
     >
       <Menu

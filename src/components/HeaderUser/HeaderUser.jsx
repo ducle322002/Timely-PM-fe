@@ -40,7 +40,7 @@ export default function HeaderUser() {
         className=" flex items-center justify-start"
       >
         {items.map((item) => (
-          <Menu.Item key={item.key} icon={item.icon}>
+          <Menu.Item key={item.key} icon={item.icon} className="!py-[5%]">
             <Link to={`${item.key}`}>{item.label}</Link>
           </Menu.Item>
         ))}
