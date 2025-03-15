@@ -11,30 +11,31 @@ import "./Sidebar.scss";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
 import { route } from "../../routes";
+
 export default function Sidebar() {
   function getItem(label, key, icon, children) {
     return { key, label, icon, children };
   }
 
   const [items, setItems] = useState([]);
-  const [selectedKey, setSelectedKey] = useState("");
+  const [key, setKey] = useState();
   const location = useLocation();
-
-  // Use full pathname without splitting
-  const currentURI = location.pathname;
+  const currentURI =
+    location.pathname.split("/")[location.pathname.split("/").length - 1];
 
   const dataOpen = JSON.parse(localStorage.getItem("keys")) ?? [];
+
   const [openKeys, setOpenKeys] = useState(dataOpen);
   const user = useSelector(selectUser);
 
   useEffect(() => {
     setItems([
       getItem("User", route.home, <DropboxOutlined />, [
-        getItem("User Profile", route.manage, <DropboxOutlined />),
-        getItem("User Setting", route.manage, <BarChartOutlined />),
+        getItem("User Profile", route.introWorkspace, <DropboxOutlined />),
+        getItem("User Setting", route.introWorkspace, <BarChartOutlined />),
         getItem("User Role", route.home, <BarChartOutlined />),
       ]),
-      getItem("Manage Project", route.manage, <BarChartOutlined />),
+      getItem("Workspace", route.introWorkspace, <BarChartOutlined />),
       getItem("Back to Home", route.home, <HomeOutlined />),
     ]);
   }, []);
@@ -42,19 +43,16 @@ export default function Sidebar() {
   const handleSubMenuOpen = (keyMenuItem) => {
     setOpenKeys(keyMenuItem);
   };
-
-  const handleSelectKey = (key) => {
-    setSelectedKey(key);
+  const handleSelectKey = (keyPath) => {
+    setKey(keyPath);
   };
-
   useEffect(() => {
     localStorage.setItem("keys", JSON.stringify(openKeys));
   }, [openKeys]);
 
   useEffect(() => {
-    setSelectedKey(currentURI);
+    handleSubMenuOpen([...openKeys, key]);
   }, [currentURI]);
-
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -68,8 +66,9 @@ export default function Sidebar() {
       <Menu
         theme="light"
         mode="inline"
-        className="h-full !bg-[#ffffff]  "
-        selectedKeys={[selectedKey]}
+        defaultSelectedKeys={["1"]}
+        className="h-full !bg-[#ffffff]"
+        selectedKeys={currentURI}
         openKeys={openKeys}
         onOpenChange={handleSubMenuOpen}
       >
@@ -79,8 +78,8 @@ export default function Sidebar() {
               {item.children.map((subItem) => (
                 <Menu.Item
                   key={subItem.key}
-                  onClick={() => handleSelectKey(subItem.key)}
                   icon={subItem.icon}
+                  onClick={(e) => handleSelectKey(e.keyPath[1])}
                 >
                   <Link to={subItem.key}>{subItem.label}</Link>
                 </Menu.Item>
