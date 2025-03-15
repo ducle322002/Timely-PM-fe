@@ -8,6 +8,7 @@ import { route } from "./routes";
 import GuestLayout from "./layouts/GuestLayout/GuestLayout";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
+import EmailVerifiedPage from "./pages/EmailVerifiedPage/EmailVerifyPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -26,6 +27,10 @@ function App() {
         {
           path: route.register,
           element: <RegisterPage />,
+        },
+        {
+          path: route.verifyEmail,
+          element: <EmailVerifiedPage />,
         },
       ],
     },
