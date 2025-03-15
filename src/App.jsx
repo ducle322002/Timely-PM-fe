@@ -1,21 +1,23 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { route } from "./routes";
 import UserLayout from "./layouts/UserLayout/UserLayout";
 import Homepage from "./pages/Homepage/Homepage";
 import ManagePage from "./pages/ManagePage/ManagePage";
+import WelcomePage from "./pages/WelcomePage/WelcomePage";
+import { route } from "./routes";
 
 function App() {
   const router = createBrowserRouter([
+    {
+      path: route.welcome,
+      element: <WelcomePage />,
+    },
     {
       path: route.home,
       element: <UserLayout />,
       children: [
         {
-          path: route.home,
+          index: true,
           element: <Homepage />,
         },
         {
