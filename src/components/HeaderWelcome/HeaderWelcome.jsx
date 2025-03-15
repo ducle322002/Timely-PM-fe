@@ -10,7 +10,9 @@ export default function HeaderWelcome() {
   return (
     <header className="w-full shadow-md bg-white flex justify-between items-center px-[5%]">
       <div className="flex justify-center items-center">
-        <h1 className="text-xl font-bold">Timely Project Management</h1>
+        <Link to={route.welcome} className="text-xl font-bold">
+          Timely Project Management
+        </Link>
 
         <div>
           <Menu
@@ -22,7 +24,7 @@ export default function HeaderWelcome() {
               key={"1"}
               icon={""}
               title="About Us"
-              className="!py-[5%]"
+              className="!py-[15%]"
             >
               <Menu.Item key={2}>
                 <Link to={""}>{"About Us"}</Link>

@@ -13,7 +13,7 @@ import {
   PhoneOutlined,
   SmileOutlined,
 } from "@ant-design/icons";
-
+import "./RegisterPage.scss";
 export default function RegisterPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -42,21 +42,23 @@ export default function RegisterPage() {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex justify-center items-center bg-white rounded-lg my-[5%] w-[80%]"
+        className="flex justify-center items-center bg-white rounded-lg w-[70%] my-[5%]"
         style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
       >
-        <img
-          src="https://img.freepik.com/free-vector/illustration-multitasking-person_23-2148405070.jpg?semt=ais_hybrid"
-          alt=""
-          className="w-[50%]"
-        />
+        <div className="w-[50%]">
+          <img
+            src="https://img.freepik.com/free-vector/illustration-multitasking-person_23-2148405070.jpg?semt=ais_hybrid"
+            alt=""
+            className="w-[100%] object-cover"
+          />
+        </div>
         <Card
           title={
-            <div className="text-center text-[#1968db] !border-none font-bold">
-              Register to Continue
+            <div className="text-center text-[#1968db] !border-none text-2xl font-bold">
+              Sign Up
             </div>
           }
-          className="bg-white !border-none w-[50%]"
+          className="bg-white !border-none w-[50%] card-antd-register"
         >
           <Form
             requiredMark={false}
@@ -207,9 +209,9 @@ export default function RegisterPage() {
               <Button
                 type="primary"
                 htmlType="submit"
-                className="w-full !rounded-2xl !py-[3%] !hover:bg-blue-600 !transition !duration-200"
+                className="w-full !rounded-2xl !py-[4%] !hover:bg-blue-600 !transition !duration-200"
               >
-                Register
+                Sign Up
               </Button>
             </Form.Item>
           </Form>

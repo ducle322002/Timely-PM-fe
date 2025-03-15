@@ -7,6 +7,7 @@ import { route } from "../../routes";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import "./LoginPage.scss";
 export default function LoginPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -34,21 +35,23 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex justify-center items-center bg-white rounded-lg"
+        className="flex justify-center items-center bg-white rounded-lg w-[70%]"
         style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
       >
-        <img
-          src="https://img.freepik.com/premium-vector/checklist-complete-project-task-accomplish-work-checkmark_980117-4411.jpg"
-          alt=""
-          className="w-[50%]"
-        />
+        <div className="w-[50%]">
+          <img
+            src="https://img.freepik.com/premium-vector/checklist-complete-project-task-accomplish-work-checkmark_980117-4411.jpg"
+            alt=""
+            className="w-[100%] object-cover"
+          />
+        </div>
         <Card
           title={
-            <div className="text-center text-[#1968db] !border-none  font-bold">
-              Sign In to Continue
+            <div className="text-center text-[#1968db] !border-none text-2xl  font-bold">
+              Sign In
             </div>
           }
-          className=" bg-white !border-none w-[50%]"
+          className=" bg-white !border-none w-[50%] card-antd-login"
         >
           <Form
             requiredMark={false}
@@ -93,7 +96,7 @@ export default function LoginPage() {
               <Button
                 type="primary"
                 htmlType="submit"
-                className="w-full !rounded-2xl !py-[5%] !hover:bg-blue-600 !transition !duration-200"
+                className="w-full !rounded-2xl !py-[4%] !hover:bg-blue-600 !transition !duration-200"
               >
                 Sign In
               </Button>
