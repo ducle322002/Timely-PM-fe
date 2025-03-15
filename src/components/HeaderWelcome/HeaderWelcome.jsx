@@ -2,6 +2,7 @@ import { SettingOutlined } from "@ant-design/icons";
 import { Button, Menu } from "antd";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { route } from "../../routes";
 
 export default function HeaderWelcome() {
   const navigate = useNavigate();
@@ -31,18 +32,16 @@ export default function HeaderWelcome() {
         </div>
       </div>
 
-      <div>
+      <div className="flex justify-between items-center gap-[5%]">
         <Button
-          onClick={() => navigate("/login")}
-          color="primary"
-          variant="text"
+          onClick={() => navigate(route.login)}
+          className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
         >
           Sign In
         </Button>
         <Button
-          onClick={() => navigate("/register")}
-          color="primary"
-          variant="text"
+          onClick={() => navigate(route.register)}
+          className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
         >
           Sign Up
         </Button>

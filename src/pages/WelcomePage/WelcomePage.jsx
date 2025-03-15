@@ -3,14 +3,11 @@ import HeaderWelcome from "../../components/HeaderWelcome/HeaderWelcome";
 import FooterWelcome from "../../components/FooterWelcome/FooterWelcome";
 import { motion } from "framer-motion";
 import { Button } from "antd";
-import { ArrowRightOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { route } from "../../routes";
 export default function WelcomePage() {
   const navigate = useNavigate();
   return (
     <>
-      <HeaderWelcome />
       <motion.div
         className="flex flex-col items-center justify-center flex-grow px-[1%] h-full "
         animate={{ opacity: 1, y: 0 }}
@@ -61,7 +58,7 @@ export default function WelcomePage() {
               </p>
               <div className="mt-[5%] text-end">
                 <Link className="text-xl font-bold text-[#1968db]  hover:underline">
-                  Find out more about Our System
+                  Learn How to use our System
                 </Link>
               </div>
             </div>
@@ -73,8 +70,6 @@ export default function WelcomePage() {
           </motion.div>
         </div>
       </motion.div>
-
-      <FooterWelcome />
     </>
   );
 }
