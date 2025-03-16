@@ -30,10 +30,10 @@ export default function Sidebar() {
 
   useEffect(() => {
     setItems([
-      getItem("User", route.home, <DropboxOutlined />, [
-        getItem("User Profile", route.introWorkspace, <DropboxOutlined />),
-        getItem("User Setting", route.introWorkspace, <BarChartOutlined />),
-        getItem("User Role", route.home, <BarChartOutlined />),
+      getItem("User", "", <DropboxOutlined />, [
+        getItem("User Profile", "", <DropboxOutlined />),
+        getItem("User Setting", "", <BarChartOutlined />),
+        getItem("User Role", "", <BarChartOutlined />),
       ]),
       getItem("Workspace", route.introWorkspace, <BarChartOutlined />),
       getItem("Back to Home", route.home, <HomeOutlined />),
