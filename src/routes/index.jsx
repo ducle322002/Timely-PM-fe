@@ -6,4 +6,7 @@ export const route = {
 
   home: "/home",
   introWorkspace: "intro-workspace",
+
+  workspace: "/workspace",
+  project: "project",
 };
