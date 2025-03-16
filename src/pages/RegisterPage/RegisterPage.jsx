@@ -70,32 +70,6 @@ export default function RegisterPage() {
             onFinishFailed={onFinishFailed}
           >
             <Form.Item
-              name="firstName"
-              label="First Name"
-              rules={[
-                { required: true, message: "Please input your first name!" },
-              ]}
-            >
-              <Input
-                placeholder="First Name"
-                className="!w-full !rounded-lg !focus:outline-none !focus:ring-2 !focus:ring-blue-500"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="lastName"
-              label="Last Name"
-              rules={[
-                { required: true, message: "Please input your last name!" },
-              ]}
-            >
-              <Input
-                placeholder="Last Name"
-                className="!w-full !rounded-lg !focus:outline-none !focus:ring-2 !focus:ring-blue-500"
-              />
-            </Form.Item>
-
-            <Form.Item
               name="fullName"
               label="Full Name"
               rules={[

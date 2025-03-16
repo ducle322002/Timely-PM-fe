@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
 import { motion } from "framer-motion";
-import { Button, Card, Collapse } from "antd";
+import { Button, Card, Collapse, Menu } from "antd";
 
 export default function IntroWorkspacePage() {
   const user = useSelector(selectUser);
@@ -38,16 +38,25 @@ export default function IntroWorkspacePage() {
         transition={{ duration: 0.5 }}
       >
         <div className="container mx-auto">
-          <div className="flex items-center justify-center w-[100%] gap-[15%]">
-            <Button size="large">Create new Workspace</Button>
-            <Button size="large" className="!bg-[#1968db] !text-white">
-              Join an existing Workspace
-            </Button>
+          <div className="flex items-center justify-center">
+            <Card
+              title={<div className="text-center">Workspace</div>}
+              className="w-[55%] mt-[5%]"
+              style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
+            >
+              <div className="flex flex-col items-start justify-center gap-[5%]">
+                <Menu theme="light" mode="vertical" className="w-full">
+                  <Menu.Item>Create new Workspace</Menu.Item>
+                  <Menu.Item>Join an existing Workspace</Menu.Item>
+                </Menu>
+              </div>
+            </Card>
           </div>
+
           <div className="flex items-center justify-center mt-[5%]">
             <Card
               title={<div className="text-center">Recent Workspace</div>}
-              className="w-[80%] mt-[5%]"
+              className="w-[55%] mt-[5%]"
               style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
             >
               {items.length > 0 ? (
