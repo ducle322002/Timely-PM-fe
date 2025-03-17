@@ -1,6 +1,9 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import dotenv from "dotenv";
+dotenv.config();
+
+const API_BASE_URL = import.meta.env.API_BASE_URL;
 
 const request = async (method, url, data = null, headers = {}) => {
   try {

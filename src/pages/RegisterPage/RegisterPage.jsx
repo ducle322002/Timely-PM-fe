@@ -19,13 +19,28 @@ export default function RegisterPage() {
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
-    console.log("Success:", values);
+    values.user = {
+      username: values.username,
+      password: values.password,
+      email: values.email,
+    };
+    values.userInfo = {
+      avatarUrl: "https://cdn-icons-png.flaticon.com/512/147/147144.png",
+      gender: values.gender,
+      phone: values.phone,
+      fullName: values.fullName,
+    };
+    const requestData = {
+      user: values.user,
+      userInfo: values.userInfo,
+    };
+
+    console.log("Success:", requestData);
     try {
-      const response = await authService.register(values);
-      //   Cookies.set("token", response.token);
-      //   Cookies.set("user", JSON.stringify(response.user));
-      //   navigate(route.home);
-      toast.success(response.data.message);
+      const response = await authService.register(requestData);
+      console.log(response);
+      navigate(route.login);
+      toast.success(response.message);
     } catch (error) {
       console.error("Register Error:", error);
       toast.error(error.response.data);

@@ -8,18 +8,28 @@ import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import "./LoginPage.scss";
+import { useDispatch } from "react-redux";
+import { login } from "../../redux/features/userSlice";
 export default function LoginPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const onFinish = async (values) => {
     console.log("Success:", values);
     try {
       const response = await authService.login(values);
-      //   Cookies.set("token", response.token);
-      //   Cookies.set("user", JSON.stringify(response.user));
-      //   navigate(route.home);
-      toast.success(response.data.message);
+      Cookies.set("token", response.data.token);
+
+      const user = {
+        username: response.data.username,
+        id: response.data.id,
+      };
+      Cookies.set("user", JSON.stringify(user));
+      navigate(`${route.home}/${route.introWorkspace}`);
+      dispatch(login(user));
+      console.log(response);
+      console.log(response.data);
+      toast.success(response.message);
     } catch (error) {
       console.error("Login Error:", error);
       toast.error(error.response.data);
