@@ -1,5 +1,9 @@
 import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import UserLayout from "./layouts/UserLayout/UserLayout";
 import Homepage from "./pages/Homepage/Homepage";
 import ManagePage from "./pages/ManagePage/ManagePage";
@@ -11,6 +15,7 @@ import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import EmailVerifiedPage from "./pages/EmailVerifiedPage/EmailVerifyPage";
 import IntroWorkspacePage from "./pages/IntroWorkspacePage/IntroWorkspacePage";
 import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
+import ProjectLayout from "./layouts/ProjectLayout/ProjectLayout";
 
 function App() {
   const router = createBrowserRouter([
@@ -53,17 +58,18 @@ function App() {
 
     {
       path: route.workspace,
-      element: <UserLayout />,
+      element: <ProjectLayout />,
       children: [
-        {
-          index: true,
-          element: <Homepage />,
-        },
         {
           path: `${route.workspace}/${route.project}/:id`,
           element: <ProjectDetailPage />,
         },
       ],
+    },
+
+    {
+      path: "*",
+      element: <Navigate to={route.welcome} />,
     },
   ]);
   return (

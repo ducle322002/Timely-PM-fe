@@ -3,15 +3,27 @@ import { Button, Menu } from "antd";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { route } from "../../routes";
-
+import { useDispatch, useSelector } from "react-redux";
+import { logout, selectUser } from "../../redux/features/userSlice";
+import Cookies from "js-cookie";
 export default function HeaderWelcome() {
   const navigate = useNavigate();
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    // Do something to log out
+    dispatch(logout());
+    navigate(route.login);
+    Cookies.remove("token");
+    Cookies.remove("user");
+  };
 
   return (
     <header className="w-full shadow-md bg-white flex justify-between items-center px-[5%]">
       <div className="flex justify-center items-center">
         <Link to={route.welcome} className="text-xl font-bold">
-          Timely Project Management
+          Timely PM
         </Link>
 
         <div>
@@ -20,33 +32,55 @@ export default function HeaderWelcome() {
             mode="horizontal"
             className=" flex items-center justify-start"
           >
-            <Menu.SubMenu
+            <Menu.Item key={2}>
+              <Link to={`${route.home}/${route.introWorkspace}`}>
+                Go To Your Workspace
+              </Link>
+            </Menu.Item>
+            {/* <Menu.SubMenu
               key={"1"}
               icon={""}
               title="About Us"
               className="!py-[15%]"
             >
               <Menu.Item key={2}>
-                <Link to={""}>{"About Us"}</Link>
+                <Link to={`${route.home}/${route.introWorkspace}`}>
+                  Go To Your Workspace
+                </Link>
               </Menu.Item>
-            </Menu.SubMenu>
+            </Menu.SubMenu> */}
           </Menu>
         </div>
       </div>
 
-      <div className="flex justify-between items-center gap-[5%]">
-        <Button
-          onClick={() => navigate(route.login)}
-          className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
-        >
-          Sign In
-        </Button>
-        <Button
-          onClick={() => navigate(route.register)}
-          className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
-        >
-          Sign Up
-        </Button>
+      <div className="flex justify-between items-center gap-[10%]">
+        {user ? (
+          <>
+            <p className="text-nowrap">Welcome, {user.username}</p>
+            <Button
+              onClick={() => handleLogout()}
+              className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
+            >
+              Sign Out
+            </Button>
+          </>
+        ) : (
+          <>
+            {" "}
+            <Button
+              onClick={() => navigate(route.login)}
+              className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
+            >
+              Sign In
+            </Button>
+            <Button
+              onClick={() => navigate(route.register)}
+              className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
+            >
+              Sign Up
+            </Button>
+          </>
+        )}
       </div>
     </header>
   );

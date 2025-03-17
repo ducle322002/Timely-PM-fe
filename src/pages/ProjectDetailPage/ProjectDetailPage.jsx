@@ -1,94 +1,30 @@
 import { InboxOutlined, UserOutlined } from "@ant-design/icons";
 import { Avatar, Button, Form, Input, Modal, Select, Tabs } from "antd";
-import moment from "moment/moment";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import TextArea from "antd/es/input/TextArea";
 import Dragger from "antd/es/upload/Dragger";
 import toast from "react-hot-toast";
 import axios from "axios";
+import projectService from "../../services/projectService";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
+  const [projectDetail, setProjectDetail] = useState({});
 
-  const projectDetail = {
-    id: id,
-    title: "Project 1",
-    description: "Project 1 description",
-
-    topic: [
-      {
-        id: 1,
-        title: "Worked On",
-        description: "Worked On description",
-        tasks: [
-          {
-            id: 1,
-            title: "Task 1",
-            description: "Task 1 description",
-            status: "Done",
-            created_at: "2021-09-14T09:00:00Z",
-            updated_at: "2024-12-15T09:00:00Z",
-          },
-          {
-            id: 2,
-            title: "Task 2",
-            description: "Task 2 description",
-            status: "Done",
-            created_at: "2021-09-14T09:00:00Z",
-            updated_at: "2024-12-15T09:00:00Z",
-          },
-        ],
-      },
-      {
-        id: 2,
-        title: "Assign To Me",
-        description: "In Progress description",
-        tasks: [
-          {
-            id: 1,
-            title: "Task 1 by me",
-            description: "Task 1 by me",
-            status: "Waiting",
-            created_at: "2021-09-14T09:00:00Z",
-            updated_at: "2024-12-15T09:00:00Z",
-          },
-          {
-            id: 2,
-            title: "Task 2 by me",
-            description: "Task 2 by me",
-            status: "Waiting",
-            created_at: "2021-09-14T09:00:00Z",
-            updated_at: "2024-12-15T09:00:00Z",
-          },
-        ],
-      },
-      {
-        id: 3,
-        title: "Fix Bug",
-        description: "Worked On description",
-        tasks: [
-          {
-            id: 1,
-            title: "Fix Task 1",
-            description: "Task 1 description",
-            status: "Done",
-            created_at: "2021-09-14T09:00:00Z",
-            updated_at: "2024-12-15T09:00:00Z",
-          },
-          {
-            id: 2,
-            title: "Fix Task 2",
-            description: "Task 2 description",
-            status: "Done",
-            created_at: "2021-09-14T09:00:00Z",
-            updated_at: "2024-12-15T09:00:00Z",
-          },
-        ],
-      },
-    ],
-  };
+  useEffect(() => {
+    const fetchProjectDetail = async () => {
+      try {
+        const response = await projectService.getProjectsById(id);
+        console.log(response.data);
+        setProjectDetail(response.data);
+      } catch (error) {
+        console.error(error.response.data);
+      }
+    };
+    fetchProjectDetail();
+  }, [id]);
 
   const [isCreateTaskModal, setIsCreateTaskModal] = useState(false);
 
@@ -135,38 +71,40 @@ export default function ProjectDetailPage() {
     }
   };
 
-  const items = projectDetail.topic.map((topic) => {
-    return {
-      key: topic.id,
-      label: topic.title,
-      children: topic.tasks.map((task) => {
-        return (
-          <div className="flex justify-between items-center gap-[15%] mb-[3%]">
-            <div>
-              <p>{task.title}</p>
-              <p>{task.status}</p>
-              <div className="">
-                <p>
-                  {moment(task.created_at).format("DD/MM/YYYY")} -{" "}
-                  {moment(task.updated_at).format("DD/MM/YYYY")}
-                </p>
-              </div>
-            </div>
-            <div className=" flex justify-between items-center gap-[10%]">
-              <p className="w-[100px]">Created By</p>
-              <Avatar size="large" icon={<UserOutlined />} />
-            </div>
-          </div>
-        );
-      }),
-    };
-  });
+  // const items = projectDetail.topic.map((topic) => {
+  //   return {
+  //     key: topic.id,
+  //     label: topic.name,
+  //     children: topic.tasks.map((task) => {
+  //       return (
+  //         <div className="flex justify-between items-center gap-[15%] mb-[3%]">
+  //           <div>
+  //             <p>{task.title}</p>
+  //             <p>{task.status}</p>
+  //             <div className="">
+  //               <p>
+  //                 {moment(task.created_at).format("DD/MM/YYYY")} -{" "}
+  //                 {moment(task.updated_at).format("DD/MM/YYYY")}
+  //               </p>
+  //             </div>
+  //           </div>
+  //           <div className=" flex justify-between items-center gap-[10%]">
+  //             <p className="w-[100px]">Created By</p>
+  //             <Avatar size="large" icon={<UserOutlined />} />
+  //           </div>
+  //         </div>
+  //       );
+  //     }),
+  //   };
+  // });
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">
-          Project {projectDetail.title} id: {id}
-        </h1>
+        <div>
+          <h1 className="text-2xl font-bold">ID: {projectDetail.id}</h1>
+
+          <h1 className="text-2xl font-bold">Project {projectDetail.name}</h1>
+        </div>
 
         <div className="flex justify-between items-center">
           <Button
@@ -180,7 +118,7 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      <Tabs defaultActiveKey="1" items={items} />
+      {/* <Tabs defaultActiveKey="1" items={items} /> */}
 
       <Modal
         visible={isCreateTaskModal}

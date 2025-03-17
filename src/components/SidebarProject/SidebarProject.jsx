@@ -16,15 +16,16 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
-import "./Sidebar.scss";
+import "./SidebarProject.scss";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
 import { route } from "../../routes";
 import { IoRocket, IoRocketOutline } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import toast from "react-hot-toast";
+import projectService from "../../services/projectService";
 
-export default function Sidebar() {
+export default function SidebarProject() {
   function getItem(label, key, icon, children) {
     return { key, label, icon, children };
   }
@@ -40,17 +41,44 @@ export default function Sidebar() {
   const [openKeys, setOpenKeys] = useState(dataOpen);
   const user = useSelector(selectUser);
 
+  const [projects, setProjects] = useState([]);
+  const fetchProject = async () => {
+    try {
+      const response = await projectService.getProjects();
+      const filterResponse = response.data.filter(
+        (project) => project.profile.id === user.id
+      );
+      console.log(response.data);
+      setProjects(response.data);
+    } catch (error) {
+      console.log(error.response.data);
+    }
+  };
+
+  useEffect(() => {
+    fetchProject();
+    console.log(projects);
+  }, []);
+
   useEffect(() => {
     setItems([
-      getItem("User", "", <DropboxOutlined />, [
-        getItem("User Profile", "", <DropboxOutlined />),
-        getItem("User Setting", "", <BarChartOutlined />),
-        getItem("User Role", "", <BarChartOutlined />),
-      ]),
-      getItem("Workspace", route.introWorkspace, <BarChartOutlined />),
-      getItem("Back to Home", route.welcome, <HomeOutlined />),
+      projects && projects.length > 0
+        ? getItem(
+            "Project",
+            "",
+            <IoRocket />,
+            projects.map((item) =>
+              getItem(
+                item.name,
+                `${route.workspace}/${route.project}/${item.id}`,
+                ""
+              )
+            )
+          )
+        : getItem("Project", "", <IoRocketOutline />),
+      getItem("Back to Home", route.home, <HomeOutlined />),
     ]);
-  }, []);
+  }, [projects]);
 
   const handleSubMenuOpen = (keyMenuItem) => {
     setOpenKeys(keyMenuItem);

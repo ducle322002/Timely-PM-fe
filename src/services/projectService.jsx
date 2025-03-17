@@ -28,13 +28,18 @@ const request = async (method, url, data = null, headers = {}) => {
   }
 };
 
-const apiService = {
+const projectService = {
   // getProducts: () => request("GET", "/products"),
   // getProductById: (id) => request("GET", `/products/${id}`),
   // createProduct: (productData) => request("POST", "/products", productData),
   // updateProduct: (id, productData) =>
   //   request("PUT", `/products/${id}`, productData),
   // deleteProduct: (id) => request("DELETE", `/products/${id}`),
+  getProjects: () => request("GET", "project"),
+  createProjects: (projectData) =>
+    request("POST", "project/create", projectData),
+  getProjectsById: (id) => request("GET", `project/${id}`),
+  deleteProject: (id) => request("DELETE", `project/${id}`),
 };
 
-export default apiService;
+export default projectService;

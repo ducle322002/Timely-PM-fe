@@ -8,16 +8,15 @@ import { selectUser } from "../../redux/features/userSlice";
 
 const { Header } = Layout;
 
-export default function HeaderUser() {
+export default function HeaderProject() {
   function getItem(label, key, icon, children) {
     return { key, label, icon, children };
   }
 
-  const user = useSelector(selectUser);
-
   const [items, setItems] = useState([]);
   const [selectedKey, setSelectedKey] = useState("");
   const location = useLocation();
+  const user = useSelector(selectUser);
 
   // Use full pathname without splitting
   const currentURI = location.pathname;
@@ -28,9 +27,8 @@ export default function HeaderUser() {
       user
         ? getItem(`Welcome ${user.username}`, route.profile, <UserOutlined />)
         : getItem(`Sign In`, route.login, <UserOutlined />),
-      // getItem("Settings", route.settings, <HomeOutlined />),
     ]);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     setSelectedKey(currentURI);
