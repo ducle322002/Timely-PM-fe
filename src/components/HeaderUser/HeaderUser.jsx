@@ -37,7 +37,7 @@ export default function HeaderUser() {
   }, [currentURI]);
 
   return (
-    <header className="border !border-[#cccccc] !border-r-0 !bg-[#ffffff] flex justify-between items-center !px-[5%] ">
+    <header className="border !border-[#cccccc] !border-r-0 !bg-[#ffffff] flex justify-between items-center px-[5%]">
       <h1 className="text-xl font-bold">Timely Project Management</h1>
       <Menu
         theme="light"
@@ -45,8 +45,8 @@ export default function HeaderUser() {
         selectedKeys={[selectedKey]}
         className=" flex items-center justify-start"
       >
-        {items.map((item) => (
-          <Menu.Item key={item.key} icon={item.icon} className="!py-[5%]">
+        {items.map((item, index) => (
+          <Menu.Item key={index} icon={item.icon} className="!py-[5%]">
             <Link to={`${item.key}`}>{item.label}</Link>
           </Menu.Item>
         ))}

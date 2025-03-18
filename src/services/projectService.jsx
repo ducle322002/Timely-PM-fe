@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const request = async (method, url, data = null, headers = {}) => {
+const request = async (method, url, data = null, headers = {}, params = {}) => {
   try {
     const accessToken = Cookies.get("token")?.replaceAll('"', "");
 
@@ -15,6 +15,7 @@ const request = async (method, url, data = null, headers = {}) => {
       method,
       url: `${API_BASE_URL}${url}`,
       data,
+      params,
       headers: {
         ...authHeaders,
         ...headers,
@@ -36,6 +37,8 @@ const projectService = {
   //   request("PUT", `/products/${id}`, productData),
   // deleteProduct: (id) => request("DELETE", `/products/${id}`),
   getProjects: () => request("GET", "project"),
+  inviteMember: (projectId, params) =>
+    request("POST", `project/${projectId}/invite`, null, {}, params),
   createProjects: (projectData) =>
     request("POST", "project/create", projectData),
   getProjectsById: (id) => request("GET", `project/${id}`),

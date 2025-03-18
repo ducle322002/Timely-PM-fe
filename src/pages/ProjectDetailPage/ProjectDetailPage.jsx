@@ -8,17 +8,24 @@ import Dragger from "antd/es/upload/Dragger";
 import toast from "react-hot-toast";
 import axios from "axios";
 import projectService from "../../services/projectService";
+import moment from "moment/moment";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
+  const [topics, setTopics] = useState([]);
 
+  const [isCreateTaskModal, setIsCreateTaskModal] = useState(false);
+  const [isInviteMemberModal, setIsInviteMemberModal] = useState(false);
+  const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
+  const [formInviteMember] = Form.useForm();
   useEffect(() => {
     const fetchProjectDetail = async () => {
       try {
         const response = await projectService.getProjectsById(id);
         console.log(response.data);
         setProjectDetail(response.data);
+        setTopics(response.data.topics);
       } catch (error) {
         console.error(error.response.data);
       }
@@ -26,15 +33,28 @@ export default function ProjectDetailPage() {
     fetchProjectDetail();
   }, [id]);
 
-  const [isCreateTaskModal, setIsCreateTaskModal] = useState(false);
-
-  const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
-
   const showCreateTaskModal = () => {
     setIsCreateTaskModal(true);
   };
 
+  const showInviteMemberModal = () => {
+    setIsInviteMemberModal(true);
+  };
   const [fileList, setFileList] = useState([]);
+
+  const handleInviteMember = async (values) => {
+    console.log(values);
+    const params = {
+      userId: "98c7e87f-cff9-4d95-988b-cdaaaf1a74f4",
+      role: values.role,
+    };
+    try {
+      const response = await projectService.inviteMember(id, params);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleFileChange = (info) => {
     setFileList(info.fileList);
@@ -71,39 +91,46 @@ export default function ProjectDetailPage() {
     }
   };
 
-  // const items = projectDetail.topic.map((topic) => {
-  //   return {
-  //     key: topic.id,
-  //     label: topic.name,
-  //     children: topic.tasks.map((task) => {
-  //       return (
-  //         <div className="flex justify-between items-center gap-[15%] mb-[3%]">
-  //           <div>
-  //             <p>{task.title}</p>
-  //             <p>{task.status}</p>
-  //             <div className="">
-  //               <p>
-  //                 {moment(task.created_at).format("DD/MM/YYYY")} -{" "}
-  //                 {moment(task.updated_at).format("DD/MM/YYYY")}
-  //               </p>
-  //             </div>
-  //           </div>
-  //           <div className=" flex justify-between items-center gap-[10%]">
-  //             <p className="w-[100px]">Created By</p>
-  //             <Avatar size="large" icon={<UserOutlined />} />
-  //           </div>
-  //         </div>
-  //       );
-  //     }),
-  //   };
-  // });
+  const items = topics.map((topic) => {
+    return {
+      key: topic.id,
+      label: topic.labels,
+      // children: topic.tasks.map((task) => {
+      //   return (
+      //     <div className="flex justify-between items-center gap-[15%] mb-[3%]">
+      //       <div>
+      //         <p>{task.title}</p>
+      //         <p>{task.status}</p>
+      //         <div className="">
+      //           <p>
+      //             {moment(task.created_at).format("DD/MM/YYYY")} -{" "}
+      //             {moment(task.updated_at).format("DD/MM/YYYY")}
+      //           </p>
+      //         </div>
+      //       </div>
+      //       <div className=" flex justify-between items-center gap-[10%]">
+      //         <p className="w-[100px]">Created By</p>
+      //         <Avatar size="large" icon={<UserOutlined />} />
+      //       </div>
+      //     </div>
+      //   );
+      // }),
+    };
+  });
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">ID: {projectDetail.id}</h1>
-
-          <h1 className="text-2xl font-bold">Project {projectDetail.name}</h1>
+        <div className="flex justify-between items-center gap-[5%]">
+          <h1 className="text-2xl font-bold text-nowrap">
+            {projectDetail.name}
+          </h1>
+          <Button
+            icon={<FaPlus />}
+            className="!bg-[#1968db] !text-white mr-[5%]"
+            onClick={() => showInviteMemberModal()}
+          >
+            Invite Member
+          </Button>
         </div>
 
         <div className="flex justify-between items-center">
@@ -118,7 +145,46 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* <Tabs defaultActiveKey="1" items={items} /> */}
+      {items.length === 0 ? (
+        <></>
+      ) : (
+        <>
+          <Tabs defaultActiveKey="1" items={items} />
+        </>
+      )}
+
+      <Modal
+        visible={isInviteMemberModal}
+        onCancel={() => setIsInviteMemberModal(false)}
+        title="Invite Member"
+        footer={
+          <>
+            <Button type="primary" onClick={() => formInviteMember.submit()}>
+              Invite
+            </Button>
+            <Button onClick={() => setIsInviteMemberModal(false)}>
+              Cancel
+            </Button>
+          </>
+        }
+      >
+        <Form
+          layout="vertical"
+          className="max-h-[50vh] overflow-y-auto"
+          form={formInviteMember}
+          onFinish={handleInviteMember}
+        >
+          <Form.Item name="email" label="Member's email">
+            <Input type="email" />
+          </Form.Item>
+          <Form.Item name="role" label="Role">
+            <Select placeholder="Select Role" size="large">
+              <Select.Option value="DEV">Dev</Select.Option>
+              <Select.Option value="QA">Qa</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
 
       <Modal
         visible={isCreateTaskModal}

@@ -31,8 +31,8 @@ export default function LoginPage() {
       console.log(response.data);
       toast.success(response.message);
     } catch (error) {
-      console.error("Login Error:", error);
-      toast.error(error.response.data);
+      console.error("Login Error:", error.response.data.message);
+      toast.error(error.response.data.message);
     }
   };
 

@@ -45,11 +45,12 @@ export default function SidebarProject() {
   const fetchProject = async () => {
     try {
       const response = await projectService.getProjects();
-      const filterResponse = response.data.filter(
-        (project) => project.profile.id === user.id
+      const filteredResponse = response.data.filter(
+        (project) => project.userId === user.id
       );
+      console.log(filteredResponse);
       console.log(response.data);
-      setProjects(response.data);
+      setProjects(filteredResponse);
     } catch (error) {
       console.log(error.response.data);
     }

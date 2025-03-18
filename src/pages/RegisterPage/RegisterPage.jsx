@@ -43,7 +43,7 @@ export default function RegisterPage() {
       toast.success(response.message);
     } catch (error) {
       console.error("Register Error:", error);
-      toast.error(error.response.data);
+      toast.error(error.response.data.message);
     }
   };
 
