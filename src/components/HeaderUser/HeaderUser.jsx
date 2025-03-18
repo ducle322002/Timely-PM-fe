@@ -38,7 +38,7 @@ export default function HeaderUser() {
 
   return (
     <header className="border !border-[#cccccc] !border-r-0 !bg-[#ffffff] flex justify-between items-center px-[5%]">
-      <h1 className="text-xl font-bold">Timely Project Management</h1>
+      <h1 className="text-xl font-bold">Timely PM</h1>
       <Menu
         theme="light"
         mode="horizontal"

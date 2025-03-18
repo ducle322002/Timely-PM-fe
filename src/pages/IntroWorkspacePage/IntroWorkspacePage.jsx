@@ -72,15 +72,11 @@ export default function IntroWorkspacePage() {
   }, []);
 
   const handleCreateProject = async (values) => {
-    console.log(values);
     values.status = "PENDING";
     values.image =
       "https://smartpro.vn/images/programes/768x1024/423247project_mobile.jpg";
+    console.log(values);
     try {
-      setIsModalCreateProject(false);
-      setIsLoadingModalVisible(true);
-      setProgress(0);
-
       const response = await projectService.createProjects(values);
       console.log(response);
 
@@ -97,6 +93,9 @@ export default function IntroWorkspacePage() {
       }, 500);
       fetchProject();
       formCreateProject.resetFields();
+      setIsModalCreateProject(false);
+      setIsLoadingModalVisible(true);
+      setProgress(0);
       // navigate(`${route.workspace}/${route.project}/${response.data.id}`);
     } catch (error) {
       console.log(error);

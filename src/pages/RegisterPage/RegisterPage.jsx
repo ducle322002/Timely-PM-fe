@@ -36,6 +36,8 @@ export default function RegisterPage() {
     };
 
     console.log("Success:", requestData);
+    // console.log(values);
+
     try {
       const response = await authService.register(requestData);
       console.log(response);
@@ -110,6 +112,7 @@ export default function RegisterPage() {
               >
                 <Select.Option value="MALE">Male</Select.Option>
                 <Select.Option value="FEMALE">Female</Select.Option>
+                <Select.Option value="OTHER">Other</Select.Option>
               </Select>
             </Form.Item>
 
@@ -120,6 +123,7 @@ export default function RegisterPage() {
             >
               <Input
                 placeholder="Email"
+                type="email"
                 prefix={<MailOutlined className="site-form-item-icon" />}
                 className="!w-full !rounded-lg !focus:outline-none !focus:ring-2 !focus:ring-blue-500"
               />
