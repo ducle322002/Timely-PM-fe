@@ -27,12 +27,8 @@ export default function HeaderWelcome() {
         </Link>
 
         <div>
-          <Menu
-            theme="light"
-            mode="horizontal"
-            className=" flex items-center justify-start"
-          >
-            <Menu.Item key={2}>
+          <Menu theme="light" mode="horizontal">
+            <Menu.Item key={1}>
               <Link to={`${route.home}/${route.introWorkspace}`}>
                 Go To Your Workspace
               </Link>

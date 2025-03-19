@@ -41,7 +41,7 @@ export default function HeaderProject() {
         theme="light"
         mode="horizontal"
         selectedKeys={[selectedKey]}
-        className=" flex items-center justify-start"
+        className="w-[350px] flex justify-center items-center"
       >
         {items.map((item, index) => (
           <Menu.Item key={index} icon={item.icon} className="!py-[5%]">

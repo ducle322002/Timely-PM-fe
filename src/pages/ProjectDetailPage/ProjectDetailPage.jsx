@@ -1,5 +1,15 @@
 import { InboxOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Button, Form, Input, Modal, Select, Tabs } from "antd";
+import {
+  Avatar,
+  Button,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Tabs,
+  DatePicker,
+} from "antd";
+const { RangePicker } = DatePicker;
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
@@ -9,6 +19,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import projectService from "../../services/projectService";
 import moment from "moment/moment";
+import topicService from "../../services/topicService";
+import dayjs from "dayjs";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -19,17 +31,22 @@ export default function ProjectDetailPage() {
   const [isInviteMemberModal, setIsInviteMemberModal] = useState(false);
   const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
   const [formInviteMember] = Form.useForm();
+  const [formCreateTopic] = Form.useForm();
+
+  const fetchProjectDetail = async () => {
+    try {
+      const response = await projectService.getProjectsById(id);
+      console.log(response.data);
+      setProjectDetail(response.data);
+      setTopics(
+        response.data.topics.sort((a, b) => b.type.localeCompare(a.type))
+      );
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  };
+
   useEffect(() => {
-    const fetchProjectDetail = async () => {
-      try {
-        const response = await projectService.getProjectsById(id);
-        console.log(response.data);
-        setProjectDetail(response.data);
-        setTopics(response.data.topics);
-      } catch (error) {
-        console.error(error.response.data);
-      }
-    };
     fetchProjectDetail();
   }, [id]);
 
@@ -38,7 +55,11 @@ export default function ProjectDetailPage() {
   };
 
   const showInviteMemberModal = () => {
-    setIsInviteMemberModal(true);
+    setIsCreateTopicModal(true);
+  };
+
+  const showCreateTopicModal = () => {
+    setIsCreateTopicModal(true);
   };
   const [fileList, setFileList] = useState([]);
 
@@ -53,6 +74,28 @@ export default function ProjectDetailPage() {
       console.log(response);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleCreateTopic = async (values) => {
+    const requestData = {
+      projectId: id,
+      type: values.type,
+      description: values.description,
+      labels: values.labels,
+      startDate: dayjs(values.dateRange[0]).toISOString(),
+      dueDate: dayjs(values.dateRange[1]).toISOString(),
+    };
+    console.log(requestData);
+    try {
+      const response = await topicService.createTopic(requestData);
+      console.log(response);
+      toast.success("Topic created successfully!");
+      fetchProjectDetail();
+      setIsCreateTopicModal(false);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -94,7 +137,11 @@ export default function ProjectDetailPage() {
   const items = topics.map((topic) => {
     return {
       key: topic.id,
-      label: topic.labels,
+      label: (
+        <p style={{ color: topic.type === "ISSUE" ? "red" : "#1b97ff" }}>
+          {topic.labels}
+        </p>
+      ),
       // children: topic.tasks.map((task) => {
       //   return (
       //     <div className="flex justify-between items-center gap-[15%] mb-[3%]">
@@ -141,18 +188,18 @@ export default function ProjectDetailPage() {
           >
             New Task
           </Button>
-          <Button icon={<FaPlus />}>New Topic</Button>
+          <Button icon={<FaPlus />} onClick={() => showCreateTopicModal()}>
+            New Topic
+          </Button>
         </div>
       </div>
-
       {items.length === 0 ? (
         <></>
       ) : (
         <>
-          <Tabs defaultActiveKey="1" items={items} />
+          <Tabs defaultActiveKey="1" items={items} size="large" />
         </>
       )}
-
       <Modal
         visible={isInviteMemberModal}
         onCancel={() => setIsInviteMemberModal(false)}
@@ -185,7 +232,6 @@ export default function ProjectDetailPage() {
           </Form.Item>
         </Form>
       </Modal>
-
       <Modal
         visible={isCreateTaskModal}
         onCancel={() => setIsCreateTaskModal(false)}
@@ -245,6 +291,69 @@ export default function ProjectDetailPage() {
                 uploading company data or other banned files.
               </p>
             </Dragger>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        visible={isCreateTopicModal}
+        onCancel={() => setIsCreateTopicModal(false)}
+        title="Create Topic"
+        footer={
+          <>
+            <Button type="primary" onClick={() => formCreateTopic.submit()}>
+              Create
+            </Button>
+            <Button onClick={() => setIsCreateTopicModal(false)}>Cancel</Button>
+          </>
+        }
+      >
+        <Form
+          layout="vertical"
+          form={formCreateTopic}
+          onFinish={handleCreateTopic}
+          requiredMark={false}
+          className="max-h-[50vh] overflow-y-auto"
+        >
+          <Form.Item
+            name="labels"
+            label="Labels"
+            rules={[
+              {
+                required: true,
+                message: "Please Enter Labels Topic",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label="Type"
+            rules={[{ required: true, message: "Please Select Type Topic" }]}
+          >
+            <Select placeholder="Select Type" size="large" allowClear>
+              <Select.Option value="TASK">Task</Select.Option>
+              <Select.Option value="ISSUE">Issue</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              { required: true, message: "Please Enter Topic Description" },
+            ]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="dateRange"
+            label="Select Date Start - End"
+            rules={[
+              { required: true, message: "Please Select Date Start - End" },
+            ]}
+          >
+            <RangePicker format={"DD/MM/YYYY"} />
           </Form.Item>
         </Form>
       </Modal>
