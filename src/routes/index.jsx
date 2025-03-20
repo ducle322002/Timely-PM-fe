@@ -9,4 +9,5 @@ export const route = {
 
   workspace: "/workspace",
   project: "project",
+  userProfile: "user-profile",
 };

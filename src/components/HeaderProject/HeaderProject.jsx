@@ -25,7 +25,11 @@ export default function HeaderProject() {
     setItems([
       getItem("Dashboard", route.manage, <HomeOutlined />),
       user
-        ? getItem(`Welcome ${user.username}`, route.profile, <UserOutlined />)
+        ? getItem(
+            `Welcome ${user.username}`,
+            route.userProfile,
+            <UserOutlined />
+          )
         : getItem(`Sign In`, route.login, <UserOutlined />),
     ]);
   }, []);

@@ -16,6 +16,7 @@ import EmailVerifiedPage from "./pages/EmailVerifiedPage/EmailVerifyPage";
 import IntroWorkspacePage from "./pages/IntroWorkspacePage/IntroWorkspacePage";
 import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
 import ProjectLayout from "./layouts/ProjectLayout/ProjectLayout";
+import UserProfilePage from "./pages/UserProfilePage/UserProfilePage";
 
 function App() {
   const router = createBrowserRouter([
@@ -53,6 +54,10 @@ function App() {
           path: route.introWorkspace,
           element: <IntroWorkspacePage />,
         },
+        {
+          path: route.userProfile,
+          element: <UserProfilePage />,
+        },
       ],
     },
 
@@ -63,6 +68,10 @@ function App() {
         {
           path: `${route.workspace}/${route.project}/:id`,
           element: <ProjectDetailPage />,
+        },
+        {
+          path: route.userProfile,
+          element: <UserProfilePage />,
         },
       ],
     },

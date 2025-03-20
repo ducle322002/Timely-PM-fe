@@ -1,4 +1,4 @@
-import { SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Menu } from "antd";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -52,7 +52,10 @@ export default function HeaderWelcome() {
       <div className="flex justify-between items-center gap-[10%]">
         {user ? (
           <>
-            <p className="text-nowrap">Welcome, {user.username}</p>
+            <p className="text-nowrap">
+              {" "}
+              <UserOutlined /> {user.username}
+            </p>
             <Button
               onClick={() => handleLogout()}
               className="!bg-[#1968db]  !font-bold !text-white !rounded-lg"
