@@ -37,6 +37,7 @@ export default function ProjectDetailPage() {
   const [formCreateTopic] = Form.useForm();
   const [formCreateTask] = Form.useForm();
   const [selectedTopic, setSelectedTopic] = useState({});
+  const [members, setMembers] = useState([]);
   const user = useSelector(selectUser);
   const fetchProjectDetail = async () => {
     try {
@@ -51,7 +52,21 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const fetchMemberProject = async () => {
+    try {
+      const params = {
+        projectId: id,
+      };
+      const response = await projectService.getMembers(params);
+      console.log(response.data);
+      setMembers(response.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  };
+
   useEffect(() => {
+    fetchMemberProject();
     fetchProjectDetail();
   }, [id]);
 
@@ -61,7 +76,7 @@ export default function ProjectDetailPage() {
   };
 
   const showInviteMemberModal = () => {
-    setIsCreateTopicModal(true);
+    setIsInviteMemberModal(true);
   };
 
   const showCreateTopicModal = () => {
@@ -72,13 +87,18 @@ export default function ProjectDetailPage() {
   const handleInviteMember = async (values) => {
     console.log(values);
     const params = {
-      userId: "98c7e87f-cff9-4d95-988b-cdaaaf1a74f4",
+      id: id,
+      email: values.email,
       role: values.role,
     };
     try {
       const response = await projectService.inviteMember(id, params);
       console.log(response);
+      toast.success("Invite member successfully!");
+      setIsInviteMemberModal(false);
+      formInviteMember.resetFields();
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error(error);
     }
   };
@@ -141,6 +161,28 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleCreateTask = async (values) => {
+    const params = {
+      topicId: selectedTopic.id,
+    };
+    const requestData = {
+      assigneeTo: values.assigneeTo,
+      label: values.label,
+      summer: values.summer,
+      description: values.description,
+      startDate: dayjs(values.dateRange[0]).toISOString(),
+      dueDate: dayjs(values.dateRange[1]).toISOString(),
+      priority: values.priority,
+    };
+    console.log(requestData);
+    try {
+      const response = await taskService.createTask(requestData, params);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
   const items = topics.map((topic) => {
     return {
       key: topic.id,
@@ -193,28 +235,7 @@ export default function ProjectDetailPage() {
       // }),
     };
   });
-  const handleCreateTask = async (values) => {
-    const params = {
-      topicId: selectedTopic.id,
-    };
-    const requestData = {
-      assigneeTo: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      label: values.label,
-      summer: values.summer,
-      description: values.description,
-      startDate: dayjs(values.dateRange[0]).toISOString(),
-      dueDate: dayjs(values.dateRange[1]).toISOString(),
-      priority: values.priority,
-    };
-    console.log(requestData);
-    try {
-      const response = await taskService.createTask(requestData, params);
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
-    }
-  };
+
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center">
@@ -264,11 +285,20 @@ export default function ProjectDetailPage() {
           className="max-h-[50vh] overflow-y-auto"
           form={formInviteMember}
           onFinish={handleInviteMember}
+          requiredMark={false}
         >
-          <Form.Item name="email" label="Member's email">
+          <Form.Item
+            name="email"
+            label="Member's email"
+            rules={[{ required: true, message: "Please enter user's Email" }]}
+          >
             <Input type="email" />
           </Form.Item>
-          <Form.Item name="role" label="Role">
+          <Form.Item
+            name="role"
+            label="Role"
+            rules={[{ required: true, message: "Please select Role" }]}
+          >
             <Select placeholder="Select Role" size="large">
               <Select.Option value="DEV">Dev</Select.Option>
               <Select.Option value="QA">Qa</Select.Option>
@@ -324,12 +354,14 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Select Assignee" }]}
           >
             <Select placeholder="Select Team member" size="large">
-              <Select.Option value="2313">
-                <div className="!flex !justify-start !items-center !gap-[5%]">
-                  <Avatar icon={<UserOutlined />} />
-                  <span>John Doe</span>
-                </div>
-              </Select.Option>
+              {members.map((member) => (
+                <Select.Option value={member.id}>
+                  <div className="!flex !justify-start !items-center !gap-[5%]">
+                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                    <span>{member.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
 
