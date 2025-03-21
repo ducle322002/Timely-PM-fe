@@ -10,7 +10,7 @@ import {
   DatePicker,
 } from "antd";
 const { RangePicker } = DatePicker;
-import React, { useEffect, useState } from "react";
+import React, { Children, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import TextArea from "antd/es/input/TextArea";
@@ -21,6 +21,9 @@ import projectService from "../../services/projectService";
 import moment from "moment/moment";
 import topicService from "../../services/topicService";
 import dayjs from "dayjs";
+import taskService from "../../services/taskService";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../redux/features/userSlice";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -32,7 +35,9 @@ export default function ProjectDetailPage() {
   const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
   const [formInviteMember] = Form.useForm();
   const [formCreateTopic] = Form.useForm();
-
+  const [formCreateTask] = Form.useForm();
+  const [selectedTopic, setSelectedTopic] = useState({});
+  const user = useSelector(selectUser);
   const fetchProjectDetail = async () => {
     try {
       const response = await projectService.getProjectsById(id);
@@ -50,8 +55,9 @@ export default function ProjectDetailPage() {
     fetchProjectDetail();
   }, [id]);
 
-  const showCreateTaskModal = () => {
+  const showCreateTaskModal = (topic) => {
     setIsCreateTaskModal(true);
+    setSelectedTopic(topic);
   };
 
   const showInviteMemberModal = () => {
@@ -93,6 +99,7 @@ export default function ProjectDetailPage() {
       toast.success("Topic created successfully!");
       fetchProjectDetail();
       setIsCreateTopicModal(false);
+      formCreateTopic.resetFields();
     } catch (error) {
       console.error(error);
       toast.error(error.response.data.message);
@@ -138,20 +145,42 @@ export default function ProjectDetailPage() {
     return {
       key: topic.id,
       label: (
-        <p style={{ color: topic.type === "ISSUE" ? "red" : "#1b97ff" }}>
+        <p
+          style={{
+            color:
+              topic.type === "ISSUE"
+                ? "red"
+                : topic.type === "TASK"
+                ? "#1b97ff"
+                : "orange",
+          }}
+        >
           {topic.labels}
         </p>
       ),
-      // children: topic.tasks.map((task) => {
+      children: (
+        <>
+          <div className="flex justify-end items-center">
+            <Button
+              icon={<FaPlus />}
+              className="!bg-[#1968db] !text-white"
+              onClick={() => showCreateTaskModal(topic)}
+            >
+              New Task
+            </Button>
+          </div>
+        </>
+      ),
+      // children: topic.tasks?.map((task) => {
       //   return (
       //     <div className="flex justify-between items-center gap-[15%] mb-[3%]">
       //       <div>
-      //         <p>{task.title}</p>
-      //         <p>{task.status}</p>
+      //         <p>{task?.title}</p>
+      //         <p>{task?.status}</p>
       //         <div className="">
       //           <p>
-      //             {moment(task.created_at).format("DD/MM/YYYY")} -{" "}
-      //             {moment(task.updated_at).format("DD/MM/YYYY")}
+      //             {moment(task?.created_at).format("DD/MM/YYYY")} -{" "}
+      //             {moment(task?.updated_at).format("DD/MM/YYYY")}
       //           </p>
       //         </div>
       //       </div>
@@ -164,6 +193,28 @@ export default function ProjectDetailPage() {
       // }),
     };
   });
+  const handleCreateTask = async (values) => {
+    const params = {
+      topicId: selectedTopic.id,
+    };
+    const requestData = {
+      assigneeTo: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      label: values.label,
+      summer: values.summer,
+      description: values.description,
+      startDate: dayjs(values.dateRange[0]).toISOString(),
+      dueDate: dayjs(values.dateRange[1]).toISOString(),
+      priority: values.priority,
+    };
+    console.log(requestData);
+    try {
+      const response = await taskService.createTask(requestData, params);
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center">
@@ -181,13 +232,6 @@ export default function ProjectDetailPage() {
         </div>
 
         <div className="flex justify-between items-center">
-          <Button
-            icon={<FaPlus />}
-            className="!bg-[#1968db] !text-white mr-[5%]"
-            onClick={() => showCreateTaskModal()}
-          >
-            New Task
-          </Button>
           <Button icon={<FaPlus />} onClick={() => showCreateTopicModal()}>
             New Topic
           </Button>
@@ -232,29 +276,55 @@ export default function ProjectDetailPage() {
           </Form.Item>
         </Form>
       </Modal>
+
       <Modal
         visible={isCreateTaskModal}
         onCancel={() => setIsCreateTaskModal(false)}
         title="Create Task"
         footer={
           <>
-            <Button type="primary" onClick={() => uploadFile()}>
+            <Button type="primary" onClick={() => formCreateTask.submit()}>
               Create
             </Button>
             <Button onClick={() => setIsCreateTaskModal(false)}>Cancel</Button>
           </>
         }
       >
-        <Form layout="vertical" className="max-h-[50vh] overflow-y-auto">
-          <Form.Item name="title" label="Task Title">
+        <Form
+          form={formCreateTask}
+          layout="vertical"
+          className="max-h-[50vh] overflow-y-auto"
+          onFinish={handleCreateTask}
+          requiredMark={false}
+        >
+          <Form.Item
+            name="label"
+            label="Task Label"
+            rules={[{ required: true, message: "Please enter Task Label" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item name="title" label="Task Description">
+          <Form.Item
+            name="summer"
+            label="Task Summer"
+            rules={[{ required: true, message: "Please Enter Summer" }]}
+          >
             <TextArea rows={3} />
           </Form.Item>
-          <Form.Item name="title" label="Assign to">
+          <Form.Item
+            name="description"
+            label="Task Description"
+            rules={[{ required: true, message: "Please Enter Description" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="assigneeTo"
+            label="Assign to"
+            rules={[{ required: true, message: "Please Select Assignee" }]}
+          >
             <Select placeholder="Select Team member" size="large">
-              <Select.Option>
+              <Select.Option value="2313">
                 <div className="!flex !justify-start !items-center !gap-[5%]">
                   <Avatar icon={<UserOutlined />} />
                   <span>John Doe</span>
@@ -263,18 +333,7 @@ export default function ProjectDetailPage() {
             </Select>
           </Form.Item>
 
-          <Form.Item name="title" label="Reporter">
-            <Select placeholder="Select Team member" size="large">
-              <Select.Option>
-                <div className="!flex !justify-start !items-center !gap-[5%]">
-                  <Avatar icon={<UserOutlined />} />
-                  <span>John Doe</span>
-                </div>
-              </Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item name="title" label="Attachment">
+          <Form.Item name="attachment" label="Attachment">
             <Dragger
               fileList={fileList}
               beforeUpload={() => false}
@@ -291,6 +350,28 @@ export default function ProjectDetailPage() {
                 uploading company data or other banned files.
               </p>
             </Dragger>
+          </Form.Item>
+
+          <Form.Item
+            name="dateRange"
+            label="Select Date Start - End"
+            rules={[
+              { required: true, message: "Please Select Date Start - End" },
+            ]}
+          >
+            <RangePicker format={"DD/MM/YYYY"} />
+          </Form.Item>
+
+          <Form.Item
+            name="priority"
+            label="Priority"
+            rules={[{ required: true, message: "Please Select Priority" }]}
+          >
+            <Select placeholder="Select Priority" size="large">
+              <Select.Option value="HIGH">High</Select.Option>
+              <Select.Option value="MEDIUM">Medium</Select.Option>
+              <Select.Option value="LOW">Low</Select.Option>
+            </Select>
           </Form.Item>
         </Form>
       </Modal>
@@ -335,6 +416,7 @@ export default function ProjectDetailPage() {
             <Select placeholder="Select Type" size="large" allowClear>
               <Select.Option value="TASK">Task</Select.Option>
               <Select.Option value="ISSUE">Issue</Select.Option>
+              <Select.Option value="QUESTION">Question</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item

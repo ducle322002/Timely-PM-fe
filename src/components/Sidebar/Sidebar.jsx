@@ -76,13 +76,13 @@ export default function Sidebar() {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
         width={270}
-        className="!bg-[#ffffff] !border !border-[#cccccc] !border-t-0 sidebar dark:!bg-[#1D2125] dark:!text-[#ffffff] dark:!border-[#333333]"
+        className="!bg-[#ffffff] !border !border-[#cccccc] !border-t-0 sidebar "
       >
         <Menu
           theme="light"
           mode="inline"
           defaultSelectedKeys={["1"]}
-          className="h-full !bg-[#ffffff] dark:!bg-[#1D2125] dark:!text-[#ffffff] dark:!border-[#333333]"
+          className="h-full !bg-[#ffffff]"
           selectedKeys={currentURI}
           openKeys={openKeys}
           onOpenChange={handleSubMenuOpen}
@@ -93,7 +93,7 @@ export default function Sidebar() {
                 key={item.key}
                 icon={item.icon}
                 title={
-                  <div className="flex justify-between items-center dark:!text-[#ffffff]">
+                  <div className="flex justify-between items-center ">
                     {item.label}
                   </div>
                 }
@@ -105,18 +105,12 @@ export default function Sidebar() {
                     onClick={(e) => handleSelectKey(e.keyPath[1])}
                     className="dark:!text-[#ffffff]"
                   >
-                    <Link to={subItem.key} className="dark:!text-[#ffffff]">
-                      {subItem.label}
-                    </Link>
+                    <Link to={subItem.key}>{subItem.label}</Link>
                   </Menu.Item>
                 ))}
               </Menu.SubMenu>
             ) : (
-              <Menu.Item
-                key={item.key}
-                icon={item.icon}
-                className="dark:!text-[#ffffff]"
-              >
+              <Menu.Item key={item.key} icon={item.icon}>
                 <div className="flex justify-between items-center">
                   <Link to={item.key}>{item.label}</Link>
                 </div>
