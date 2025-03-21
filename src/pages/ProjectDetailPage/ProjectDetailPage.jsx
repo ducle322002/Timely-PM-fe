@@ -1,4 +1,4 @@
-import { InboxOutlined, UserOutlined } from "@ant-design/icons";
+import { InboxOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Button,
@@ -29,16 +29,20 @@ export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
   const [topics, setTopics] = useState([]);
-
+  const [activeTabKey, setActiveTabKey] = useState(null);
+  const [defaultTabKey, setDefaultTabKey] = useState(null);
   const [isCreateTaskModal, setIsCreateTaskModal] = useState(false);
   const [isInviteMemberModal, setIsInviteMemberModal] = useState(false);
   const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
+  const [isProjectMemberModal, setIsProjectMemberModal] = useState(false);
   const [formInviteMember] = Form.useForm();
   const [formCreateTopic] = Form.useForm();
   const [formCreateTask] = Form.useForm();
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const user = useSelector(selectUser);
+
   const fetchProjectDetail = async () => {
     try {
       const response = await projectService.getProjectsById(id);
@@ -47,6 +51,7 @@ export default function ProjectDetailPage() {
       setTopics(
         response.data.topics.sort((a, b) => b.type.localeCompare(a.type))
       );
+      setDefaultTabKey(response.data.topics[0].id);
     } catch (error) {
       console.error(error.response.data);
     }
@@ -65,14 +70,30 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const fetchTasks = async () => {
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await taskService.getTasks(params);
+      console.log(response.data);
+      setTasks(response.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  };
+
   useEffect(() => {
+    fetchTasks();
     fetchMemberProject();
     fetchProjectDetail();
-  }, [id]);
+  }, [activeTabKey, id]);
 
   const showCreateTaskModal = (topic) => {
     setIsCreateTaskModal(true);
     setSelectedTopic(topic);
+    setActiveTabKey(topic.id);
   };
 
   const showInviteMemberModal = () => {
@@ -81,6 +102,10 @@ export default function ProjectDetailPage() {
 
   const showCreateTopicModal = () => {
     setIsCreateTopicModal(true);
+  };
+
+  const showMemberProjectModal = () => {
+    setIsProjectMemberModal(true);
   };
   const [fileList, setFileList] = useState([]);
 
@@ -163,6 +188,7 @@ export default function ProjectDetailPage() {
 
   const handleCreateTask = async (values) => {
     const params = {
+      projectId: id,
       topicId: selectedTopic.id,
     };
     const requestData = {
@@ -173,11 +199,16 @@ export default function ProjectDetailPage() {
       startDate: dayjs(values.dateRange[0]).toISOString(),
       dueDate: dayjs(values.dateRange[1]).toISOString(),
       priority: values.priority,
+      attachment: "string",
     };
     console.log(requestData);
     try {
       const response = await taskService.createTask(requestData, params);
       console.log(response);
+      toast.success("Task created successfully!");
+      fetchTasks();
+      setIsCreateTaskModal(false);
+      formCreateTask.resetFields();
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
@@ -202,7 +233,7 @@ export default function ProjectDetailPage() {
       ),
       children: (
         <>
-          <div className="flex justify-end items-center">
+          <div className="flex justify-end items-center mb-[1%]">
             <Button
               icon={<FaPlus />}
               className="!bg-[#1968db] !text-white"
@@ -211,6 +242,31 @@ export default function ProjectDetailPage() {
               New Task
             </Button>
           </div>
+          {tasks.map((task) => (
+            <>
+              {" "}
+              <div className="flex justify-between items-center gap-[15%] mb-[3%]">
+                <div>
+                  <p>{task?.label}</p>
+                  <p>{task?.priority}</p>
+                  <div className="">
+                    <p>
+                      {moment(task?.startDate).format("DD/MM/YYYY")} -{" "}
+                      {moment(task?.dueDate).format("DD/MM/YYYY")}
+                    </p>
+                  </div>
+                </div>
+                <div className=" flex justify-between items-center gap-[10%]">
+                  <p className="w-[100px]">{task.user.username}</p>
+                  <Avatar
+                    size="large"
+                    icon={<UserOutlined />}
+                    src={task.user.profile.avatarUrl}
+                  />
+                </div>
+              </div>{" "}
+            </>
+          ))}
         </>
       ),
       // children: topic.tasks?.map((task) => {
@@ -244,15 +300,22 @@ export default function ProjectDetailPage() {
             {projectDetail.name}
           </h1>
           <Button
+            icon={<TeamOutlined />}
+            className="!bg-[#1968db] !text-white mr-[5%]"
+            onClick={() => showMemberProjectModal()}
+          >
+            View Members
+          </Button>
+        </div>
+
+        <div className="flex justify-between items-center">
+          <Button
             icon={<FaPlus />}
             className="!bg-[#1968db] !text-white mr-[5%]"
             onClick={() => showInviteMemberModal()}
           >
             Invite Member
           </Button>
-        </div>
-
-        <div className="flex justify-between items-center">
           <Button icon={<FaPlus />} onClick={() => showCreateTopicModal()}>
             New Topic
           </Button>
@@ -262,7 +325,13 @@ export default function ProjectDetailPage() {
         <></>
       ) : (
         <>
-          <Tabs defaultActiveKey="1" items={items} size="large" />
+          <Tabs
+            defaultActiveKey={activeTabKey}
+            activeKey={activeTabKey}
+            onChange={setActiveTabKey}
+            items={items}
+            size="large"
+          />
         </>
       )}
       <Modal
@@ -470,6 +539,31 @@ export default function ProjectDetailPage() {
             <RangePicker format={"DD/MM/YYYY"} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        visible={isProjectMemberModal}
+        onCancel={() => setIsProjectMemberModal(false)}
+        title="Team's Member"
+        footer={
+          <>
+            <Button onClick={() => setIsProjectMemberModal(false)}>
+              Close
+            </Button>
+          </>
+        }
+      >
+        <div className="max-h-[50vh] overflow-y-auto">
+          {members.map((member) => (
+            <div
+              key={member.id}
+              className="flex justify-start items-center gap-[5%] mb-4"
+            >
+              <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+              <span>{member.fullName}</span>
+            </div>
+          ))}
+        </div>
       </Modal>
     </div>
   );

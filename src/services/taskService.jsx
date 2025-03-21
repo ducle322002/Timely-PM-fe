@@ -31,6 +31,7 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
 
 const taskService = {
   getTopics: (params) => request("GET", "topic", null, {}, params),
+  getTasks: (params) => request("GET", "task", null, {}, params),
   createTask: (taskData, topicParams) =>
     request("POST", `task/create`, taskData, null, topicParams),
 };
