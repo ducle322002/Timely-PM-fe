@@ -14,6 +14,7 @@ import {
   BarChartOutlined,
   DropboxOutlined,
   HomeOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import "./Sidebar.scss";
@@ -42,11 +43,12 @@ export default function Sidebar() {
 
   useEffect(() => {
     setItems([
-      getItem("User", "", <DropboxOutlined />, [
-        getItem("User Profile", "", <DropboxOutlined />),
-        getItem("User Setting", "", <BarChartOutlined />),
-        getItem("User Role", "", <BarChartOutlined />),
-      ]),
+      // getItem("User", "", <DropboxOutlined />, [
+      //   getItem("User Profile", "", <DropboxOutlined />),
+      //   getItem("User Setting", "", <BarChartOutlined />),
+      //   getItem("User Role", "", <BarChartOutlined />),
+      // ]),
+      getItem("Setting", route.setting, <SettingOutlined />),
       getItem("Workspace", route.introWorkspace, <BarChartOutlined />),
       getItem("Back to Home", route.welcome, <HomeOutlined />),
     ]);
@@ -74,13 +76,13 @@ export default function Sidebar() {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
         width={270}
-        className="!bg-[#ffffff] !border !border-[#cccccc] !border-t-0 sidebar"
+        className="!bg-[#ffffff] !border !border-[#cccccc] !border-t-0 sidebar dark:!bg-[#1D2125] dark:!text-[#ffffff] dark:!border-[#333333]"
       >
         <Menu
           theme="light"
           mode="inline"
           defaultSelectedKeys={["1"]}
-          className="h-full !bg-[#ffffff]"
+          className="h-full !bg-[#ffffff] dark:!bg-[#1D2125] dark:!text-[#ffffff] dark:!border-[#333333]"
           selectedKeys={currentURI}
           openKeys={openKeys}
           onOpenChange={handleSubMenuOpen}
@@ -91,7 +93,7 @@ export default function Sidebar() {
                 key={item.key}
                 icon={item.icon}
                 title={
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center dark:!text-[#ffffff]">
                     {item.label}
                   </div>
                 }
@@ -101,13 +103,20 @@ export default function Sidebar() {
                     key={subItem.key}
                     icon={subItem.icon}
                     onClick={(e) => handleSelectKey(e.keyPath[1])}
+                    className="dark:!text-[#ffffff]"
                   >
-                    <Link to={subItem.key}>{subItem.label}</Link>
+                    <Link to={subItem.key} className="dark:!text-[#ffffff]">
+                      {subItem.label}
+                    </Link>
                   </Menu.Item>
                 ))}
               </Menu.SubMenu>
             ) : (
-              <Menu.Item key={item.key} icon={item.icon}>
+              <Menu.Item
+                key={item.key}
+                icon={item.icon}
+                className="dark:!text-[#ffffff]"
+              >
                 <div className="flex justify-between items-center">
                   <Link to={item.key}>{item.label}</Link>
                 </div>

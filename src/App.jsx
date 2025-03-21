@@ -17,6 +17,8 @@ import IntroWorkspacePage from "./pages/IntroWorkspacePage/IntroWorkspacePage";
 import ProjectDetailPage from "./pages/ProjectDetailPage/ProjectDetailPage";
 import ProjectLayout from "./layouts/ProjectLayout/ProjectLayout";
 import UserProfilePage from "./pages/UserProfilePage/UserProfilePage";
+import SettingPage from "./pages/SettingPage/SettingPage";
+import { ThemeProvider } from "./context/ThemeContext";
 
 function App() {
   const router = createBrowserRouter([
@@ -58,6 +60,10 @@ function App() {
           path: route.userProfile,
           element: <UserProfilePage />,
         },
+        {
+          path: route.setting,
+          element: <SettingPage />,
+        },
       ],
     },
 
@@ -82,9 +88,9 @@ function App() {
     },
   ]);
   return (
-    <>
+    <ThemeProvider>
       <RouterProvider router={router} />
-    </>
+    </ThemeProvider>
   );
 }
 
