@@ -7,11 +7,13 @@ export default function SettingPage() {
   const { darkMode, toggleDisplayMode } = useContext(ThemeContext);
 
   return (
-    <div>
-      <div className="">
-        <Button onClick={toggleDisplayMode}>
-          {darkMode ? "Set to Light" : "set to Dark"}
-        </Button>
+    <div className={`${darkMode ? "dark" : ""}`}>
+      <div className="dark:bg-gray-900 dark:text-white">
+        <div>
+          <Button onClick={toggleDisplayMode}>
+            {darkMode ? "Set to Light" : "set to Dark"}
+          </Button>
+        </div>
       </div>
     </div>
   );

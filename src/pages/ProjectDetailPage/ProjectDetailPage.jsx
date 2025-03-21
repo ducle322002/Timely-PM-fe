@@ -8,6 +8,7 @@ import {
   Select,
   Tabs,
   DatePicker,
+  Spin,
 } from "antd";
 const { RangePicker } = DatePicker;
 import React, { Children, useEffect, useState } from "react";
@@ -30,7 +31,7 @@ export default function ProjectDetailPage() {
   const [projectDetail, setProjectDetail] = useState({});
   const [topics, setTopics] = useState([]);
   const [activeTabKey, setActiveTabKey] = useState(null);
-  const [defaultTabKey, setDefaultTabKey] = useState(null);
+  const [defaultTabKey, setDefaultTabKey] = useState("");
   const [isCreateTaskModal, setIsCreateTaskModal] = useState(false);
   const [isInviteMemberModal, setIsInviteMemberModal] = useState(false);
   const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
@@ -41,6 +42,8 @@ export default function ProjectDetailPage() {
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [loadingTasks, setLoadingTasks] = useState(false); // Add loading state
+
   const user = useSelector(selectUser);
 
   const fetchProjectDetail = async () => {
@@ -48,10 +51,14 @@ export default function ProjectDetailPage() {
       const response = await projectService.getProjectsById(id);
       console.log(response.data);
       setProjectDetail(response.data);
-      setTopics(
-        response.data.topics.sort((a, b) => b.type.localeCompare(a.type))
+      const sortedTopics = response.data.topics.sort((a, b) =>
+        b.type.localeCompare(a.type)
       );
-      setDefaultTabKey(response.data.topics[0].id);
+
+      setTopics(sortedTopics);
+      if (sortedTopics.length > 0) {
+        setDefaultTabKey(sortedTopics[0].id);
+      }
     } catch (error) {
       console.error(error.response.data);
     }
@@ -71,6 +78,8 @@ export default function ProjectDetailPage() {
   };
 
   const fetchTasks = async () => {
+    setLoadingTasks(true); // Set loading state to true
+
     try {
       const params = {
         projectId: id,
@@ -81,6 +90,8 @@ export default function ProjectDetailPage() {
       setTasks(response.data);
     } catch (error) {
       console.error(error.response.data);
+    } finally {
+      setLoadingTasks(false); // Set loading state to false
     }
   };
 
@@ -242,31 +253,39 @@ export default function ProjectDetailPage() {
               New Task
             </Button>
           </div>
-          {tasks.map((task) => (
+          {loadingTasks ? (
+            <div className="flex justify-center items-center">
+              <Spin size="large" />
+            </div>
+          ) : (
             <>
-              {" "}
-              <div className="flex justify-between items-center gap-[15%] mb-[3%]">
-                <div>
-                  <p>{task?.label}</p>
-                  <p>{task?.priority}</p>
-                  <div className="">
-                    <p>
-                      {moment(task?.startDate).format("DD/MM/YYYY")} -{" "}
-                      {moment(task?.dueDate).format("DD/MM/YYYY")}
-                    </p>
+              {tasks.map((task) => (
+                <>
+                  {" "}
+                  <div className="flex justify-between items-center gap-[15%] mb-[3%]">
+                    <div>
+                      <p>{task?.label}</p>
+                      <p>{task?.priority}</p>
+                      <div className="">
+                        <p>
+                          {moment(task?.startDate).format("DD/MM/YYYY")} -{" "}
+                          {moment(task?.dueDate).format("DD/MM/YYYY")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className=" flex justify-between items-center gap-[10%]">
+                      <p className="w-[100px]">{task.user.username}</p>
+                      <Avatar
+                        size="large"
+                        icon={<UserOutlined />}
+                        src={task.user.profile.avatarUrl}
+                      />
+                    </div>
                   </div>
-                </div>
-                <div className=" flex justify-between items-center gap-[10%]">
-                  <p className="w-[100px]">{task.user.username}</p>
-                  <Avatar
-                    size="large"
-                    icon={<UserOutlined />}
-                    src={task.user.profile.avatarUrl}
-                  />
-                </div>
-              </div>{" "}
+                </>
+              ))}
             </>
-          ))}
+          )}
         </>
       ),
       // children: topic.tasks?.map((task) => {
@@ -326,7 +345,7 @@ export default function ProjectDetailPage() {
       ) : (
         <>
           <Tabs
-            defaultActiveKey={activeTabKey}
+            defaultActiveKey={defaultTabKey}
             activeKey={activeTabKey}
             onChange={setActiveTabKey}
             items={items}
