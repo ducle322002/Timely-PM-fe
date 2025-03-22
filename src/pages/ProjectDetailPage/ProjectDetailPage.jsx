@@ -133,6 +133,7 @@ export default function ProjectDetailPage() {
       toast.success("Invite member successfully!");
       setIsInviteMemberModal(false);
       formInviteMember.resetFields();
+      fetchMemberProject();
     } catch (error) {
       toast.error(error.response.data.message);
       console.error(error);
