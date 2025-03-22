@@ -6,6 +6,8 @@ import { route } from "../../routes";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUser } from "../../redux/features/userSlice";
 import Cookies from "js-cookie";
+import logoNoBg from "../../assets/logoNoBG.png";
+
 export default function HeaderWelcome() {
   const navigate = useNavigate();
   const user = useSelector(selectUser);
@@ -20,9 +22,13 @@ export default function HeaderWelcome() {
   };
 
   return (
-    <header className="w-full shadow-md bg-white flex justify-between items-center px-[5%]">
-      <div className="flex justify-center items-center">
-        <Link to={route.welcome} className="text-xl font-bold">
+    <header className="w-full shadow-md bg-white flex justify-between items-center px-[3%]">
+      <div className="flex justify-between items-center gap-[20%]">
+        <Link
+          to={route.welcome}
+          className="text-xl font-bold flex items-center justify-between gap-[5%] text-nowrap"
+        >
+          <img src={logoNoBg} alt="" className="h-[50px]" />
           Timely PM
         </Link>
 
