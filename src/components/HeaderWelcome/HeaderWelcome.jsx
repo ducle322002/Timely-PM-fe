@@ -32,9 +32,9 @@ export default function HeaderWelcome() {
           Timely PM
         </Link>
 
-        <div>
+        <div className="w-[250px]">
           <Menu theme="light" mode="horizontal">
-            <Menu.Item key={1}>
+            <Menu.Item key={1} className="!py-[5%]">
               <Link to={`${route.home}/${route.introWorkspace}`}>
                 Go To Your Workspace
               </Link>
