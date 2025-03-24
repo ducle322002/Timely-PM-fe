@@ -330,14 +330,13 @@ export default function ProjectDetailPage() {
   const dateLeft = (dueDate) => {
     const currentDate = new Date();
     const dueDateConvert = new Date(dueDate);
-    const diffTime = Math.abs(dueDateConvert - currentDate);
+    const diffTime = dueDateConvert - currentDate;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 1) {
       const interval = setInterval(() => {
         const now = new Date();
         const timeLeft = dueDateConvert - now;
-
         if (timeLeft <= 0) {
           clearInterval(interval);
           setCountdown("Task is overdue");
@@ -625,7 +624,12 @@ export default function ProjectDetailPage() {
               { required: true, message: "Please Select Date Start - End" },
             ]}
           >
-            <RangePicker format={"DD/MM/YYYY"} />
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              disabledDate={(current) =>
+                current && current < dayjs().startOf("day")
+              } // Disable past dates
+            />
           </Form.Item>
 
           <Form.Item
@@ -701,7 +705,12 @@ export default function ProjectDetailPage() {
               { required: true, message: "Please Select Date Start - End" },
             ]}
           >
-            <RangePicker format={"DD/MM/YYYY"} />
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              disabledDate={(current) =>
+                current && current < dayjs().startOf("day")
+              } // Disable past dates
+            />
           </Form.Item>
         </Form>
       </Modal>
