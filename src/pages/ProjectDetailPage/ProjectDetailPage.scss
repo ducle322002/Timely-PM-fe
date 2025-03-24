@@ -1,0 +1,15 @@
+.table-task {
+  .ant-table-bordered {
+    border: none !important;
+  }
+
+  .ant-table-cell {
+    border: none !important;
+    //   background-color: #ffffff !important;
+  }
+
+  .ant-table-cell::before {
+    border: none !important;
+    background-color: #ffffff !important;
+  }
+}

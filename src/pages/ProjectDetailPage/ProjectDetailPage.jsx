@@ -9,6 +9,7 @@ import {
   Tabs,
   DatePicker,
   Spin,
+  Table,
 } from "antd";
 const { RangePicker } = DatePicker;
 import React, { Children, useEffect, useState } from "react";
@@ -26,6 +27,7 @@ import taskService from "../../services/taskService";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
 import { motion } from "framer-motion";
+import "./ProjectDetailPage.scss";
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
@@ -229,6 +231,69 @@ export default function ProjectDetailPage() {
       toast.error(error.response.data.message);
     }
   };
+
+  const taskColumns = [
+    {
+      title: "  ",
+      dataIndex: "label",
+      key: "label",
+      render: (text, task) => (
+        <div>
+          <p
+            className={`font-bold ${
+              task.priority === "HIGH"
+                ? "text-red-500"
+                : task.priority === "MEDIUM"
+                ? "text-yellow-500"
+                : "text-green-500"
+            } 
+              text-xl`}
+          >
+            {task?.label}
+          </p>
+          <p>{task?.priority}</p>
+          <div className="">
+            <p>
+              {moment(task?.startDate).format("DD/MM/YYYY")} -{" "}
+              {moment(task?.dueDate).format("DD/MM/YYYY")}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Assignee",
+      dataIndex: "user.username",
+      key: "assignee",
+      align: "center",
+      render: (text, task) => (
+        <div className=" flex justify-center items-center gap-[10%]">
+          <p className="">{task.user.username}</p>
+          <Avatar
+            size="large"
+            icon={<UserOutlined />}
+            src={task.user.profile.avatarUrl}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Reporter",
+      dataIndex: "user.username",
+      key: "reporter",
+      align: "center",
+      render: (text, task) => (
+        <div className=" flex justify-center items-center gap-[10%]">
+          <p className="">{task.user.username}</p>
+          <Avatar
+            size="large"
+            icon={<UserOutlined />}
+            src={task.user.profile.avatarUrl}
+          />
+        </div>
+      ),
+    },
+  ];
   const items = topics.map((topic) => {
     return {
       key: topic.id,
@@ -263,7 +328,7 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <>
-              {tasks.map((task) => (
+              {/* {tasks.map((task) => (
                 <>
                   <div
                     className="flex justify-between items-center gap-[15%] mt-[1%] cursor-pointer hover:bg-gray-100 py-[3%] px-[2%] rounded-lg"
@@ -300,31 +365,26 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
                 </>
-              ))}
+              ))} */}
+
+              <Table
+                className="table-task"
+                rowClassName="cursor-pointer hover:bg-gray-100"
+                dataSource={tasks}
+                columns={taskColumns}
+                pagination={false}
+                bordered={false}
+                rowHoverable={false}
+                onRow={(record) => ({
+                  onClick: () => {
+                    setSelectedTask(record);
+                  },
+                })}
+              />
             </>
           )}
         </>
       ),
-      // children: topic.tasks?.map((task) => {
-      //   return (
-      //     <div className="flex justify-between items-center gap-[15%] mb-[3%]">
-      //       <div>
-      //         <p>{task?.title}</p>
-      //         <p>{task?.status}</p>
-      //         <div className="">
-      //           <p>
-      //             {moment(task?.created_at).format("DD/MM/YYYY")} -{" "}
-      //             {moment(task?.updated_at).format("DD/MM/YYYY")}
-      //           </p>
-      //         </div>
-      //       </div>
-      //       <div className=" flex justify-between items-center gap-[10%]">
-      //         <p className="w-[100px]">Created By</p>
-      //         <Avatar size="large" icon={<UserOutlined />} />
-      //       </div>
-      //     </div>
-      //   );
-      // }),
     };
   });
   const dateLeft = (dueDate) => {
