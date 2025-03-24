@@ -31,14 +31,11 @@ export default function SidebarProject() {
   }
 
   const [items, setItems] = useState([]);
-  const [key, setKey] = useState();
+  const [key, setKey] = useState("");
+  const [openKeys, setOpenKeys] = useState([]);
   const location = useLocation();
-  const currentURI =
-    location.pathname.split("/")[location.pathname.split("/").length - 1];
+  const currentURI = location.pathname;
 
-  const dataOpen = JSON.parse(localStorage.getItem("keys")) ?? [];
-
-  const [openKeys, setOpenKeys] = useState(dataOpen);
   const user = useSelector(selectUser);
 
   const [projects, setProjects] = useState([]);
@@ -81,15 +78,13 @@ export default function SidebarProject() {
     ]);
   }, [projects]);
 
-  const handleSubMenuOpen = (keyMenuItem) => {
-    setOpenKeys(keyMenuItem);
-  };
-  const handleSelectKey = (keyPath) => {
-    setKey(keyPath);
-  };
-  useEffect(() => {
+  const handleSubMenuOpen = (openKeys) => {
+    setOpenKeys(openKeys);
     localStorage.setItem("keys", JSON.stringify(openKeys));
-  }, [openKeys]);
+  };
+  const handleSelectKey = (key) => {
+    setKey(key);
+  };
 
   useEffect(() => {
     handleSubMenuOpen([...openKeys, key]);
@@ -110,7 +105,7 @@ export default function SidebarProject() {
           mode="inline"
           defaultSelectedKeys={["1"]}
           className="h-full !bg-[#ffffff]"
-          selectedKeys={currentURI}
+          selectedKeys={[currentURI]}
           openKeys={openKeys}
           onOpenChange={handleSubMenuOpen}
         >
