@@ -25,7 +25,7 @@ import dayjs from "dayjs";
 import taskService from "../../services/taskService";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
-
+import { motion } from "framer-motion";
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
@@ -42,7 +42,10 @@ export default function ProjectDetailPage() {
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null);
+
   const [loadingTasks, setLoadingTasks] = useState(false); // Add loading state
+  const [countdown, setCountdown] = useState(null);
 
   const user = useSelector(selectUser);
 
@@ -262,10 +265,23 @@ export default function ProjectDetailPage() {
             <>
               {tasks.map((task) => (
                 <>
-                  {" "}
-                  <div className="flex justify-between items-center gap-[15%] mb-[3%]">
+                  <div
+                    className="flex justify-between items-center gap-[15%] mt-[1%] cursor-pointer hover:bg-gray-100 py-[3%] px-[2%] rounded-lg"
+                    onClick={() => setSelectedTask(task)} // Update the selected task
+                  >
                     <div>
-                      <p>{task?.label}</p>
+                      <p
+                        className={`font-bold ${
+                          task.priority === "HIGH"
+                            ? "text-red-500"
+                            : task.priority === "MEDIUM"
+                            ? "text-yellow-500"
+                            : "text-green-500"
+                        } 
+                        text-xl`}
+                      >
+                        {task?.label}
+                      </p>
                       <p>{task?.priority}</p>
                       <div className="">
                         <p>
@@ -311,10 +327,45 @@ export default function ProjectDetailPage() {
       // }),
     };
   });
+  const dateLeft = (dueDate) => {
+    const currentDate = new Date();
+    const dueDateConvert = new Date(dueDate);
+    const diffTime = Math.abs(dueDateConvert - currentDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
+    if (diffDays < 1) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        const timeLeft = dueDateConvert - now;
+
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          setCountdown("Task is overdue");
+        } else {
+          const hours = Math.floor(
+            (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          const minutes = Math.floor(
+            (timeLeft % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+          setCountdown(`${hours}: ${minutes}: ${seconds}`);
+        }
+      }, 1000);
+
+      return 0; // Return 0 if less than 1 day
+    }
+
+    return diffDays; // Return days if more than 1 day
+  };
   return (
     <div className="container mx-auto">
-      <div className="flex justify-between items-center">
+      <motion.div
+        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.4 }}
+        className="flex justify-between items-center"
+      >
         <div className="flex justify-between items-center gap-[5%]">
           <h1 className="text-2xl font-bold text-nowrap">
             {projectDetail.name}
@@ -340,20 +391,114 @@ export default function ProjectDetailPage() {
             New Topic
           </Button>
         </div>
-      </div>
+      </motion.div>
       {items.length === 0 ? (
         <></>
       ) : (
         <>
-          <Tabs
-            defaultActiveKey={defaultTabKey}
-            activeKey={activeTabKey}
-            onChange={setActiveTabKey}
-            items={items}
-            size="large"
-          />
+          <motion.div
+            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4 }}
+            className="flex"
+          >
+            <Tabs
+              defaultActiveKey={defaultTabKey}
+              activeKey={activeTabKey}
+              onChange={setActiveTabKey}
+              items={items}
+              size="large"
+              className="w-[50%]"
+            />
+            <div className="w-[50%] p-4">
+              {selectedTask ? (
+                <motion.div
+                  key={selectedTask.id}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="rounded-2xl shadow-md p-6 bg-white"
+                >
+                  <h2
+                    className={`text-xl font-semibold mb-2 ${
+                      selectedTask.priority === "HIGH"
+                        ? "text-red-500"
+                        : selectedTask.priority === "MEDIUM"
+                        ? "text-yellow-500"
+                        : "text-green-500"
+                    } `}
+                  >
+                    {selectedTask.label}
+                  </h2>
+                  <p className="text-gray-600 mb-4">{selectedTask.summer}</p>
+                  <div className="mb-4">
+                    <p className="font-medium text-gray-700 mb-1">
+                      Description
+                    </p>
+                    <p className="text-gray-500 whitespace-pre-line">
+                      {selectedTask.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <Avatar src={selectedTask?.user?.profile?.avatarUrl} />
+                    <span className="text-gray-700 font-medium">
+                      {selectedTask?.user?.username}
+                    </span>
+                  </div>
+                  <div className="flex gap-6 mb-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Start Date</p>
+                      <p>
+                        {moment(selectedTask.startDate).format("DD/MM/YYYY")}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Due Date</p>
+                      <p>{moment(selectedTask.dueDate).format("DD/MM/YYYY")}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Days Left</p>
+                      {dateLeft(selectedTask.dueDate) < 1 ? (
+                        <p className="text-red-500 font-bold">{countdown}</p>
+                      ) : (
+                        <p>{dateLeft(selectedTask.dueDate)} days</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-500">Priority</p>
+                    <p>
+                      <span
+                        className={`inline-block px-3 py-1 text-white rounded-full ${
+                          selectedTask.priority === "HIGH"
+                            ? "bg-red-500"
+                            : selectedTask.priority === "MEDIUM"
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
+                        }`}
+                      >
+                        {selectedTask.priority}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-2">Attachments</p>
+                    {/* Mock attachment display */}
+                    <div className="border rounded p-2 text-sm text-gray-600">
+                      No attachments uploaded.
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <div className="text-gray-400 text-center mt-10">
+                  Select a task to view detail
+                </div>
+              )}
+            </div>
+          </motion.div>
         </>
       )}
+
       <Modal
         visible={isInviteMemberModal}
         onCancel={() => setIsInviteMemberModal(false)}
