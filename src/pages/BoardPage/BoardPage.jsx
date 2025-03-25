@@ -13,7 +13,7 @@ export default function BoardPage() {
     try {
       const params = {
         projectId: id,
-        topicId: "debb8c3b-f9bf-4351-9c24-b00febac3fc1",
+        topicId: "04528d78-c188-4dd9-ab8e-f942050bea07",
       };
       const response = await taskService.getTasks(params);
       const tasks = response.data;

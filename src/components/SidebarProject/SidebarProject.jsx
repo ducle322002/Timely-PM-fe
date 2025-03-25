@@ -7,6 +7,8 @@ import "./SidebarProject.scss";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
 import { route } from "../../routes";
+import { CiViewBoard } from "react-icons/ci";
+import { IoRocketOutline } from "react-icons/io5";
 
 export default function SidebarProject() {
   function getItem(label, key, icon, children) {
@@ -29,9 +31,18 @@ export default function SidebarProject() {
       getItem(
         "Board",
         `${route.workspace}/${route.project}/${id}/${route.board}`,
+        <CiViewBoard />
+      ),
+      getItem(
+        "Go to Project",
+        `${route.workspace}/${route.project}/${id}`,
+        <IoRocketOutline />
+      ),
+      getItem(
+        "Back to Home",
+        `${route.home}/${route.introWorkspace}`,
         <HomeOutlined />
       ),
-      getItem("Back to Home", route.welcome, <HomeOutlined />),
     ]);
   }, []);
 
@@ -64,7 +75,7 @@ export default function SidebarProject() {
           mode="inline"
           defaultSelectedKeys={["1"]}
           className="h-full !bg-[#ffffff]"
-          selectedKeys={[currentURI]}
+          selectedKeys={currentURI}
           openKeys={openKeys}
           onOpenChange={handleSubMenuOpen}
         >

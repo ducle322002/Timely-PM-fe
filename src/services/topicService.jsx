@@ -32,6 +32,8 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
 const topicService = {
   getTopics: (params) => request("GET", "topic", null, {}, params),
   createTopic: (topicData) => request("POST", `topic/create`, topicData),
+  updateTopic: (id, topicData, params) =>
+    request("PUT", `topic/${id}`, topicData, {}, params),
 };
 
 export default topicService;

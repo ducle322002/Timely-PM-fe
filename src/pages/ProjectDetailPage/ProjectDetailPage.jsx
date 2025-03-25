@@ -1,4 +1,9 @@
-import { InboxOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  InboxOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import {
   Avatar,
   Button,
@@ -18,7 +23,6 @@ import { FaPlus } from "react-icons/fa";
 import TextArea from "antd/es/input/TextArea";
 import Dragger from "antd/es/upload/Dragger";
 import toast from "react-hot-toast";
-import axios from "axios";
 import projectService from "../../services/projectService";
 import moment from "moment/moment";
 import topicService from "../../services/topicService";
@@ -43,11 +47,14 @@ export default function ProjectDetailPage() {
   const [isInviteMemberModal, setIsInviteMemberModal] = useState(false);
   const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
   const [isProjectMemberModal, setIsProjectMemberModal] = useState(false);
+  const [isUpdateTopicModal, setIsUpdateTopicModal] = useState(false);
+
   const [formInviteMember] = Form.useForm();
   const [formCreateTopic] = Form.useForm();
   const [formCreateTask] = Form.useForm();
   const [formCreateIssue] = Form.useForm();
   const [formCreateQuestion] = Form.useForm();
+  const [formUpdateTopic] = Form.useForm();
 
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
@@ -197,6 +204,19 @@ export default function ProjectDetailPage() {
   const showMemberProjectModal = () => {
     setIsProjectMemberModal(true);
   };
+
+  const showUpdateTopicModal = (topic) => {
+    setIsUpdateTopicModal(true);
+    setSelectedTopic(topic);
+    console.log(topic);
+    formUpdateTopic.setFieldsValue({
+      labels: topic.labels,
+      type: topic.type,
+      description: topic.description,
+      dateRange: [dayjs(topic.startDate), dayjs(topic.dueDate)],
+    });
+  };
+
   const [fileList, setFileList] = useState([]);
 
   const handleInviteMember = async (values) => {
@@ -336,6 +356,35 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleUpdateTopic = async (values) => {
+    const params = {
+      projectId: id,
+    };
+    const requestData = {
+      type: values.type,
+      description: values.description,
+      labels: values.labels,
+      startDate: dayjs(values.dateRange[0]).toISOString(),
+      dueDate: dayjs(values.dateRange[1]).toISOString(),
+    };
+    console.log(requestData);
+    try {
+      const response = await topicService.updateTopic(
+        selectedTopic.id,
+        requestData,
+        params
+      );
+      console.log(response);
+      toast.success("Topic Updated successfully!");
+      fetchProjectDetail();
+      setIsUpdateTopicModal(false);
+      formUpdateTopic.resetFields();
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
   const taskColumns = [
     {
       title: "  ",
@@ -399,38 +448,44 @@ export default function ProjectDetailPage() {
       ),
     },
   ];
+
   const items = topics.map((topic) => {
     return {
       key: topic.id,
       label: (
-        <p
-          style={{
-            color:
-              topic.type === "ISSUE"
-                ? "red"
-                : topic.type === "TASK"
-                ? "#1b97ff"
-                : "orange",
-          }}
-        >
-          {topic.labels}
-        </p>
+        <div className="flex justify-between items-center gap-[10%]">
+          <p
+            style={{
+              color:
+                topic.type === "ISSUE"
+                  ? "red"
+                  : topic.type === "TASK"
+                  ? "#1b97ff"
+                  : "orange",
+            }}
+          >
+            {topic.labels}
+          </p>
+          <SettingOutlined onClick={() => showUpdateTopicModal(topic)} />
+        </div>
       ),
       children: (
         <>
           <div className="flex justify-end items-center mb-[1%]">
             {topic.type === "TASK" ? (
-              <Button
-                icon={<FaPlus />}
-                className="!bg-[#1968db] !text-white"
-                onClick={() => showCreateTaskModal(topic)}
-              >
-                New Task
-              </Button>
+              <>
+                <Button
+                  icon={<FaPlus />}
+                  className="!bg-[#1968db] !text-white !py-[3%]"
+                  onClick={() => showCreateTaskModal(topic)}
+                >
+                  New Task
+                </Button>
+              </>
             ) : topic.type === "ISSUE" ? (
               <Button
                 icon={<FaPlus />}
-                className="!bg-red-500 !text-white"
+                className="!bg-red-500 !text-white !py-[3%]"
                 onClick={() => showCreateIssueModal(topic)}
               >
                 New Issue
@@ -438,7 +493,7 @@ export default function ProjectDetailPage() {
             ) : (
               <Button
                 icon={<FaPlus />}
-                className="!bg-orange-500 !text-white"
+                className="!bg-orange-500 !text-white !py-[3%]"
                 onClick={() => showCreateQuestionModal(topic)}
               >
                 New Question
@@ -452,45 +507,6 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <>
-              {/* {tasks.map((task) => (
-                <>
-                  <div
-                    className="flex justify-between items-center gap-[15%] mt-[1%] cursor-pointer hover:bg-gray-100 py-[3%] px-[2%] rounded-lg"
-                    onClick={() => setSelectedTask(task)} // Update the selected task
-                  >
-                    <div>
-                      <p
-                        className={`font-bold ${
-                          task.priority === "HIGH"
-                            ? "text-red-500"
-                            : task.priority === "MEDIUM"
-                            ? "text-yellow-500"
-                            : "text-green-500"
-                        } 
-                        text-xl`}
-                      >
-                        {task?.label}
-                      </p>
-                      <p>{task?.priority}</p>
-                      <div className="">
-                        <p>
-                          {moment(task?.startDate).format("DD/MM/YYYY")} -{" "}
-                          {moment(task?.dueDate).format("DD/MM/YYYY")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className=" flex justify-between items-center gap-[10%]">
-                      <p className="w-[100px]">{task.user.username}</p>
-                      <Avatar
-                        size="large"
-                        icon={<UserOutlined />}
-                        src={task.user.profile.avatarUrl}
-                      />
-                    </div>
-                  </div>
-                </>
-              ))} */}
-
               <Table
                 className="table-task"
                 rowClassName="cursor-pointer hover:bg-gray-100"
@@ -542,10 +558,10 @@ export default function ProjectDetailPage() {
         }
       }, 1000);
 
-      return 0; // Return 0 if less than 1 day
+      return 0;
     }
 
-    return diffDays; // Return days if more than 1 day
+    return diffDays;
   };
   return (
     <div className="container mx-auto">
@@ -561,7 +577,7 @@ export default function ProjectDetailPage() {
           </h1>
           <Button
             icon={<TeamOutlined />}
-            className="!bg-[#1968db] !text-white mr-[5%]"
+            className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
             onClick={() => showMemberProjectModal()}
           >
             View Members
@@ -571,12 +587,16 @@ export default function ProjectDetailPage() {
         <div className="flex justify-between items-center">
           <Button
             icon={<FaPlus />}
-            className="!bg-[#1968db] !text-white mr-[5%]"
+            className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
             onClick={() => showInviteMemberModal()}
           >
             Invite Member
           </Button>
-          <Button icon={<FaPlus />} onClick={() => showCreateTopicModal()}>
+          <Button
+            icon={<FaPlus />}
+            onClick={() => showCreateTopicModal()}
+            className="!py-[7%]"
+          >
             New Topic
           </Button>
         </div>
@@ -859,7 +879,7 @@ export default function ProjectDetailPage() {
           <Form.Item
             name="label"
             label="Issue Label"
-            rules={[{ required: true, message: "Please enter Task Label" }]}
+            rules={[{ required: true, message: "Please enter Issue Label" }]}
           >
             <Input />
           </Form.Item>
@@ -967,7 +987,7 @@ export default function ProjectDetailPage() {
           <Form.Item
             name="label"
             label="Question Label"
-            rules={[{ required: true, message: "Please enter Task Label" }]}
+            rules={[{ required: true, message: "Please enter Question Label" }]}
           >
             <Input />
           </Form.Item>
@@ -1049,6 +1069,7 @@ export default function ProjectDetailPage() {
           </Form.Item>
         </Form>
       </Modal>
+
       <Modal
         visible={isCreateTopicModal}
         onCancel={() => setIsCreateTopicModal(false)}
@@ -1066,6 +1087,75 @@ export default function ProjectDetailPage() {
           layout="vertical"
           form={formCreateTopic}
           onFinish={handleCreateTopic}
+          requiredMark={false}
+          className="max-h-[50vh] overflow-y-auto"
+        >
+          <Form.Item
+            name="labels"
+            label="Labels"
+            rules={[
+              {
+                required: true,
+                message: "Please Enter Labels Topic",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label="Type"
+            rules={[{ required: true, message: "Please Select Type Topic" }]}
+          >
+            <Select placeholder="Select Type" size="large" allowClear>
+              <Select.Option value="TASK">Task</Select.Option>
+              <Select.Option value="ISSUE">Issue</Select.Option>
+              <Select.Option value="QUESTION">Question</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[
+              { required: true, message: "Please Enter Topic Description" },
+            ]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="dateRange"
+            label="Select Date Start - End"
+            rules={[
+              { required: true, message: "Please Select Date Start - End" },
+            ]}
+          >
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              disabledDate={(current) =>
+                current && current < dayjs().startOf("day")
+              } // Disable past dates
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        visible={isUpdateTopicModal}
+        onCancel={() => setIsUpdateTopicModal(false)}
+        title="Update Topic"
+        footer={
+          <>
+            <Button type="primary" onClick={() => formUpdateTopic.submit()}>
+              Update
+            </Button>
+            <Button onClick={() => setIsUpdateTopicModal(false)}>Cancel</Button>
+          </>
+        }
+      >
+        <Form
+          layout="vertical"
+          form={formUpdateTopic}
+          onFinish={handleUpdateTopic}
           requiredMark={false}
           className="max-h-[50vh] overflow-y-auto"
         >
