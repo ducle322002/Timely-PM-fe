@@ -28,6 +28,8 @@ import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
 import { motion } from "framer-motion";
 import "./ProjectDetailPage.scss";
+import issueService from "../../services/issueService";
+import questionService from "../../services/questionService";
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
@@ -35,15 +37,24 @@ export default function ProjectDetailPage() {
   const [activeTabKey, setActiveTabKey] = useState(null);
   const [defaultTabKey, setDefaultTabKey] = useState("");
   const [isCreateTaskModal, setIsCreateTaskModal] = useState(false);
+  const [isCreateQuestionModal, setIsCreateQuestionModal] = useState(false);
+  const [isCreateIssueModal, setIsCreateIssueModal] = useState(false);
+
   const [isInviteMemberModal, setIsInviteMemberModal] = useState(false);
   const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
   const [isProjectMemberModal, setIsProjectMemberModal] = useState(false);
   const [formInviteMember] = Form.useForm();
   const [formCreateTopic] = Form.useForm();
   const [formCreateTask] = Form.useForm();
+  const [formCreateIssue] = Form.useForm();
+  const [formCreateQuestion] = Form.useForm();
+
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [issues, setIssues] = useState([]);
+  const [questions, setQuestions] = useState([]);
+
   const [selectedTask, setSelectedTask] = useState(null);
 
   const [loadingTasks, setLoadingTasks] = useState(false); // Add loading state
@@ -91,8 +102,57 @@ export default function ProjectDetailPage() {
         topicId: activeTabKey,
       };
       const response = await taskService.getTasks(params);
+      const sortResponse = response.data.sort((a, b) => {
+        const priorityOrder = { HIGH: 1, MEDIUM: 2, LOW: 3 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
+
       console.log(response.data);
-      setTasks(response.data);
+      setTasks(sortResponse);
+    } catch (error) {
+      console.error(error.response.data);
+    } finally {
+      setLoadingTasks(false); // Set loading state to false
+    }
+  };
+
+  const fetchIssue = async () => {
+    setLoadingTasks(true); // Set loading state to true
+
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await issueService.getIssues(params);
+      const sortResponse = response.data.sort((a, b) => {
+        const priorityOrder = { HIGH: 1, MEDIUM: 2, LOW: 3 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
+      console.log(response.data);
+      setIssues(sortResponse);
+    } catch (error) {
+      console.error(error.response.data);
+    } finally {
+      setLoadingTasks(false); // Set loading state to false
+    }
+  };
+
+  const fetchQuestion = async () => {
+    setLoadingTasks(true); // Set loading state to true
+
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await questionService.getQuestions(params);
+      const sortResponse = response.data.sort((a, b) => {
+        const priorityOrder = { HIGH: 1, MEDIUM: 2, LOW: 3 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+      });
+      console.log("question", response.data);
+      setQuestions(sortResponse);
     } catch (error) {
       console.error(error.response.data);
     } finally {
@@ -101,6 +161,8 @@ export default function ProjectDetailPage() {
   };
 
   useEffect(() => {
+    fetchIssue();
+    fetchQuestion();
     fetchTasks();
     fetchMemberProject();
     fetchProjectDetail();
@@ -108,6 +170,18 @@ export default function ProjectDetailPage() {
 
   const showCreateTaskModal = (topic) => {
     setIsCreateTaskModal(true);
+    setSelectedTopic(topic);
+    setActiveTabKey(topic.id);
+  };
+
+  const showCreateIssueModal = (topic) => {
+    setIsCreateIssueModal(true);
+    setSelectedTopic(topic);
+    setActiveTabKey(topic.id);
+  };
+
+  const showCreateQuestionModal = (topic) => {
+    setIsCreateQuestionModal(true);
     setSelectedTopic(topic);
     setActiveTabKey(topic.id);
   };
@@ -218,12 +292,12 @@ export default function ProjectDetailPage() {
     };
     console.log(requestData);
     try {
-      const response = await taskService.createTask(requestData, params);
+      const response = await issueService.createIssue(requestData, params);
       console.log(response);
-      toast.success("Task created successfully!");
-      fetchTasks();
-      setIsCreateTaskModal(false);
-      formCreateTask.resetFields();
+      toast.success("Issue created successfully!");
+      fetchIssue();
+      setIsCreateIssueModal(false);
+      formCreateIssue.resetFields();
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
@@ -247,12 +321,15 @@ export default function ProjectDetailPage() {
     };
     console.log(requestData);
     try {
-      const response = await taskService.createTask(requestData, params);
+      const response = await questionService.createQuestion(
+        requestData,
+        params
+      );
       console.log(response);
       toast.success("Question created successfully!");
-      fetchTasks();
-      setIsCreateTaskModal(false);
-      formCreateTask.resetFields();
+      fetchQuestion();
+      setIsCreateQuestionModal(false);
+      formCreateQuestion.resetFields();
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
@@ -354,7 +431,7 @@ export default function ProjectDetailPage() {
               <Button
                 icon={<FaPlus />}
                 className="!bg-red-500 !text-white"
-                onClick={() => showCreateTaskModal(topic)}
+                onClick={() => showCreateIssueModal(topic)}
               >
                 New Issue
               </Button>
@@ -362,7 +439,7 @@ export default function ProjectDetailPage() {
               <Button
                 icon={<FaPlus />}
                 className="!bg-orange-500 !text-white"
-                onClick={() => showCreateTaskModal(topic)}
+                onClick={() => showCreateQuestionModal(topic)}
               >
                 New Question
               </Button>
@@ -417,7 +494,13 @@ export default function ProjectDetailPage() {
               <Table
                 className="table-task"
                 rowClassName="cursor-pointer hover:bg-gray-100"
-                dataSource={tasks}
+                dataSource={
+                  topic.type === "TASK"
+                    ? tasks
+                    : topic.type === "ISSUE"
+                    ? issues
+                    : questions
+                }
                 columns={taskColumns}
                 pagination={false}
                 bordered={false}
@@ -753,6 +836,219 @@ export default function ProjectDetailPage() {
         </Form>
       </Modal>
 
+      <Modal
+        visible={isCreateIssueModal}
+        onCancel={() => setIsCreateIssueModal(false)}
+        title="Create Issue"
+        footer={
+          <>
+            <Button type="primary" onClick={() => formCreateIssue.submit()}>
+              Create
+            </Button>
+            <Button onClick={() => setIsCreateIssueModal(false)}>Cancel</Button>
+          </>
+        }
+      >
+        <Form
+          form={formCreateIssue}
+          layout="vertical"
+          className="max-h-[50vh] overflow-y-auto"
+          onFinish={handleCreateIssue}
+          requiredMark={false}
+        >
+          <Form.Item
+            name="label"
+            label="Issue Label"
+            rules={[{ required: true, message: "Please enter Task Label" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="summer"
+            label="Issue Summer"
+            rules={[{ required: true, message: "Please Enter Summer" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Issue Description"
+            rules={[{ required: true, message: "Please Enter Description" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="assigneeTo"
+            label="Assign to"
+            rules={[{ required: true, message: "Please Select Assignee" }]}
+          >
+            <Select placeholder="Select Team member" size="large">
+              {members.map((member) => (
+                <Select.Option value={member.id}>
+                  <div className="!flex !justify-start !items-center !gap-[5%]">
+                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                    <span>{member.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="attachment" label="Attachment">
+            <Dragger
+              fileList={fileList}
+              beforeUpload={() => false}
+              onChange={handleFileChange}
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag file to this area to upload
+              </p>
+              <p className="ant-upload-hint">
+                Support for a single or bulk upload. Strictly prohibited from
+                uploading company data or other banned files.
+              </p>
+            </Dragger>
+          </Form.Item>
+
+          <Form.Item
+            name="dateRange"
+            label="Select Date Start - End"
+            rules={[
+              { required: true, message: "Please Select Date Start - End" },
+            ]}
+          >
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              disabledDate={(current) =>
+                current && current < dayjs().startOf("day")
+              } // Disable past dates
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="priority"
+            label="Priority"
+            rules={[{ required: true, message: "Please Select Priority" }]}
+          >
+            <Select placeholder="Select Priority" size="large">
+              <Select.Option value="HIGH">High</Select.Option>
+              <Select.Option value="MEDIUM">Medium</Select.Option>
+              <Select.Option value="LOW">Low</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        visible={isCreateQuestionModal}
+        onCancel={() => setIsCreateQuestionModal(false)}
+        title="Create Question"
+        footer={
+          <>
+            <Button type="primary" onClick={() => formCreateQuestion.submit()}>
+              Create
+            </Button>
+            <Button onClick={() => setIsCreateQuestionModal(false)}>
+              Cancel
+            </Button>
+          </>
+        }
+      >
+        <Form
+          form={formCreateQuestion}
+          layout="vertical"
+          className="max-h-[50vh] overflow-y-auto"
+          onFinish={handleCreateQuestion}
+          requiredMark={false}
+        >
+          <Form.Item
+            name="label"
+            label="Question Label"
+            rules={[{ required: true, message: "Please enter Task Label" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="summer"
+            label="Question Summer"
+            rules={[{ required: true, message: "Please Enter Summer" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Question Description"
+            rules={[{ required: true, message: "Please Enter Description" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="assigneeTo"
+            label="Assign to"
+            rules={[{ required: true, message: "Please Select Assignee" }]}
+          >
+            <Select placeholder="Select Team member" size="large">
+              {members.map((member) => (
+                <Select.Option value={member.id}>
+                  <div className="!flex !justify-start !items-center !gap-[5%]">
+                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                    <span>{member.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item name="attachment" label="Attachment">
+            <Dragger
+              fileList={fileList}
+              beforeUpload={() => false}
+              onChange={handleFileChange}
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag file to this area to upload
+              </p>
+              <p className="ant-upload-hint">
+                Support for a single or bulk upload. Strictly prohibited from
+                uploading company data or other banned files.
+              </p>
+            </Dragger>
+          </Form.Item>
+
+          <Form.Item
+            name="dateRange"
+            label="Select Date Start - End"
+            rules={[
+              { required: true, message: "Please Select Date Start - End" },
+            ]}
+          >
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              disabledDate={(current) =>
+                current && current < dayjs().startOf("day")
+              } // Disable past dates
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="priority"
+            label="Priority"
+            rules={[{ required: true, message: "Please Select Priority" }]}
+          >
+            <Select placeholder="Select Priority" size="large">
+              <Select.Option value="HIGH">High</Select.Option>
+              <Select.Option value="MEDIUM">Medium</Select.Option>
+              <Select.Option value="LOW">Low</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
+      </Modal>
       <Modal
         visible={isCreateTopicModal}
         onCancel={() => setIsCreateTopicModal(false)}
