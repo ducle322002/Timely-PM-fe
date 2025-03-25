@@ -172,37 +172,6 @@ export default function ProjectDetailPage() {
     setFileList(info.fileList);
   };
 
-  const uploadFile = async () => {
-    if (fileList.length === 0) {
-      toast.warning("Please select a file to upload.");
-      return;
-    }
-
-    const formData = new FormData();
-    fileList.forEach((file) => {
-      formData.append("files", file.originFileObj);
-    });
-    console.log(formData);
-    setFileList([]);
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      toast.success("File uploaded successfully!");
-      console.log(response.data);
-    } catch (error) {
-      toast.error("File upload failed!");
-      console.error(error);
-    }
-  };
-
   const handleCreateTask = async (values) => {
     const params = {
       projectId: id,
@@ -232,11 +201,70 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleCreateIssue = async (values) => {
+    const params = {
+      projectId: id,
+      topicId: selectedTopic.id,
+    };
+    const requestData = {
+      assigneeTo: values.assigneeTo,
+      label: values.label,
+      summer: values.summer,
+      description: values.description,
+      startDate: dayjs(values.dateRange[0]).toISOString(),
+      dueDate: dayjs(values.dateRange[1]).toISOString(),
+      priority: values.priority,
+      attachment: "string",
+    };
+    console.log(requestData);
+    try {
+      const response = await taskService.createTask(requestData, params);
+      console.log(response);
+      toast.success("Task created successfully!");
+      fetchTasks();
+      setIsCreateTaskModal(false);
+      formCreateTask.resetFields();
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
+  const handleCreateQuestion = async (values) => {
+    const params = {
+      projectId: id,
+      topicId: selectedTopic.id,
+    };
+    const requestData = {
+      assigneeTo: values.assigneeTo,
+      label: values.label,
+      summer: values.summer,
+      description: values.description,
+      startDate: dayjs(values.dateRange[0]).toISOString(),
+      dueDate: dayjs(values.dateRange[1]).toISOString(),
+      priority: values.priority,
+      attachment: "string",
+    };
+    console.log(requestData);
+    try {
+      const response = await taskService.createTask(requestData, params);
+      console.log(response);
+      toast.success("Question created successfully!");
+      fetchTasks();
+      setIsCreateTaskModal(false);
+      formCreateTask.resetFields();
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
   const taskColumns = [
     {
       title: "  ",
       dataIndex: "label",
       key: "label",
+      width: 300,
       render: (text, task) => (
         <div>
           <p
@@ -314,14 +342,33 @@ export default function ProjectDetailPage() {
       children: (
         <>
           <div className="flex justify-end items-center mb-[1%]">
-            <Button
-              icon={<FaPlus />}
-              className="!bg-[#1968db] !text-white"
-              onClick={() => showCreateTaskModal(topic)}
-            >
-              New Task
-            </Button>
+            {topic.type === "TASK" ? (
+              <Button
+                icon={<FaPlus />}
+                className="!bg-[#1968db] !text-white"
+                onClick={() => showCreateTaskModal(topic)}
+              >
+                New Task
+              </Button>
+            ) : topic.type === "ISSUE" ? (
+              <Button
+                icon={<FaPlus />}
+                className="!bg-red-500 !text-white"
+                onClick={() => showCreateTaskModal(topic)}
+              >
+                New Issue
+              </Button>
+            ) : (
+              <Button
+                icon={<FaPlus />}
+                className="!bg-orange-500 !text-white"
+                onClick={() => showCreateTaskModal(topic)}
+              >
+                New Question
+              </Button>
+            )}
           </div>
+
           {loadingTasks ? (
             <div className="flex justify-center items-center">
               <Spin size="large" />
