@@ -23,6 +23,7 @@ export default function LoginPage() {
       const user = {
         username: response.data.username,
         id: response.data.id,
+        role: response.data.role,
       };
       Cookies.set("user", JSON.stringify(user));
       navigate(`${route.home}/${route.introWorkspace}`);
