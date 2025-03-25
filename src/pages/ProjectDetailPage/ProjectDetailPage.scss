@@ -5,11 +5,13 @@
 
   .ant-table-cell {
     border: none !important;
-    //   background-color: #ffffff !important;
   }
 
   .ant-table-cell::before {
     border: none !important;
-    background-color: #ffffff !important;
+    background-color: #fbfbfb !important;
+  }
+  .ant-table-thead > tr > th {
+    background: #ffffff !important;
   }
 }
