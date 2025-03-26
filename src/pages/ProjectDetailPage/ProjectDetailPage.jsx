@@ -59,6 +59,10 @@ export default function ProjectDetailPage() {
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
+  const [taskDetail, setTaskDetail] = useState({});
+  const [issueDetail, setIssueDetail] = useState({});
+  const [questionDetail, setQuestionDetail] = useState({});
+
   const [issues, setIssues] = useState([]);
   const [questions, setQuestions] = useState([]);
 
@@ -120,6 +124,51 @@ export default function ProjectDetailPage() {
       console.error(error.response.data);
     } finally {
       setLoadingTasks(false); // Set loading state to false
+    }
+  };
+
+  const fetchTaskDetail = async (task) => {
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await taskService.getTasksDetail(task.id, params);
+
+      console.log("Task Detail", response.data);
+      setTaskDetail(response.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  };
+
+  const fetchIssueDetail = async (issue) => {
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await taskService.getTasksDetail(issue.id, params);
+
+      console.log("Task Detail", response.data);
+      setIssueDetail(response.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  };
+
+  const fetchQuestionDetail = async (question) => {
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await taskService.getTasksDetail(question.id, params);
+
+      console.log("Task Detail", response.data);
+      setQuestionDetail(response.data);
+    } catch (error) {
+      console.error(error.response.data);
     }
   };
 
@@ -449,58 +498,101 @@ export default function ProjectDetailPage() {
     },
   ];
 
-  const items = topics.map((topic) => {
-    return {
-      key: topic.id,
-      label: (
-        <div className="flex justify-between items-center gap-[10%]">
-          <p
-            style={{
-              color:
-                topic.type === "ISSUE"
-                  ? "red"
-                  : topic.type === "TASK"
-                  ? "#1b97ff"
-                  : "orange",
-            }}
-          >
-            {topic.labels}
-          </p>
-          <SettingOutlined onClick={() => showUpdateTopicModal(topic)} />
-        </div>
-      ),
-      children: (
-        <>
-          <div className="flex justify-end items-center mb-[1%]">
-            {topic.type === "TASK" ? (
-              <>
+  const items = [
+    ...topics.map((topic) => {
+      return {
+        key: topic.id,
+        label: (
+          <div className="flex justify-between items-center gap-[10%]">
+            <p
+              style={{
+                color:
+                  topic.type === "ISSUE"
+                    ? "red"
+                    : topic.type === "TASK"
+                    ? "#1b97ff"
+                    : "orange",
+              }}
+            >
+              {topic.labels}
+            </p>
+            <SettingOutlined onClick={() => showUpdateTopicModal(topic)} />
+          </div>
+        ),
+        children: (
+          <>
+            <div className="flex justify-end items-center mb-[1%]">
+              {topic.type === "TASK" ? (
+                <>
+                  <Button
+                    icon={<FaPlus />}
+                    className="!bg-[#1968db] !text-white !py-[3%]"
+                    onClick={() => showCreateTaskModal(topic)}
+                  >
+                    New Task
+                  </Button>
+                </>
+              ) : topic.type === "ISSUE" ? (
                 <Button
                   icon={<FaPlus />}
-                  className="!bg-[#1968db] !text-white !py-[3%]"
-                  onClick={() => showCreateTaskModal(topic)}
+                  className="!bg-red-500 !text-white !py-[3%]"
+                  onClick={() => showCreateIssueModal(topic)}
                 >
-                  New Task
+                  New Issue
                 </Button>
-              </>
-            ) : topic.type === "ISSUE" ? (
-              <Button
-                icon={<FaPlus />}
-                className="!bg-red-500 !text-white !py-[3%]"
-                onClick={() => showCreateIssueModal(topic)}
-              >
-                New Issue
-              </Button>
-            ) : (
-              <Button
-                icon={<FaPlus />}
-                className="!bg-orange-500 !text-white !py-[3%]"
-                onClick={() => showCreateQuestionModal(topic)}
-              >
-                New Question
-              </Button>
-            )}
-          </div>
+              ) : (
+                <Button
+                  icon={<FaPlus />}
+                  className="!bg-orange-500 !text-white !py-[3%]"
+                  onClick={() => showCreateQuestionModal(topic)}
+                >
+                  New Question
+                </Button>
+              )}
+            </div>
 
+            {loadingTasks ? (
+              <div className="flex justify-center items-center">
+                <Spin size="large" />
+              </div>
+            ) : (
+              <>
+                <Table
+                  className="table-task"
+                  rowClassName="cursor-pointer hover:bg-gray-100"
+                  dataSource={
+                    topic.type === "TASK"
+                      ? tasks
+                      : topic.type === "ISSUE"
+                      ? issues
+                      : questions
+                  }
+                  columns={taskColumns}
+                  pagination={false}
+                  bordered={false}
+                  rowHoverable={false}
+                  onRow={(record) => ({
+                    onClick: () => {
+                      setSelectedTask(record);
+                      topic.type === "TASK"
+                        ? fetchTaskDetail(record)
+                        : topic.type === "ISSUE"
+                        ? fetchIssueDetail(record)
+                        : fetchQuestionDetail(record);
+                    },
+                  })}
+                />
+              </>
+            )}
+          </>
+        ),
+      };
+    }),
+    {
+      key: "assignedToMe",
+      label: "Assigned to Me",
+      children: (
+        <>
           {loadingTasks ? (
             <div className="flex justify-center items-center">
               <Spin size="large" />
@@ -510,13 +602,13 @@ export default function ProjectDetailPage() {
               <Table
                 className="table-task"
                 rowClassName="cursor-pointer hover:bg-gray-100"
-                dataSource={
-                  topic.type === "TASK"
-                    ? tasks
-                    : topic.type === "ISSUE"
-                    ? issues
-                    : questions
-                }
+                dataSource={[
+                  ...tasks.filter((task) => task.user.id === user.id),
+                  ...issues.filter((issue) => issue.user.id === user.id),
+                  ...questions.filter(
+                    (question) => question.user.id === user.id
+                  ),
+                ]}
                 columns={taskColumns}
                 pagination={false}
                 bordered={false}
@@ -524,6 +616,7 @@ export default function ProjectDetailPage() {
                 onRow={(record) => ({
                   onClick: () => {
                     setSelectedTask(record);
+                    fetchTaskDetail(record.id);
                   },
                 })}
               />
@@ -531,8 +624,9 @@ export default function ProjectDetailPage() {
           )}
         </>
       ),
-    };
-  });
+    },
+  ];
+
   const dateLeft = (dueDate) => {
     const currentDate = new Date();
     const dueDateConvert = new Date(dueDate);

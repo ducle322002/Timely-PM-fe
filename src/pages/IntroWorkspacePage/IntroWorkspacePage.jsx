@@ -34,13 +34,10 @@ export default function IntroWorkspacePage() {
   };
   const fetchProject = async () => {
     try {
-      const response = await projectService.getProjects();
-      const filteredResponse = response.data.filter(
-        (project) => project.userId === user.id
-      );
-      console.log(filteredResponse);
+      const response = await projectService.getProjectsForUser();
+
       console.log(response.data);
-      setProjects(filteredResponse);
+      setProjects(response.data);
     } catch (error) {
       console.log(error);
     }

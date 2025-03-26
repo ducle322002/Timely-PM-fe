@@ -37,6 +37,7 @@ const projectService = {
   //   request("PUT", `/products/${id}`, productData),
   // deleteProduct: (id) => request("DELETE", `/products/${id}`),
   getProjects: () => request("GET", "project"),
+  getProjectsForUser: () => request("GET", "project/user"),
   getMembers: (projectIdParam) =>
     request("GET", `member`, null, {}, projectIdParam),
   inviteMember: (projectId, params) =>
