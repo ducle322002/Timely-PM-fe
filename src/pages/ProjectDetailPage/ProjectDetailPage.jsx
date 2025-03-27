@@ -49,17 +49,21 @@ export default function ProjectDetailPage() {
   const [isProjectMemberModal, setIsProjectMemberModal] = useState(false);
   const [isUpdateTopicModal, setIsUpdateTopicModal] = useState(false);
 
+  const [isCreateIssueInTaskModal, setIsCreateIssueInTaskModal] =
+    useState(false);
+
   const [formInviteMember] = Form.useForm();
   const [formCreateTopic] = Form.useForm();
   const [formCreateTask] = Form.useForm();
   const [formCreateIssue] = Form.useForm();
   const [formCreateQuestion] = Form.useForm();
   const [formUpdateTopic] = Form.useForm();
+  const [formCreateIssueInTask] = Form.useForm();
 
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [taskDetail, setTaskDetail] = useState({});
+  const [taskDetail, setTaskDetail] = useState(null);
   const [issueDetail, setIssueDetail] = useState({});
   const [questionDetail, setQuestionDetail] = useState({});
 
@@ -118,7 +122,7 @@ export default function ProjectDetailPage() {
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       });
 
-      console.log(response.data);
+      console.log("task", response.data);
       setTasks(sortResponse);
     } catch (error) {
       console.error(error.response.data);
@@ -165,7 +169,7 @@ export default function ProjectDetailPage() {
       };
       const response = await taskService.getTasksDetail(question.id, params);
 
-      console.log("Task Detail", response.data);
+      console.log("Question Detail", response.data);
       setQuestionDetail(response.data);
     } catch (error) {
       console.error(error.response.data);
@@ -185,7 +189,7 @@ export default function ProjectDetailPage() {
         const priorityOrder = { HIGH: 1, MEDIUM: 2, LOW: 3 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       });
-      console.log(response.data);
+      console.log("issue", response.data);
       setIssues(sortResponse);
     } catch (error) {
       console.error(error.response.data);
@@ -252,6 +256,11 @@ export default function ProjectDetailPage() {
 
   const showMemberProjectModal = () => {
     setIsProjectMemberModal(true);
+  };
+
+  const showCreateIssueInTaskModal = (task) => {
+    setIsCreateIssueInTaskModal(true);
+    setSelectedTask(task);
   };
 
   const showUpdateTopicModal = (topic) => {
@@ -322,6 +331,7 @@ export default function ProjectDetailPage() {
     };
     const requestData = {
       assigneeTo: values.assigneeTo,
+      reporter: values.reporter,
       label: values.label,
       summer: values.summer,
       description: values.description,
@@ -434,6 +444,39 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleCreateIssueInTask = async (values) => {
+    const params = {
+      projectId: id,
+      topicId: activeTabKey,
+    };
+    const requestData = {
+      label: values.label,
+      summer: values.summer,
+      description: values.description,
+      attachment: "string",
+      startDate: dayjs(values.dateRange[0]).toISOString(),
+      dueDate: dayjs(values.dateRange[1]).toISOString(),
+      priority: values.priority,
+      severity: values.severity,
+    };
+    console.log(requestData);
+    try {
+      const response = await taskService.createIssueInTask(
+        taskDetail.id,
+        requestData,
+        params
+      );
+      console.log(response);
+      toast.success("Issue created successfully!");
+      fetchTasks();
+      setIsCreateIssueInTaskModal(false);
+      formCreateIssueInTask.resetFields();
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
   const taskColumns = [
     {
       title: "  ",
@@ -471,27 +514,27 @@ export default function ProjectDetailPage() {
       align: "center",
       render: (text, task) => (
         <div className=" flex justify-center items-center gap-[10%]">
-          <p className="">{task.user.username}</p>
+          <p className="">{task.assignee.username}</p>
           <Avatar
             size="large"
             icon={<UserOutlined />}
-            src={task.user.profile.avatarUrl}
+            src={task.assignee.profile.avatarUrl}
           />
         </div>
       ),
     },
     {
       title: "Reporter",
-      dataIndex: "user.username",
+      dataIndex: "reporter.username",
       key: "reporter",
       align: "center",
       render: (text, task) => (
         <div className=" flex justify-center items-center gap-[10%]">
-          <p className="">{task.user.username}</p>
+          <p className="">{task.reporter.username}</p>
           <Avatar
             size="large"
             icon={<UserOutlined />}
-            src={task.user.profile.avatarUrl}
+            src={task.reporter.profile.avatarUrl}
           />
         </div>
       ),
@@ -521,35 +564,37 @@ export default function ProjectDetailPage() {
         ),
         children: (
           <>
-            <div className="flex justify-end items-center mb-[1%]">
-              {topic.type === "TASK" ? (
-                <>
+            {projectDetail.userId === user.id && (
+              <div className="flex justify-end items-center mb-[1%]">
+                {topic.type === "TASK" ? (
+                  <>
+                    <Button
+                      icon={<FaPlus />}
+                      className="!bg-[#1968db] !text-white !py-[3%]"
+                      onClick={() => showCreateTaskModal(topic)}
+                    >
+                      New Task
+                    </Button>
+                  </>
+                ) : topic.type === "ISSUE" ? (
                   <Button
                     icon={<FaPlus />}
-                    className="!bg-[#1968db] !text-white !py-[3%]"
-                    onClick={() => showCreateTaskModal(topic)}
+                    className="!bg-red-500 !text-white !py-[3%]"
+                    onClick={() => showCreateIssueModal(topic)}
                   >
-                    New Task
+                    New Issue
                   </Button>
-                </>
-              ) : topic.type === "ISSUE" ? (
-                <Button
-                  icon={<FaPlus />}
-                  className="!bg-red-500 !text-white !py-[3%]"
-                  onClick={() => showCreateIssueModal(topic)}
-                >
-                  New Issue
-                </Button>
-              ) : (
-                <Button
-                  icon={<FaPlus />}
-                  className="!bg-orange-500 !text-white !py-[3%]"
-                  onClick={() => showCreateQuestionModal(topic)}
-                >
-                  New Question
-                </Button>
-              )}
-            </div>
+                ) : (
+                  <Button
+                    icon={<FaPlus />}
+                    className="!bg-orange-500 !text-white !py-[3%]"
+                    onClick={() => showCreateQuestionModal(topic)}
+                  >
+                    New Question
+                  </Button>
+                )}
+              </div>
+            )}
 
             {loadingTasks ? (
               <div className="flex justify-center items-center">
@@ -669,31 +714,35 @@ export default function ProjectDetailPage() {
           <h1 className="text-2xl font-bold text-nowrap">
             {projectDetail.name}
           </h1>
-          <Button
-            icon={<TeamOutlined />}
-            className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
-            onClick={() => showMemberProjectModal()}
-          >
-            View Members
-          </Button>
+          {projectDetail.userId === user.id && (
+            <Button
+              icon={<TeamOutlined />}
+              className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
+              onClick={() => showMemberProjectModal()}
+            >
+              View Members
+            </Button>
+          )}
         </div>
 
-        <div className="flex justify-between items-center">
-          <Button
-            icon={<FaPlus />}
-            className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
-            onClick={() => showInviteMemberModal()}
-          >
-            Invite Member
-          </Button>
-          <Button
-            icon={<FaPlus />}
-            onClick={() => showCreateTopicModal()}
-            className="!py-[7%]"
-          >
-            New Topic
-          </Button>
-        </div>
+        {projectDetail.userId === user.id && (
+          <div className="flex justify-between items-center">
+            <Button
+              icon={<FaPlus />}
+              className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
+              onClick={() => showInviteMemberModal()}
+            >
+              Invite Member
+            </Button>
+            <Button
+              icon={<FaPlus />}
+              onClick={() => showCreateTopicModal()}
+              className="!py-[7%]"
+            >
+              New Topic
+            </Button>
+          </div>
+        )}
       </motion.div>
       {items.length === 0 ? (
         <></>
@@ -714,9 +763,9 @@ export default function ProjectDetailPage() {
               className="w-[50%]"
             />
             <div className="w-[50%] p-4">
-              {selectedTask ? (
+              {taskDetail ? (
                 <motion.div
-                  key={selectedTask.id}
+                  key={taskDetail.id}
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.4 }}
@@ -724,65 +773,103 @@ export default function ProjectDetailPage() {
                 >
                   <h2
                     className={`text-xl font-semibold mb-2 ${
-                      selectedTask.priority === "HIGH"
+                      taskDetail.priority === "HIGH"
                         ? "text-red-500"
-                        : selectedTask.priority === "MEDIUM"
+                        : taskDetail.priority === "MEDIUM"
                         ? "text-yellow-500"
                         : "text-green-500"
                     } `}
                   >
-                    {selectedTask.label}
+                    {taskDetail.label}
                   </h2>
-                  <p className="text-gray-600 mb-4">{selectedTask.summer}</p>
+                  <p className="text-gray-600 mb-4">{taskDetail.summer}</p>
                   <div className="mb-4">
                     <p className="font-medium text-gray-700 mb-1">
                       Description
                     </p>
                     <p className="text-gray-500 whitespace-pre-line">
-                      {selectedTask.description}
+                      {taskDetail.description}
                     </p>
                   </div>
                   <div className="flex items-center gap-4 mb-4">
-                    <Avatar src={selectedTask?.user?.profile?.avatarUrl} />
-                    <span className="text-gray-700 font-medium">
-                      {selectedTask?.user?.username}
-                    </span>
+                    <p className="w-25">Assign to: </p>
+                    <div className="flex items-center gap-4">
+                      <Avatar src={taskDetail?.assignee?.profile?.avatarUrl} />
+                      <span className="text-gray-700 font-medium">
+                        {taskDetail?.assignee?.username}
+                      </span>
+                    </div>
                   </div>
+
+                  <div className="flex items-center gap-4 mb-4">
+                    <p className="w-25">Reported by: </p>
+                    <div className="flex items-center gap-4">
+                      <Avatar src={taskDetail?.reporter?.profile?.avatarUrl} />
+                      <span className="text-gray-700 font-medium">
+                        {taskDetail?.reporter?.username}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 mb-4">
+                    <p className="w-25">Created by: </p>
+                    <div className="flex items-center gap-4">
+                      <Avatar src={taskDetail?.user?.profile?.avatarUrl} />
+                      <span className="text-gray-700 font-medium">
+                        {taskDetail?.user?.username}
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="flex gap-6 mb-4">
                     <div>
                       <p className="text-sm text-gray-500">Start Date</p>
-                      <p>
-                        {moment(selectedTask.startDate).format("DD/MM/YYYY")}
-                      </p>
+                      <p>{moment(taskDetail.startDate).format("DD/MM/YYYY")}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Due Date</p>
-                      <p>{moment(selectedTask.dueDate).format("DD/MM/YYYY")}</p>
+                      <p>{moment(taskDetail.dueDate).format("DD/MM/YYYY")}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Days Left</p>
-                      {dateLeft(selectedTask.dueDate) < 1 ? (
+                      {dateLeft(taskDetail.dueDate) < 1 ? (
                         <p className="text-red-500 font-bold">{countdown}</p>
                       ) : (
-                        <p>{dateLeft(selectedTask.dueDate)} days</p>
+                        <p>{dateLeft(taskDetail.dueDate)} days</p>
                       )}
                     </div>
                   </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-500">Priority</p>
-                    <p>
-                      <span
-                        className={`inline-block px-3 py-1 text-white rounded-full ${
-                          selectedTask.priority === "HIGH"
-                            ? "bg-red-500"
-                            : selectedTask.priority === "MEDIUM"
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                        }`}
-                      >
-                        {selectedTask.priority}
-                      </span>
-                    </p>
+                  <div className="mb-4 flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-gray-500">Priority</p>
+                      <p>
+                        <span
+                          className={`inline-block px-3 py-1 text-white rounded-full ${
+                            taskDetail.priority === "HIGH"
+                              ? "bg-red-500"
+                              : taskDetail.priority === "MEDIUM"
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
+                          }`}
+                        >
+                          {taskDetail.priority}
+                        </span>
+                      </p>
+                    </div>
+                    {taskDetail.reporter.id === user.id && (
+                      <div>
+                        <p className="text-sm text-gray-500 text-end">
+                          Having Issue ?
+                        </p>
+                        <Button
+                          color="danger"
+                          variant="solid"
+                          onClick={() => showCreateIssueInTaskModal(taskDetail)}
+                        >
+                          Create Issue
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 mb-2">Attachments</p>
@@ -891,6 +978,23 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Select Assignee" }]}
           >
             <Select placeholder="Select Team member" size="large">
+              {members.map((member) => (
+                <Select.Option value={member.id}>
+                  <div className="!flex !justify-start !items-center !gap-[5%]">
+                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                    <span>{member.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="reporter"
+            label="Reporter"
+            rules={[{ required: true, message: "Please Select Reporter" }]}
+          >
+            <Select placeholder="Select Reporter" size="large">
               {members.map((member) => (
                 <Select.Option value={member.id}>
                   <div className="!flex !justify-start !items-center !gap-[5%]">
@@ -1325,6 +1429,115 @@ export default function ProjectDetailPage() {
             </div>
           ))}
         </div>
+      </Modal>
+
+      <Modal
+        visible={isCreateIssueInTaskModal}
+        onCancel={() => setIsCreateIssueInTaskModal(false)}
+        title={`Create Issue In Task ${taskDetail?.label}`}
+        footer={
+          <>
+            <Button
+              type="primary"
+              onClick={() => formCreateIssueInTask.submit()}
+            >
+              Create Issue
+            </Button>
+            <Button onClick={() => setIsCreateIssueInTaskModal(false)}>
+              Cancel
+            </Button>
+          </>
+        }
+      >
+        <Form
+          form={formCreateIssueInTask}
+          layout="vertical"
+          className="max-h-[50vh] overflow-y-auto"
+          onFinish={handleCreateIssueInTask}
+          requiredMark={false}
+        >
+          <Form.Item
+            name="label"
+            label="Issue Label"
+            rules={[{ required: true, message: "Please enter Issue Label" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="summer"
+            label="Issue Summer"
+            rules={[{ required: true, message: "Please Enter Summer" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Issue Description"
+            rules={[{ required: true, message: "Please Enter Description" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+
+          <Form.Item name="attachment" label="Attachment">
+            <Dragger
+              fileList={fileList}
+              beforeUpload={() => false}
+              onChange={handleFileChange}
+            >
+              <p className="ant-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="ant-upload-text">
+                Click or drag file to this area to upload
+              </p>
+              <p className="ant-upload-hint">
+                Support for a single or bulk upload. Strictly prohibited from
+                uploading company data or other banned files.
+              </p>
+            </Dragger>
+          </Form.Item>
+
+          <Form.Item
+            name="dateRange"
+            label="Select Date Start - End"
+            rules={[
+              { required: true, message: "Please Select Date Start - End" },
+            ]}
+          >
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              disabledDate={(current) =>
+                current && current < dayjs().startOf("day")
+              } // Disable past dates
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="priority"
+            label="Priority"
+            rules={[{ required: true, message: "Please Select Priority" }]}
+          >
+            <Select placeholder="Select Priority" size="large">
+              <Select.Option value="HIGH">High</Select.Option>
+              <Select.Option value="MEDIUM">Medium</Select.Option>
+              <Select.Option value="LOW">Low</Select.Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="severity"
+            label="Severity"
+            rules={[{ required: true, message: "Please Select Severity" }]}
+          >
+            <Select placeholder="Select severity" size="large">
+              <Select.Option value="MINOR">Minor</Select.Option>
+              <Select.Option value="MODERATE">Moderate</Select.Option>
+              <Select.Option value="SIGNIFICANT">Significant</Select.Option>
+              <Select.Option value="SEVERE">Severe</Select.Option>
+              <Select.Option value="CATASTROPHIC">Catastrophic</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

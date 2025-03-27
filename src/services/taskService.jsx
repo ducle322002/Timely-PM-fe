@@ -36,6 +36,9 @@ const taskService = {
     request("GET", `task/${id}`, null, {}, params),
   createTask: (taskData, topicParams) =>
     request("POST", `task/create`, taskData, null, topicParams),
+
+  createIssueInTask: (taskId, issueData, taskParams) =>
+    request("POST", `task/${taskId}/issue`, issueData, null, taskParams),
 };
 
 export default taskService;
