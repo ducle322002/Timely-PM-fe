@@ -6,6 +6,7 @@ import { Avatar, Tabs } from "antd";
 import projectService from "../../services/projectService";
 import toast from "react-hot-toast";
 import { UserOutlined } from "@ant-design/icons";
+import { motion } from "framer-motion";
 
 export default function BoardPage() {
   const [tasksByStatus, setTasksByStatus] = useState({
@@ -241,7 +242,12 @@ export default function BoardPage() {
   ];
 
   return (
-    <>
+    <motion.div
+      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.4 }}
+      className="container mx-auto"
+    >
       <h1 className="text-2xl font-bold">Task Status Management Board</h1>
       <Tabs
         defaultActiveKey={defaultTabKey}
@@ -251,6 +257,6 @@ export default function BoardPage() {
         size="large"
         className="w-[100%]"
       />
-    </>
+    </motion.div>
   );
 }
