@@ -18,12 +18,11 @@ export default function SidebarProject() {
   const [items, setItems] = useState([]);
   const [key, setKey] = useState();
   const location = useLocation();
-  const currentURI =
-    location.pathname.split("/")[location.pathname.split("/").length - 1];
-
+  const currentURI = location.pathname; // Use the full pathname
   const dataOpen = JSON.parse(localStorage.getItem("keys")) ?? [];
-  const { id } = useParams();
+
   const [openKeys, setOpenKeys] = useState(dataOpen);
+  const { id } = useParams();
   const user = useSelector(selectUser);
 
   useEffect(() => {
@@ -44,7 +43,7 @@ export default function SidebarProject() {
         <HomeOutlined />
       ),
     ]);
-  }, []);
+  }, [id]);
 
   const handleSubMenuOpen = (keyMenuItem) => {
     setOpenKeys(keyMenuItem);
@@ -59,6 +58,7 @@ export default function SidebarProject() {
   useEffect(() => {
     handleSubMenuOpen([...openKeys, key]);
   }, [currentURI]);
+
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -75,7 +75,7 @@ export default function SidebarProject() {
           mode="inline"
           defaultSelectedKeys={["1"]}
           className="h-full !bg-[#ffffff]"
-          selectedKeys={currentURI}
+          selectedKeys={[currentURI]} // Ensure this is set correctly for selection
           openKeys={openKeys}
           onOpenChange={handleSubMenuOpen}
         >

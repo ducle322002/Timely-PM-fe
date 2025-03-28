@@ -39,7 +39,7 @@ export default function ProjectLayout() {
 
           {/* <Outlet /> */}
 
-          <Content className="!p-4 flex flex-col">
+          <Content className="!p-4 flex flex-col overflow-x-auto">
             <Breadcrumb>
               {location.pathname.split("/").map((path, index, array) => {
                 if (index === 0) {

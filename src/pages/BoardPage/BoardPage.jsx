@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import taskService from "../../services/taskService";
-import { Tabs } from "antd";
+import { Avatar, Tabs } from "antd";
 import projectService from "../../services/projectService";
 import toast from "react-hot-toast";
+import { UserOutlined } from "@ant-design/icons";
 
 export default function BoardPage() {
   const [tasksByStatus, setTasksByStatus] = useState({
@@ -28,8 +29,10 @@ export default function BoardPage() {
         b.type.localeCompare(a.type)
       );
       setTopics(sortedTopics);
+      // Set the default tab key after topics are sorted
       if (sortedTopics.length > 0) {
-        setDefaultTabKey(sortedTopics[0].id);
+        setDefaultTabKey(sortedTopics[0].id); // Default to the first topic's ID
+        setActiveTabKey(sortedTopics[0].id); // Set active tab to the first topic
       }
     } catch (error) {
       console.error(error.response.data);
@@ -61,8 +64,13 @@ export default function BoardPage() {
 
   useEffect(() => {
     fetchProjectDetail();
-    fetchTasks();
-  }, [id, activeTabKey]);
+  }, [id]);
+
+  useEffect(() => {
+    if (activeTabKey) {
+      fetchTasks();
+    }
+  }, [activeTabKey]);
 
   const onDragEnd = async (result) => {
     if (!result.destination) {
@@ -118,13 +126,10 @@ export default function BoardPage() {
           ref={provided.innerRef}
           style={{
             background: color,
-            padding: "20px",
-            width: "300px",
-            borderRadius: "8px",
-            flexGrow: 1,
           }}
+          className="space-y-4 min-w-[300px] rounded-2xl p-[2%] shadow-md flex-1 flex-grow"
         >
-          <h2 className="text-xl font-bold mb-[5%]">{title}</h2>
+          <h2 className="text-xl font-bold mb-4">{title}</h2>
           {tasksByStatus[status].map((task, index) => (
             <Draggable key={task.id} draggableId={task.id} index={index}>
               {(provided) => (
@@ -132,16 +137,61 @@ export default function BoardPage() {
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
+                  className="bg-white rounded-lg shadow-md p-4 transition-transform transform hover:scale-105"
                   style={{
                     userSelect: "none",
-                    padding: 16,
-                    margin: "0 0 8px 0",
-                    backgroundColor: "#fff",
-                    color: "#333",
                     ...provided.draggableProps.style,
                   }}
                 >
-                  {task.label}
+                  {/* Task Header with Title */}
+                  <div className="flex justify-between items-center mb-3">
+                    <p className="font-semibold text-lg">{task.label}</p>
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        task.priority === "HIGH"
+                          ? "bg-red-500 text-white"
+                          : task.priority === "MEDIUM"
+                          ? "bg-yellow-400 text-white"
+                          : "bg-green-500 text-white"
+                      }`}
+                    >
+                      {task.priority}
+                    </span>
+                  </div>
+
+                  {/* Task Description */}
+                  <p className="text-sm text-gray-600 mb-3">
+                    {task.description}
+                  </p>
+
+                  {/* Task Dates */}
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <p>
+                      Start: {new Date(task.startDate).toLocaleDateString()}
+                    </p>
+                    <p>Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+                  </div>
+
+                  {/* Assignee Info */}
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="flex items-center gap-2">
+                      <Avatar
+                        size="small"
+                        src={task.assignee.profile.avatarUrl}
+                        icon={<UserOutlined />}
+                      />
+                      <p className="text-sm font-medium">
+                        {task.assignee.username}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {task.reporter.username && (
+                        <p className="text-sm text-gray-500">
+                          Reporter: {task.reporter.username}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </Draggable>
@@ -191,13 +241,16 @@ export default function BoardPage() {
   ];
 
   return (
-    <Tabs
-      defaultActiveKey={defaultTabKey}
-      activeKey={activeTabKey}
-      onChange={setActiveTabKey}
-      items={items}
-      size="large"
-      className="w-[100%]"
-    />
+    <>
+      <h1 className="text-2xl font-bold">Task Status Management Board</h1>
+      <Tabs
+        defaultActiveKey={defaultTabKey}
+        activeKey={activeTabKey}
+        onChange={setActiveTabKey}
+        items={items}
+        size="large"
+        className="w-[100%]"
+      />
+    </>
   );
 }

@@ -87,8 +87,11 @@ export default function ProjectDetailPage() {
       );
 
       setTopics(sortedTopics);
+
+      // Set the default tab key after topics are sorted
       if (sortedTopics.length > 0) {
-        setDefaultTabKey(sortedTopics[0].id);
+        setDefaultTabKey(sortedTopics[0].id); // Default to the first topic's ID
+        setActiveTabKey(sortedTopics[0].id); // Set active tab to the first topic
       }
     } catch (error) {
       console.error(error.response.data);
@@ -221,12 +224,17 @@ export default function ProjectDetailPage() {
   };
 
   useEffect(() => {
-    fetchIssue();
-    fetchQuestion();
-    fetchTasks();
     fetchMemberProject();
     fetchProjectDetail();
-  }, [activeTabKey, id]);
+  }, [id]);
+
+  useEffect(() => {
+    if (activeTabKey) {
+      fetchIssue();
+      fetchQuestion();
+      fetchTasks();
+    }
+  }, [activeTabKey]);
 
   const showCreateTaskModal = (topic) => {
     setIsCreateTaskModal(true);
