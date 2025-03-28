@@ -722,15 +722,13 @@ export default function ProjectDetailPage() {
           <h1 className="text-2xl font-bold text-nowrap">
             {projectDetail.name}
           </h1>
-          {projectDetail.userId === user.id && (
-            <Button
-              icon={<TeamOutlined />}
-              className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
-              onClick={() => showMemberProjectModal()}
-            >
-              View Members
-            </Button>
-          )}
+          <Button
+            icon={<TeamOutlined />}
+            className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
+            onClick={() => showMemberProjectModal()}
+          >
+            View Members
+          </Button>
         </div>
 
         {projectDetail.userId === user.id && (
