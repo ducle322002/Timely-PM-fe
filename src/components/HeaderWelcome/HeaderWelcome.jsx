@@ -32,14 +32,15 @@ export default function HeaderWelcome() {
           Timely PM
         </Link>
 
-        <div className="w-[250px]">
-          <Menu theme="light" mode="horizontal">
-            <Menu.Item key={1} className="!py-[5%]">
-              <Link to={`${route.home}/${route.introWorkspace}`}>
-                Go To Your Workspace
-              </Link>
-            </Menu.Item>
-            {/* <Menu.SubMenu
+        {user && user.username && (
+          <div className="w-[250px]">
+            <Menu theme="light" mode="horizontal">
+              <Menu.Item key={1} className="!py-[5%]">
+                <Link to={`${route.home}/${route.introWorkspace}`}>
+                  Go To Your Workspace
+                </Link>
+              </Menu.Item>
+              {/* <Menu.SubMenu
               key={"1"}
               icon={""}
               title="About Us"
@@ -51,8 +52,9 @@ export default function HeaderWelcome() {
                 </Link>
               </Menu.Item>
             </Menu.SubMenu> */}
-          </Menu>
-        </div>
+            </Menu>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-between items-center gap-[10%]">

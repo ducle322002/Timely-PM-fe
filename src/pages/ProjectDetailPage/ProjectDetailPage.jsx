@@ -1428,10 +1428,18 @@ export default function ProjectDetailPage() {
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex justify-start items-center gap-[5%] mb-4"
+              className="flex justify-between items-center mb-[5%]"
             >
-              <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
-              <span>{member.fullName}</span>
+              <div className="flex justify-start items-center  gap-[20px]">
+                <Avatar
+                  icon={<UserOutlined />}
+                  src={member.avatarUrl}
+                  size="large"
+                />
+                <span>{member.fullName}</span>
+              </div>
+
+              <span>Role: {member.role}</span>
             </div>
           ))}
         </div>
