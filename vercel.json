@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api",
-      "destination": "http://14.225.220.28:8080/api"
+      "source": "/api/user/auth",
+      "destination": "http://14.225.220.28:8080/api/user/auth"
     }
   ]
 }
