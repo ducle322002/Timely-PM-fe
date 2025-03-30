@@ -30,12 +30,6 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
 };
 
 const projectService = {
-  // getProducts: () => request("GET", "/products"),
-  // getProductById: (id) => request("GET", `/products/${id}`),
-  // createProduct: (productData) => request("POST", "/products", productData),
-  // updateProduct: (id, productData) =>
-  //   request("PUT", `/products/${id}`, productData),
-  // deleteProduct: (id) => request("DELETE", `/products/${id}`),
   getProjects: () => request("GET", "project"),
   getProjectsForUser: () => request("GET", "project/user"),
   getMembers: (projectIdParam) =>

@@ -73,6 +73,7 @@ export default function IntroWorkspacePage() {
     values.image =
       "https://smartpro.vn/images/programes/768x1024/423247project_mobile.jpg";
     console.log(values);
+    console.log(values.name);
     try {
       const response = await projectService.createProjects(values);
       console.log(response);
@@ -88,6 +89,7 @@ export default function IntroWorkspacePage() {
           return prevProgress + 10;
         });
       }, 500);
+
       fetchProject();
       formCreateProject.resetFields();
       setIsModalCreateProject(false);

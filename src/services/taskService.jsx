@@ -39,6 +39,8 @@ const taskService = {
 
   createIssueInTask: (taskId, issueData, taskParams) =>
     request("POST", `task/${taskId}/issue`, issueData, null, taskParams),
+  fetchIssueInTask: (issueId, params) =>
+    request("GET", `issue/${issueId}/task`, null, {}, params),
   updateTaskStatus: (taskId, taskParams) =>
     request("PUT", `task/${taskId}`, null, null, taskParams),
 };

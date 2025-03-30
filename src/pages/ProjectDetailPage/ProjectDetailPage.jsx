@@ -67,6 +67,8 @@ export default function ProjectDetailPage() {
   const [issueDetail, setIssueDetail] = useState({});
   const [questionDetail, setQuestionDetail] = useState({});
 
+  const [issueInTask, setIssueInTask] = useState([]);
+
   const [issues, setIssues] = useState([]);
   const [questions, setQuestions] = useState([]);
 
@@ -144,6 +146,7 @@ export default function ProjectDetailPage() {
 
       console.log("Task Detail", response.data);
       setTaskDetail(response.data);
+      setIssueInTask(response.data.issues);
     } catch (error) {
       console.error(error.response.data);
     }
@@ -220,6 +223,22 @@ export default function ProjectDetailPage() {
       console.error(error.response.data);
     } finally {
       setLoadingTasks(false); // Set loading state to false
+    }
+  };
+
+  const fetchIssueInTask = async () => {
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+        taskId: selectedTask.id,
+      };
+      const response = await taskService.fetchIssueInTask(params);
+
+      console.log("issue", response.data);
+      setIssueInTask(response.data);
+    } catch (error) {
+      console.error(error.response.data);
     }
   };
 
@@ -452,6 +471,7 @@ export default function ProjectDetailPage() {
     }
   };
 
+  //tạo issue trong task
   const handleCreateIssueInTask = async (values) => {
     const params = {
       projectId: id,
@@ -487,7 +507,7 @@ export default function ProjectDetailPage() {
 
   const taskColumns = [
     {
-      title: "  ",
+      title: "",
       dataIndex: "label",
       key: "label",
       width: 300,
@@ -884,6 +904,11 @@ export default function ProjectDetailPage() {
                       No attachments uploaded.
                     </div>
                   </div>
+
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500 mb-2">Issues</p>
+                    {/* Mock attachment display */}
+                  </div>
                 </motion.div>
               ) : (
                 <div className="text-gray-400 text-center mt-10">
@@ -958,13 +983,6 @@ export default function ProjectDetailPage() {
           requiredMark={false}
         >
           <Form.Item
-            name="label"
-            label="Task Label"
-            rules={[{ required: true, message: "Please enter Task Label" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
             name="summer"
             label="Task Summer"
             rules={[{ required: true, message: "Please Enter Summer" }]}
@@ -984,14 +1002,16 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Select Assignee" }]}
           >
             <Select placeholder="Select Team member" size="large">
-              {members.map((member) => (
-                <Select.Option value={member.id}>
-                  <div className="!flex !justify-start !items-center !gap-[5%]">
-                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
-                    <span>{member.fullName}</span>
-                  </div>
-                </Select.Option>
-              ))}
+              {members
+                .filter((member) => member.role === "DEV")
+                .map((member) => (
+                  <Select.Option value={member.id}>
+                    <div className="!flex !justify-start !items-center !gap-[5%]">
+                      <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                      <span>{member.fullName}</span>
+                    </div>
+                  </Select.Option>
+                ))}
             </Select>
           </Form.Item>
 
@@ -1001,14 +1021,16 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Select Reporter" }]}
           >
             <Select placeholder="Select Reporter" size="large">
-              {members.map((member) => (
-                <Select.Option value={member.id}>
-                  <div className="!flex !justify-start !items-center !gap-[5%]">
-                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
-                    <span>{member.fullName}</span>
-                  </div>
-                </Select.Option>
-              ))}
+              {members
+                .filter((member) => member.role === "QA")
+                .map((member) => (
+                  <Select.Option value={member.id}>
+                    <div className="!flex !justify-start !items-center !gap-[5%]">
+                      <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                      <span>{member.fullName}</span>
+                    </div>
+                  </Select.Option>
+                ))}
             </Select>
           </Form.Item>
 
