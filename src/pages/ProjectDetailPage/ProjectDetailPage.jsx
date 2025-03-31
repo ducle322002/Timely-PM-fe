@@ -500,6 +500,7 @@ export default function ProjectDetailPage() {
       console.log(response);
       toast.success("Issue created successfully!");
       fetchTasks();
+      fetchTaskDetail(taskDetail);
       setIsCreateIssueInTaskModal(false);
       formCreateIssueInTask.resetFields();
     } catch (error) {
