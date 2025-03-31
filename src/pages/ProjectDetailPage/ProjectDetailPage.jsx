@@ -1,4 +1,5 @@
 import {
+  CaretRightOutlined,
   InboxOutlined,
   SettingOutlined,
   TeamOutlined,
@@ -15,6 +16,8 @@ import {
   DatePicker,
   Spin,
   Table,
+  Collapse,
+  theme,
 } from "antd";
 const { RangePicker } = DatePicker;
 import React, { Children, useEffect, useState } from "react";
@@ -569,6 +572,100 @@ export default function ProjectDetailPage() {
     },
   ];
 
+  const itemsCollapseIssueInTask = issueInTask.map((issue) => ({
+    key: issue.id,
+    label: (
+      <div className="flex justify-between items-center">
+        <p
+          className={`font-bold ${
+            issue.priority === "HIGH"
+              ? "text-red-500"
+              : issue.priority === "MEDIUM"
+              ? "text-yellow-500"
+              : "text-green-500"
+          }`}
+        >
+          {issue.label}
+        </p>
+        <span
+          className={`px-2 py-1 text-xs rounded-full text-white ${
+            issue.severity === "CATASTROPHIC"
+              ? "bg-red-700"
+              : issue.severity === "SEVERE"
+              ? "bg-red-500"
+              : issue.severity === "SIGNIFICANT"
+              ? "bg-orange-500"
+              : issue.severity === "MODERATE"
+              ? "bg-yellow-500"
+              : "bg-green-500"
+          }`}
+        >
+          {issue.severity}
+        </span>
+      </div>
+    ),
+    children: (
+      <div className="p-4 bg-gray-50 rounded-lg">
+        <div className="mb-4">
+          <p className="text-sm text-gray-500">Description</p>
+          <p className="text-gray-700">{issue.description}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-gray-500">Priority</p>
+            <p
+              className={`font-bold ${
+                issue.priority === "HIGH"
+                  ? "text-red-500"
+                  : issue.priority === "MEDIUM"
+                  ? "text-yellow-500"
+                  : "text-green-500"
+              }`}
+            >
+              {issue.priority}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Status</p>
+            <p className="font-bold text-gray-700">{issue.status}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Start Date</p>
+            <p className="text-gray-700">
+              {moment(issue.startDate).format("DD/MM/YYYY")}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Due Date</p>
+            <p className="text-gray-700">
+              {moment(issue.dueDate).format("DD/MM/YYYY")}
+            </p>
+          </div>
+        </div>
+        <div className="mt-4">
+          <p className="text-sm text-gray-500">Reporter</p>
+          <div className="flex items-center gap-2">
+            <Avatar icon={<UserOutlined />} />
+            <span className="text-gray-700">
+              {issue.reporter?.username || "N/A"}
+            </span>
+          </div>
+        </div>
+        <div className="mt-4">
+          <p className="text-sm text-gray-500">Assignee</p>
+          <div className="flex items-center gap-2">
+            <Avatar icon={<UserOutlined />} />
+            <span className="text-gray-700">
+              {issue.assignee?.username || "N/A"}
+            </span>
+          </div>
+        </div>
+      </div>
+    ),
+    style: {
+      border: "none",
+    },
+  }));
   const items = [
     ...topics.map((topic) => {
       return {
@@ -866,22 +963,43 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
                   <div className="mb-4 flex justify-between items-center">
-                    <div>
-                      <p className="text-sm text-gray-500">Priority</p>
-                      <p>
-                        <span
-                          className={`inline-block px-3 py-1 text-white rounded-full ${
-                            taskDetail.priority === "HIGH"
-                              ? "bg-red-500"
-                              : taskDetail.priority === "MEDIUM"
-                              ? "bg-yellow-500"
-                              : "bg-green-500"
-                          }`}
-                        >
-                          {taskDetail.priority}
-                        </span>
-                      </p>
+                    <div className="flex">
+                      <div>
+                        <p className="text-sm text-gray-500">Priority</p>
+                        <p>
+                          <span
+                            className={`inline-block px-3 py-1 text-white rounded-full ${
+                              taskDetail.priority === "HIGH"
+                                ? "bg-red-500"
+                                : taskDetail.priority === "MEDIUM"
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                            }`}
+                          >
+                            {taskDetail.priority}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm text-gray-500">Status</p>
+                        <p>
+                          <span
+                            className={`inline-block px-3 py-1 text-black rounded-full ${
+                              taskDetail.status === "TODO"
+                                ? "bg-[#ddeafe]"
+                                : taskDetail.status === "INPROGRESS"
+                                ? "bg-[#fef3c7]"
+                                : taskDetail.status === "DONE"
+                                ? "bg-[#d1fae5]"
+                                : "bg-[#ddeafe]"
+                            }`}
+                          >
+                            {taskDetail.status}
+                          </span>
+                        </p>
+                      </div>
                     </div>
+
                     {taskDetail.reporter.id === user.id && (
                       <div>
                         <p className="text-sm text-gray-500 text-end">
@@ -905,9 +1023,24 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
 
-                  <div className="mt-2">
-                    <p className="text-sm text-gray-500 mb-2">Issues</p>
-                    {/* Mock attachment display */}
+                  <div className="mt-4">
+                    <p className="text-lg font-semibold text-gray-700 mb-2">
+                      Issues
+                    </p>
+                    {itemsCollapseIssueInTask.length > 0 ? (
+                      <Collapse
+                        accordion
+                        bordered={false}
+                        items={itemsCollapseIssueInTask}
+                        expandIcon={({ isActive }) => (
+                          <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                        )}
+                      />
+                    ) : (
+                      <p className="text-gray-500">
+                        No issues found for this task.
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               ) : (
