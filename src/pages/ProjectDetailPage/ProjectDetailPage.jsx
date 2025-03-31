@@ -18,10 +18,11 @@ import {
   Table,
   Collapse,
   theme,
+  Progress,
 } from "antd";
 const { RangePicker } = DatePicker;
 import React, { Children, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import TextArea from "antd/es/input/TextArea";
 import Dragger from "antd/es/upload/Dragger";
@@ -350,32 +351,35 @@ export default function ProjectDetailPage() {
     }
   };
 
-  const handleFileChange = (info) => {
-    setFileList(info.fileList);
-  };
-
   const handleCreateTask = async (values) => {
     const params = {
       projectId: id,
       topicId: selectedTopic.id,
     };
-    const requestData = {
-      assigneeTo: values.assigneeTo,
-      reporter: values.reporter,
-      label: values.label,
-      summer: values.summer,
-      description: values.description,
-      startDate: dayjs(values.dateRange[0]).toISOString(),
-      dueDate: dayjs(values.dateRange[1]).toISOString(),
-      priority: values.priority,
-      attachment: "string",
-    };
-    console.log(requestData);
+
+    const formData = new FormData();
+    formData.append("assigneeTo", values.assigneeTo);
+    formData.append("reporter", values.reporter);
+    formData.append("summer", values.summer);
+    formData.append("description", values.description);
+    formData.append(
+      "startDate",
+      dayjs(values.dateRange[0]).format("YYYY-MM-DD")
+    ); // Format to 'yyyy-MM-dd'
+    formData.append("dueDate", dayjs(values.dateRange[1]).format("YYYY-MM-DD"));
+    formData.append("priority", values.priority);
+
+    // Append the file if it exists
+    if (fileList.length > 0) {
+      formData.append("file", fileList[0].originFileObj);
+    }
+    console.log(formData);
     try {
-      const response = await taskService.createTask(requestData, params);
+      const response = await taskService.createTask(formData, params);
       console.log(response);
       toast.success("Task created successfully!");
       fetchTasks();
+      setFileList([]);
       setIsCreateTaskModal(false);
       formCreateTask.resetFields();
     } catch (error) {
@@ -828,6 +832,13 @@ export default function ProjectDetailPage() {
 
     return diffDays;
   };
+
+  const handleFileChange = (info) => {
+    setFileList(info.fileList);
+    toast.success("File uploaded successfully!");
+    console.log(info);
+  };
+
   return (
     <div className="container mx-auto">
       <motion.div
@@ -1020,7 +1031,15 @@ export default function ProjectDetailPage() {
                     <p className="text-sm text-gray-500 mb-2">Attachments</p>
                     {/* Mock attachment display */}
                     <div className="border rounded p-2 text-sm text-gray-600">
-                      No attachments uploaded.
+                      {taskDetail.attachment ? (
+                        <Link to={taskDetail.attachment} target="_blank">
+                          <p className="text-blue-500 hover:underline cursor-pointer">
+                            {taskDetail.attachment}
+                          </p>
+                        </Link>
+                      ) : (
+                        <>No attachments uploaded.</>
+                      )}
                     </div>
                   </div>
 
@@ -1098,14 +1117,25 @@ export default function ProjectDetailPage() {
 
       <Modal
         visible={isCreateTaskModal}
-        onCancel={() => setIsCreateTaskModal(false)}
+        onCancel={() => {
+          setIsCreateTaskModal(false);
+          setFileList([]);
+        }}
         title="Create Task"
         footer={
           <>
             <Button type="primary" onClick={() => formCreateTask.submit()}>
               Create
             </Button>
-            <Button onClick={() => setIsCreateTaskModal(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                setIsCreateTaskModal(false);
+                setFileList([]);
+                formCreateTask.resetFields(); // Reset the form fields
+              }}
+            >
+              Cancel
+            </Button>
           </>
         }
       >
@@ -1170,9 +1200,13 @@ export default function ProjectDetailPage() {
 
           <Form.Item name="attachment" label="Attachment">
             <Dragger
+              maxCount={1}
               fileList={fileList}
               beforeUpload={() => false}
               onChange={handleFileChange}
+              onProgress={(event) => {
+                console.log(`Progress: ${Math.round(event.percent)}%`);
+              }}
             >
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
