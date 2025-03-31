@@ -1204,9 +1204,6 @@ export default function ProjectDetailPage() {
               fileList={fileList}
               beforeUpload={() => false}
               onChange={handleFileChange}
-              onProgress={(event) => {
-                console.log(`Progress: ${Math.round(event.percent)}%`);
-              }}
             >
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
