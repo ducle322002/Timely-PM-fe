@@ -835,7 +835,7 @@ export default function ProjectDetailPage() {
 
   const handleFileChange = (info) => {
     setFileList(info.fileList);
-    toast.success("File uploaded successfully!");
+    toast.success(info.fileList[0].name + " uploaded successfully!");
     console.log(info);
   };
 
