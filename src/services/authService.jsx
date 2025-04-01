@@ -6,7 +6,7 @@ const request = async (method, url, data = null, headers = {}) => {
   try {
     const response = await axios({
       method,
-      url: `${API_BASE_URL}${url}`,
+      url: `${url}`,
       data,
       headers: {
         ...headers,
