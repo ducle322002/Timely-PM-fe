@@ -6,7 +6,7 @@ const request = async (method, url, data = null, headers = {}) => {
   try {
     const response = await axios({
       method,
-      url: `${url}`,
+      url: `${API_BASE_URL}${url}`,
       data,
       headers: {
         ...headers,
@@ -21,7 +21,7 @@ const request = async (method, url, data = null, headers = {}) => {
 };
 
 const authService = {
-  login: (loginData) => request("POST", "/api/user/auth", loginData),
+  login: (loginData) => request("POST", "user/auth", loginData),
   register: (registerData) => request("POST", `user/register`, registerData),
 };
 
