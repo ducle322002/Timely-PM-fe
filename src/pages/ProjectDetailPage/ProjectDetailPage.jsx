@@ -1032,9 +1032,12 @@ export default function ProjectDetailPage() {
                     {/* Mock attachment display */}
                     <div className="border rounded p-2 text-sm text-gray-600">
                       {taskDetail.attachment ? (
-                        <Link to={taskDetail.attachment} target="_blank">
+                        <Link
+                          to={taskDetail.attachment.downloadUrl}
+                          target="_blank"
+                        >
                           <p className="text-blue-500 hover:underline cursor-pointer">
-                            {taskDetail.attachment}
+                            {taskDetail.attachment.fileName}
                           </p>
                         </Link>
                       ) : (
