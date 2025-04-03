@@ -393,19 +393,25 @@ export default function ProjectDetailPage() {
       projectId: id,
       topicId: selectedTopic.id,
     };
-    const requestData = {
-      assigneeTo: values.assigneeTo,
-      label: values.label,
-      summer: values.summer,
-      description: values.description,
-      startDate: dayjs(values.dateRange[0]).toISOString(),
-      dueDate: dayjs(values.dateRange[1]).toISOString(),
-      priority: values.priority,
-      attachment: "string",
-    };
-    console.log(requestData);
+    const formData = new FormData();
+    formData.append("assigneeTo", values.assigneeTo);
+    formData.append("reporter", values.reporter);
+    formData.append("summer", values.summer);
+    formData.append("description", values.description);
+    formData.append(
+      "startDate",
+      dayjs(values.dateRange[0]).format("YYYY-MM-DD")
+    ); // Format to 'yyyy-MM-dd'
+    formData.append("dueDate", dayjs(values.dateRange[1]).format("YYYY-MM-DD"));
+    formData.append("priority", values.priority);
+
+    // Append the file if it exists
+    if (fileList.length > 0) {
+      formData.append("file", fileList[0].originFileObj);
+    }
+    console.log(formData);
     try {
-      const response = await issueService.createIssue(requestData, params);
+      const response = await issueService.createIssue(formData, params);
       console.log(response);
       toast.success("Issue created successfully!");
       fetchIssue();
@@ -1271,13 +1277,6 @@ export default function ProjectDetailPage() {
           requiredMark={false}
         >
           <Form.Item
-            name="label"
-            label="Issue Label"
-            rules={[{ required: true, message: "Please enter Issue Label" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
             name="summer"
             label="Issue Summer"
             rules={[{ required: true, message: "Please Enter Summer" }]}
@@ -1310,6 +1309,7 @@ export default function ProjectDetailPage() {
 
           <Form.Item name="attachment" label="Attachment">
             <Dragger
+              maxCount={1}
               fileList={fileList}
               beforeUpload={() => false}
               onChange={handleFileChange}
@@ -1379,13 +1379,6 @@ export default function ProjectDetailPage() {
           requiredMark={false}
         >
           <Form.Item
-            name="label"
-            label="Question Label"
-            rules={[{ required: true, message: "Please enter Question Label" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
             name="summer"
             label="Question Summer"
             rules={[{ required: true, message: "Please Enter Summer" }]}
@@ -1418,6 +1411,7 @@ export default function ProjectDetailPage() {
 
           <Form.Item name="attachment" label="Attachment">
             <Dragger
+              maxCount={1}
               fileList={fileList}
               beforeUpload={() => false}
               onChange={handleFileChange}

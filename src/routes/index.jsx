@@ -12,4 +12,5 @@ export const route = {
   board: "board",
   userProfile: "user-profile",
   setting: "setting",
+  projectSetting: "project-setting",
 };

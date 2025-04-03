@@ -40,6 +40,7 @@ const projectService = {
     request("POST", "project/create", projectData),
   getProjectsById: (id) => request("GET", `project/${id}`),
   deleteProject: (id) => request("DELETE", `project/${id}`),
+  closeProject: (id) => request("POST", `project/${id}/close`),
 };
 
 export default projectService;

@@ -20,6 +20,7 @@ import UserProfilePage from "./pages/UserProfilePage/UserProfilePage";
 import SettingPage from "./pages/SettingPage/SettingPage";
 import { ThemeProvider } from "./context/ThemeContext";
 import BoardPage from "./pages/BoardPage/BoardPage";
+import SettingProjectPage from "./pages/SettingProjectPage/SettingProjectPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -83,6 +84,10 @@ function App() {
         {
           path: `${route.workspace}/${route.project}/:id/${route.board}`,
           element: <BoardPage />,
+        },
+        {
+          path: `${route.workspace}/${route.project}/:id/${route.projectSetting}`,
+          element: <SettingProjectPage />,
         },
       ],
     },

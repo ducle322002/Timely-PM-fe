@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Layout, Menu } from "antd";
 const { Sider } = Layout;
-import { HomeOutlined } from "@ant-design/icons";
+import { HomeOutlined, ProjectOutlined } from "@ant-design/icons";
 import { Link, useLocation, useParams } from "react-router-dom";
 import "./SidebarProject.scss";
 import { useSelector } from "react-redux";
@@ -28,14 +28,20 @@ export default function SidebarProject() {
   useEffect(() => {
     setItems([
       getItem(
+        "Go to Project",
+        `${route.workspace}/${route.project}/${id}`,
+        <IoRocketOutline />
+      ),
+      getItem(
         "Board",
         `${route.workspace}/${route.project}/${id}/${route.board}`,
         <CiViewBoard />
       ),
+
       getItem(
-        "Go to Project",
-        `${route.workspace}/${route.project}/${id}`,
-        <IoRocketOutline />
+        "Project Setting",
+        `${route.workspace}/${route.project}/${id}/${route.projectSetting}`,
+        <ProjectOutlined />
       ),
       getItem(
         "Back to Home",
