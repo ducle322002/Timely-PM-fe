@@ -26,7 +26,11 @@ export default function LoginPage() {
         role: response.data.role,
       };
       Cookies.set("user", JSON.stringify(user));
-      navigate(`${route.home}/${route.introWorkspace}`);
+      if (response.data.role === "ADMIN") {
+        navigate(`${route.admin}/${route.adminUser}`);
+      } else {
+        navigate(`${route.home}/${route.introWorkspace}`);
+      }
       dispatch(login(user));
       console.log(response);
       console.log(response.data);
