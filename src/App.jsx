@@ -21,6 +21,8 @@ import SettingPage from "./pages/SettingPage/SettingPage";
 import { ThemeProvider } from "./context/ThemeContext";
 import BoardPage from "./pages/BoardPage/BoardPage";
 import SettingProjectPage from "./pages/SettingProjectPage/SettingProjectPage";
+import AdminLayout from "./layouts/AdminLayout/AdminLayout";
+import ManageUser from "./pages/AdminPage/ManageUser/ManageUser";
 
 function App() {
   const router = createBrowserRouter([
@@ -88,6 +90,17 @@ function App() {
         {
           path: `${route.workspace}/${route.project}/:id/${route.projectSetting}`,
           element: <SettingProjectPage />,
+        },
+      ],
+    },
+
+    {
+      path: route.admin,
+      element: <AdminLayout />,
+      children: [
+        {
+          path: route.adminUser,
+          element: <ManageUser />,
         },
       ],
     },

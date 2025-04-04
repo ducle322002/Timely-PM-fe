@@ -29,12 +29,8 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
   }
 };
 
-const questionService = {
-  getQuestions: (params) => request("GET", "question", null, {}, params),
-  getQuestionDetail: (id, params) =>
-    request("GET", `question/${id}`, null, {}, params),
-  createQuestion: (questionData, topicParams) =>
-    request("POST", `question/create`, questionData, null, topicParams),
+const adminService = {
+  getAllUser: () => request("GET", "user/get-all"),
 };
 
-export default questionService;
+export default adminService;

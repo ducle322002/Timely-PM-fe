@@ -13,4 +13,7 @@ export const route = {
   userProfile: "user-profile",
   setting: "setting",
   projectSetting: "project-setting",
+
+  admin: "/admin",
+  adminUser: "manage-user",
 };

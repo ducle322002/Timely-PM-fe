@@ -43,6 +43,8 @@ const taskService = {
     request("GET", `issue/${issueId}/task`, null, {}, params),
   updateTaskStatus: (taskId, taskParams) =>
     request("PUT", `task/${taskId}`, null, null, taskParams),
+  deleteTask: (taskId, taskParams) =>
+    request("DELETE", `task/${taskId}`, null, null, taskParams),
 };
 
 export default taskService;

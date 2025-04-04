@@ -1,5 +1,6 @@
 import {
   CaretRightOutlined,
+  EllipsisOutlined,
   InboxOutlined,
   SettingOutlined,
   TeamOutlined,
@@ -19,6 +20,8 @@ import {
   Collapse,
   theme,
   Progress,
+  Dropdown,
+  Menu,
 } from "antd";
 const { RangePicker } = DatePicker;
 import React, { Children, useEffect, useState } from "react";
@@ -177,11 +180,16 @@ export default function ProjectDetailPage() {
         projectId: id,
         topicId: activeTabKey,
       };
-      const response = await taskService.getTasksDetail(question.id, params);
+      const response = await questionService.getQuestionDetail(
+        question.id,
+        params
+      );
 
       console.log("Question Detail", response.data);
-      setQuestionDetail(response.data);
+      setTaskDetail(response.data);
+      setIssueInTask(null);
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error(error.response.data);
     }
   };
@@ -393,6 +401,7 @@ export default function ProjectDetailPage() {
       projectId: id,
       topicId: selectedTopic.id,
     };
+    console.log(values);
     const formData = new FormData();
     formData.append("assigneeTo", values.assigneeTo);
     formData.append("reporter", values.reporter);
@@ -404,7 +413,7 @@ export default function ProjectDetailPage() {
     ); // Format to 'yyyy-MM-dd'
     formData.append("dueDate", dayjs(values.dateRange[1]).format("YYYY-MM-DD"));
     formData.append("priority", values.priority);
-
+    formData.append("severity", values.severity);
     // Append the file if it exists
     if (fileList.length > 0) {
       formData.append("file", fileList[0].originFileObj);
@@ -583,7 +592,69 @@ export default function ProjectDetailPage() {
     },
   ];
 
-  const itemsCollapseIssueInTask = issueInTask.map((issue) => ({
+  const questionColumns = [
+    {
+      title: "",
+      dataIndex: "label",
+      key: "label",
+      width: 300,
+      render: (text, task) => (
+        <div>
+          <p
+            className={`font-bold ${
+              task.priority === "HIGH"
+                ? "text-red-500"
+                : task.priority === "MEDIUM"
+                ? "text-yellow-500"
+                : "text-green-500"
+            } 
+              text-xl`}
+          >
+            {task?.label}
+          </p>
+          <p>{task?.priority}</p>
+          <div className="">
+            <p>
+              {moment(task?.startDate).format("DD/MM/YYYY")} -{" "}
+              {moment(task?.dueDate).format("DD/MM/YYYY")}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Assignee",
+      dataIndex: "user.username",
+      key: "assignee",
+      align: "center",
+      render: (text, task) => (
+        <div className=" flex justify-center items-center gap-[10%]">
+          <p className="">{task.assignee.username}</p>
+          <Avatar
+            size="large"
+            icon={<UserOutlined />}
+            src={task.assignee.profile.avatarUrl}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Created By",
+      align: "center",
+      render: (text, task) => (
+        <div className=" flex justify-center items-center gap-[10%]">
+          <p className="">{task.createBy.username}</p>
+          <Avatar
+            size="large"
+            icon={<UserOutlined />}
+            src={task.createBy.profile.avatarUrl}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  const itemsCollapseIssueInTask = issueInTask?.map((issue) => ({
     key: issue.id,
     label: (
       <div className="flex justify-between items-center">
@@ -706,8 +777,13 @@ export default function ProjectDetailPage() {
                   <>
                     <Button
                       icon={<FaPlus />}
-                      className="!bg-[#1968db] !text-white !py-[3%]"
+                      className={`  !py-[3%] ${
+                        projectDetail.status === "DONE"
+                          ? "bg-gray-500"
+                          : "!bg-[#1968db] !text-white"
+                      } `}
                       onClick={() => showCreateTaskModal(topic)}
+                      disabled={projectDetail.status === "DONE"}
                     >
                       New Task
                     </Button>
@@ -715,16 +791,26 @@ export default function ProjectDetailPage() {
                 ) : topic.type === "ISSUE" ? (
                   <Button
                     icon={<FaPlus />}
-                    className="!bg-red-500 !text-white !py-[3%]"
+                    className={`  !py-[3%] ${
+                      projectDetail.status === "DONE"
+                        ? "bg-gray-500"
+                        : "!bg-red-500 !text-white"
+                    } `}
                     onClick={() => showCreateIssueModal(topic)}
+                    disabled={projectDetail.status === "DONE"}
                   >
                     New Issue
                   </Button>
                 ) : (
                   <Button
                     icon={<FaPlus />}
-                    className="!bg-orange-500 !text-white !py-[3%]"
+                    className={`!py-[3%] ${
+                      projectDetail.status === "DONE"
+                        ? "bg-gray-500"
+                        : "!bg-orange-500 !text-white"
+                    } `}
                     onClick={() => showCreateQuestionModal(topic)}
+                    disabled={projectDetail.status === "DONE"}
                   >
                     New Question
                   </Button>
@@ -748,7 +834,11 @@ export default function ProjectDetailPage() {
                       ? issues
                       : questions
                   }
-                  columns={taskColumns}
+                  questionColumns
+                  taskColumns
+                  columns={
+                    topic.type === "QUESTION" ? questionColumns : taskColumns
+                  }
                   pagination={false}
                   bordered={false}
                   rowHoverable={false}
@@ -787,7 +877,7 @@ export default function ProjectDetailPage() {
                   ...tasks.filter((task) => task.user.id === user.id),
                   ...issues.filter((issue) => issue.user.id === user.id),
                   ...questions.filter(
-                    (question) => question.user.id === user.id
+                    (question) => question.assignee.id === user.id
                   ),
                 ]}
                 columns={taskColumns}
@@ -845,6 +935,49 @@ export default function ProjectDetailPage() {
     console.log(info);
   };
 
+  const getMenu = (task) => {
+    return (
+      <Menu>
+        <Menu.Item key="update" onClick={() => handleShowModalUpdateTask(task)}>
+          Update
+        </Menu.Item>
+        <Menu.Item key="delete" onClick={() => handleShowModalDeleteTask(task)}>
+          Delete
+        </Menu.Item>
+      </Menu>
+    );
+  };
+
+  const [isModalUpdateTask, setIsModalUpdateTask] = useState(false);
+  const handleShowModalUpdateTask = (task) => {
+    setSelectedTask(task);
+    setIsModalUpdateTask(true);
+  };
+
+  const [isModalDeleteTask, setIsModalDeleteTask] = useState(false);
+  const handleShowModalDeleteTask = (task) => {
+    setSelectedTask(task);
+    setIsModalDeleteTask(true);
+  };
+
+  const handleDeleteTask = async (task) => {
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await taskService.deleteTask(task.id, params);
+      console.log(response);
+      toast.success("Task deleted successfully!");
+      fetchTasks();
+      setTaskDetail(null);
+      setSelectedTask(null);
+      setIsModalDeleteTask(false);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error(error.response.data);
+    }
+  };
   return (
     <div className="container mx-auto">
       <motion.div
@@ -870,8 +1003,13 @@ export default function ProjectDetailPage() {
           <div className="flex justify-between items-center">
             <Button
               icon={<FaPlus />}
-              className="!bg-[#1968db] !text-white mr-[5%] !py-[7%]"
+              className={` mr-[5%] !py-[7%] ${
+                projectDetail.status === "DONE"
+                  ? "bg-gray-500"
+                  : "!bg-[#1968db] !text-white"
+              } `}
               onClick={() => showInviteMemberModal()}
+              disabled={projectDetail.status === "DONE"}
             >
               Invite Member
             </Button>
@@ -879,8 +1017,9 @@ export default function ProjectDetailPage() {
               icon={<FaPlus />}
               onClick={() => showCreateTopicModal()}
               className="!py-[7%]"
+              disabled={projectDetail.status === "DONE"}
             >
-              New Topic
+              New Module
             </Button>
           </div>
         )}
@@ -912,17 +1051,28 @@ export default function ProjectDetailPage() {
                   transition={{ duration: 0.4 }}
                   className="rounded-2xl shadow-md p-6 bg-white"
                 >
-                  <h2
-                    className={`text-xl font-semibold mb-2 ${
-                      taskDetail.priority === "HIGH"
-                        ? "text-red-500"
-                        : taskDetail.priority === "MEDIUM"
-                        ? "text-yellow-500"
-                        : "text-green-500"
-                    } `}
-                  >
-                    {taskDetail.label}
-                  </h2>
+                  <div className="flex justify-between items-center">
+                    <h2
+                      className={`text-xl font-semibold mb-2 ${
+                        taskDetail.priority === "HIGH"
+                          ? "text-red-500"
+                          : taskDetail.priority === "MEDIUM"
+                          ? "text-yellow-500"
+                          : "text-green-500"
+                      } `}
+                    >
+                      {taskDetail.label}
+                    </h2>
+
+                    {projectDetail.userId === user.id && (
+                      <Dropdown
+                        overlay={getMenu(taskDetail)}
+                        trigger={["click"]}
+                      >
+                        <Button icon={<EllipsisOutlined />} />
+                      </Dropdown>
+                    )}
+                  </div>
                   <p className="text-gray-600 mb-4">{taskDetail.summer}</p>
                   <div className="mb-4">
                     <p className="font-medium text-gray-700 mb-1">
@@ -942,25 +1092,44 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 mb-4">
-                    <p className="w-25">Reported by: </p>
-                    <div className="flex items-center gap-4">
-                      <Avatar src={taskDetail?.reporter?.profile?.avatarUrl} />
-                      <span className="text-gray-700 font-medium">
-                        {taskDetail?.reporter?.username}
-                      </span>
+                  {taskDetail.reporter && (
+                    <div className="flex items-center gap-4 mb-4">
+                      <p className="w-25">Reported by: </p>
+                      <div className="flex items-center gap-4">
+                        <Avatar
+                          src={taskDetail?.reporter?.profile?.avatarUrl}
+                        />
+                        <span className="text-gray-700 font-medium">
+                          {taskDetail?.reporter?.username}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="flex items-center gap-4 mb-4">
-                    <p className="w-25">Created by: </p>
-                    <div className="flex items-center gap-4">
-                      <Avatar src={taskDetail?.user?.profile?.avatarUrl} />
-                      <span className="text-gray-700 font-medium">
-                        {taskDetail?.user?.username}
-                      </span>
+                  {taskDetail.createBy && (
+                    <div className="flex items-center gap-4 mb-4">
+                      <p className="w-25">Created by: </p>
+                      <div className="flex items-center gap-4">
+                        <Avatar
+                          src={taskDetail?.createBy?.profile?.avatarUrl}
+                        />
+                        <span className="text-gray-700 font-medium">
+                          {taskDetail?.createBy?.username}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
+                  {taskDetail.user && (
+                    <div className="flex items-center gap-4 mb-4">
+                      <p className="w-25">Created by: </p>
+                      <div className="flex items-center gap-4">
+                        <Avatar src={taskDetail?.user?.profile?.avatarUrl} />
+                        <span className="text-gray-700 font-medium">
+                          {taskDetail?.user?.username}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex gap-6 mb-4">
                     <div>
@@ -1018,7 +1187,7 @@ export default function ProjectDetailPage() {
                       </div>
                     </div>
 
-                    {taskDetail.reporter.id === user.id && (
+                    {taskDetail.reporter?.id === user.id && (
                       <div>
                         <p className="text-sm text-gray-500 text-end">
                           Having Issue ?
@@ -1052,25 +1221,27 @@ export default function ProjectDetailPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <p className="text-lg font-semibold text-gray-700 mb-2">
-                      Issues
-                    </p>
-                    {itemsCollapseIssueInTask.length > 0 ? (
-                      <Collapse
-                        accordion
-                        bordered={false}
-                        items={itemsCollapseIssueInTask}
-                        expandIcon={({ isActive }) => (
-                          <CaretRightOutlined rotate={isActive ? 90 : 0} />
-                        )}
-                      />
-                    ) : (
-                      <p className="text-gray-500">
-                        No issues found for this task.
+                  {issueInTask != null && (
+                    <div className="mt-4">
+                      <p className="text-lg font-semibold text-gray-700 mb-2">
+                        Issues
                       </p>
-                    )}
-                  </div>
+                      {itemsCollapseIssueInTask.length > 0 ? (
+                        <Collapse
+                          accordion
+                          bordered={false}
+                          items={itemsCollapseIssueInTask}
+                          expandIcon={({ isActive }) => (
+                            <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                          )}
+                        />
+                      ) : (
+                        <p className="text-gray-500">
+                          No issues found for this task.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               ) : (
                 <div className="text-gray-400 text-center mt-10">
@@ -1265,7 +1436,15 @@ export default function ProjectDetailPage() {
             <Button type="primary" onClick={() => formCreateIssue.submit()}>
               Create
             </Button>
-            <Button onClick={() => setIsCreateIssueModal(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                setIsCreateIssueModal(false);
+                setFileList([]);
+                formCreateIssue.resetFields();
+              }}
+            >
+              Cancel
+            </Button>
           </>
         }
       >
@@ -1304,6 +1483,25 @@ export default function ProjectDetailPage() {
                   </div>
                 </Select.Option>
               ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="reporter"
+            label="Reporter"
+            rules={[{ required: true, message: "Please Select Reporter" }]}
+          >
+            <Select placeholder="Select Reporter" size="large">
+              {members
+                .filter((member) => member.role === "QA")
+                .map((member) => (
+                  <Select.Option value={member.id}>
+                    <div className="!flex !justify-start !items-center !gap-[5%]">
+                      <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                      <span>{member.fullName}</span>
+                    </div>
+                  </Select.Option>
+                ))}
             </Select>
           </Form.Item>
 
@@ -1353,6 +1551,20 @@ export default function ProjectDetailPage() {
               <Select.Option value="LOW">Low</Select.Option>
             </Select>
           </Form.Item>
+
+          <Form.Item
+            name="severity"
+            label="Severity"
+            rules={[{ required: true, message: "Please Select Severity" }]}
+          >
+            <Select placeholder="Select severity" size="large">
+              <Select.Option value="MINOR">Minor</Select.Option>
+              <Select.Option value="MODERATE">Moderate</Select.Option>
+              <Select.Option value="SIGNIFICANT">Significant</Select.Option>
+              <Select.Option value="SEVERE">Severe</Select.Option>
+              <Select.Option value="CATASTROPHIC">Catastrophic</Select.Option>
+            </Select>
+          </Form.Item>
         </Form>
       </Modal>
 
@@ -1365,7 +1577,14 @@ export default function ProjectDetailPage() {
             <Button type="primary" onClick={() => formCreateQuestion.submit()}>
               Create
             </Button>
-            <Button onClick={() => setIsCreateQuestionModal(false)}>
+            <Button
+              onClick={() => {
+                setIsCreateQuestionModal(false);
+                setFileList([]);
+                formCreateQuestion.resetFields();
+                setSelectedTask(null);
+              }}
+            >
               Cancel
             </Button>
           </>
@@ -1484,7 +1703,7 @@ export default function ProjectDetailPage() {
             rules={[
               {
                 required: true,
-                message: "Please Enter Labels Topic",
+                message: "Please Enter Labels Module",
               },
             ]}
           >
@@ -1492,10 +1711,10 @@ export default function ProjectDetailPage() {
           </Form.Item>
           <Form.Item
             name="type"
-            label="Type"
-            rules={[{ required: true, message: "Please Select Type Topic" }]}
+            label="Module"
+            rules={[{ required: true, message: "Please Select Type Module" }]}
           >
-            <Select placeholder="Select Type" size="large" allowClear>
+            <Select placeholder="Select Module" size="large" allowClear>
               <Select.Option value="TASK">Task</Select.Option>
               <Select.Option value="ISSUE">Issue</Select.Option>
               <Select.Option value="QUESTION">Question</Select.Option>
@@ -1736,6 +1955,26 @@ export default function ProjectDetailPage() {
             </Select>
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        visible={isModalDeleteTask}
+        onCancel={() => setIsModalDeleteTask(false)}
+        title={`Delete Task ${taskDetail?.label}`}
+        footer={
+          <>
+            <Button
+              type="primary"
+              onClick={() => handleDeleteTask(taskDetail)}
+              danger
+            >
+              Delete
+            </Button>
+            <Button onClick={() => setIsModalDeleteTask(false)}>Cancel</Button>
+          </>
+        }
+      >
+        <p>Are you sure want to delete this task</p>
       </Modal>
     </div>
   );
