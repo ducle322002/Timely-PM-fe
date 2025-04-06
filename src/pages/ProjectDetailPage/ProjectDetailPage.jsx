@@ -1944,6 +1944,7 @@ export default function ProjectDetailPage() {
                 description="This action cannot be undone."
                 onConfirm={() => handleRemoveMember(member.id)}
                 okText="Yes"
+                okType="danger"
                 cancelText="No"
               >
                 <Button danger>Remove</Button>
