@@ -41,6 +41,9 @@ const projectService = {
   getProjectsById: (id) => request("GET", `project/${id}`),
   deleteProject: (id) => request("DELETE", `project/${id}`),
   closeProject: (id) => request("POST", `project/${id}/close`),
+
+  removeMember: (projectId, params) =>
+    request("DELETE", `project/${projectId}/delete/member`, null, {}, params),
 };
 
 export default projectService;

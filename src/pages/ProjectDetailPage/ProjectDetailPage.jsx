@@ -20,10 +20,9 @@ import {
   Spin,
   Table,
   Collapse,
-  theme,
-  Progress,
   Dropdown,
   Menu,
+  Popconfirm,
 } from "antd";
 const { RangePicker } = DatePicker;
 import React, { Children, useEffect, useState } from "react";
@@ -54,10 +53,12 @@ export default function ProjectDetailPage() {
   const [isCreateIssueModal, setIsCreateIssueModal] = useState(false);
 
   const [isInviteMemberModal, setIsInviteMemberModal] = useState(false);
+  const [isRemoveMemberModal, setIsRemoveMemberModal] = useState(false);
   const [isCreateTopicModal, setIsCreateTopicModal] = useState(false);
   const [isProjectMemberModal, setIsProjectMemberModal] = useState(false);
   const [isUpdateTopicModal, setIsUpdateTopicModal] = useState(false);
-
+  const [isModalUpdateTask, setIsModalUpdateTask] = useState(false);
+  const [isModalDeleteTask, setIsModalDeleteTask] = useState(false);
   const [isCreateIssueInTaskModal, setIsCreateIssueInTaskModal] =
     useState(false);
 
@@ -84,7 +85,8 @@ export default function ProjectDetailPage() {
 
   const [selectedTask, setSelectedTask] = useState(null);
 
-  const [loadingTasks, setLoadingTasks] = useState(false); // Add loading state
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [loadingTasks, setLoadingTasks] = useState(false);
   const [countdown, setCountdown] = useState(null);
 
   const user = useSelector(selectUser);
@@ -241,22 +243,6 @@ export default function ProjectDetailPage() {
     }
   };
 
-  const fetchIssueInTask = async () => {
-    try {
-      const params = {
-        projectId: id,
-        topicId: activeTabKey,
-        taskId: selectedTask.id,
-      };
-      const response = await taskService.fetchIssueInTask(params);
-
-      console.log("issue", response.data);
-      setIssueInTask(response.data);
-    } catch (error) {
-      console.error(error.response.data);
-    }
-  };
-
   useEffect(() => {
     fetchMemberProject();
     fetchProjectDetail();
@@ -291,6 +277,11 @@ export default function ProjectDetailPage() {
   const showInviteMemberModal = () => {
     setIsInviteMemberModal(true);
   };
+
+  // const showRemoveMemberModal = (member) => {
+  //   setIsRemoveMemberModal(true);
+  //   setSelectedMember(member);
+  // };
 
   const showCreateTopicModal = () => {
     setIsCreateTopicModal(true);
@@ -754,6 +745,7 @@ export default function ProjectDetailPage() {
       border: "none",
     },
   }));
+
   const items = [
     ...topics.map((topic) => {
       return {
@@ -962,7 +954,6 @@ export default function ProjectDetailPage() {
     );
   };
 
-  const [isModalUpdateTask, setIsModalUpdateTask] = useState(false);
   const handleShowModalUpdateTask = (task) => {
     setSelectedTask(task);
     setIsModalUpdateTask(true);
@@ -975,7 +966,6 @@ export default function ProjectDetailPage() {
     });
   };
 
-  const [isModalDeleteTask, setIsModalDeleteTask] = useState(false);
   const handleShowModalDeleteTask = (task) => {
     setSelectedTask(task);
     setIsModalDeleteTask(true);
@@ -1027,6 +1017,22 @@ export default function ProjectDetailPage() {
       setSelectedTask(null);
       setIsModalUpdateTask(false);
       formUpdateTask.resetFields();
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error(error.response.data);
+    }
+  };
+
+  const handleRemoveMember = async (member) => {
+    try {
+      const params = {
+        userId: member.id,
+      };
+      const response = await projectService.removeMember(id, params);
+      console.log(response);
+      toast.success("Member removed successfully!");
+      fetchMemberProject();
+      setIsRemoveMemberModal(false);
     } catch (error) {
       toast.error(error.response.data.message);
       console.error(error.response.data);
@@ -1898,31 +1904,50 @@ export default function ProjectDetailPage() {
       <Modal
         visible={isProjectMemberModal}
         onCancel={() => setIsProjectMemberModal(false)}
-        title="Team's Member"
+        title="Team's Members"
         footer={
-          <>
-            <Button onClick={() => setIsProjectMemberModal(false)}>
-              Close
-            </Button>
-          </>
+          <Button onClick={() => setIsProjectMemberModal(false)}>Close</Button>
         }
       >
-        <div className="max-h-[50vh] overflow-y-auto">
+        <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 pb-2">
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex justify-between items-center mb-[5%]"
+              className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
             >
-              <div className="flex justify-start items-center  gap-[20px]">
+              <div className="flex items-center gap-4">
                 <Avatar
                   icon={<UserOutlined />}
                   src={member.avatarUrl}
                   size="large"
                 />
-                <span>{member.fullName}</span>
+                <div>
+                  <p className="font-medium text-base text-gray-800">
+                    {member.fullName}
+                  </p>
+                  <p className="text-sm text-gray-500">{member.email}</p>
+                </div>
               </div>
 
-              <span>Role: {member.role}</span>
+              <div className="text-sm text-gray-600">
+                <span className="block">
+                  <strong>Role:</strong> {member.role}
+                </span>
+                <span className="block">
+                  <strong>Joined:</strong>{" "}
+                  {moment(member.createdAt).format("DD/MM/YYYY")}
+                </span>
+              </div>
+
+              <Popconfirm
+                title={`Are you sure to remove ${member.fullName} from the project?`}
+                description="This action cannot be undone."
+                onConfirm={() => handleRemoveMember(member.id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger>Remove</Button>
+              </Popconfirm>
             </div>
           ))}
         </div>
@@ -2128,6 +2153,32 @@ export default function ProjectDetailPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* <Modal
+        visible={isRemoveMemberModal}
+        onCancel={() => setIsRemoveMemberModal(false)}
+        title={`Remove Member ${selectedMember?.fullName}`}
+        footer={
+          <>
+            <Button
+              type="primary"
+              onClick={() => handleRemoveMember(selectedMember)}
+              danger
+            >
+              Remove
+            </Button>
+            <Button onClick={() => setIsRemoveMemberModal(false)}>
+              Cancel
+            </Button>
+          </>
+        }
+      >
+        <p>Are you sure want to remove this member from the project?</p>
+        <p className="text-sm text-gray-500">
+          This action cannot be undone. The member will lose access to the
+          project.
+        </p>
+      </Modal> */}
     </div>
   );
 }
