@@ -45,6 +45,9 @@ const taskService = {
     request("PUT", `task/${taskId}`, null, null, taskParams),
   deleteTask: (taskId, taskParams) =>
     request("DELETE", `task/${taskId}`, null, null, taskParams),
+
+  updateTask: (taskId, taskData, taskParams) =>
+    request("PUT", `task/${taskId}/update`, taskData, null, taskParams),
 };
 
 export default taskService;

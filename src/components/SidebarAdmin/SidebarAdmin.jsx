@@ -44,6 +44,8 @@ export default function SidebarAdmin() {
       //   getItem("User Setting", "", <BarChartOutlined />),
       //   getItem("User Role", "", <BarChartOutlined />),
       // ]),
+      getItem("Dashboard", route.dashboard, <BarChartOutlined />),
+      getItem("Project Statistic", route.projectStatistic, <DropboxOutlined />),
       getItem("Manage User", route.adminUser, <UserOutlined />),
       getItem("Back to Home", route.welcome, <HomeOutlined />),
     ]);

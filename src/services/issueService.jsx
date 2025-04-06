@@ -31,6 +31,8 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
 
 const issueService = {
   getIssues: (params) => request("GET", "issue", null, {}, params),
+  getIssueDetail: (id, params) =>
+    request("GET", `issue/${id}`, null, {}, params),
   createIssue: (issueData, topicParams) =>
     request("POST", `issue/create`, issueData, null, topicParams),
 };

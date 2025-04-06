@@ -31,6 +31,8 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
 
 const adminService = {
   getAllUser: () => request("GET", "user/get-all"),
+  getDataDashboard: () => request("GET", "admin/dashboard"),
+  getAllProject: () => request("GET", "admin/project"),
   banUser: (userId) => request("DELETE", `user/${userId}`),
 };
 

@@ -1,5 +1,7 @@
 import {
   CaretRightOutlined,
+  DeleteOutlined,
+  EditOutlined,
   EllipsisOutlined,
   InboxOutlined,
   SettingOutlined,
@@ -66,6 +68,7 @@ export default function ProjectDetailPage() {
   const [formCreateQuestion] = Form.useForm();
   const [formUpdateTopic] = Form.useForm();
   const [formCreateIssueInTask] = Form.useForm();
+  const [formUpdateTask] = Form.useForm();
 
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
@@ -165,10 +168,10 @@ export default function ProjectDetailPage() {
         projectId: id,
         topicId: activeTabKey,
       };
-      const response = await taskService.getTasksDetail(issue.id, params);
+      const response = await issueService.getIssueDetail(issue.id, params);
 
-      console.log("Task Detail", response.data);
-      setIssueDetail(response.data);
+      console.log("Issue Detail", response.data);
+      setTaskDetail(response.data);
     } catch (error) {
       console.error(error.response.data);
     }
@@ -402,25 +405,28 @@ export default function ProjectDetailPage() {
       topicId: selectedTopic.id,
     };
     console.log(values);
-    const formData = new FormData();
-    formData.append("assigneeTo", values.assigneeTo);
-    formData.append("reporter", values.reporter);
-    formData.append("summer", values.summer);
-    formData.append("description", values.description);
-    formData.append(
+    const formDataIssue = new FormData();
+    formDataIssue.append("assigneeTo", values.assigneeTo);
+    formDataIssue.append("reporter", values.reporter);
+    formDataIssue.append("summer", values.summer);
+    formDataIssue.append("description", values.description);
+    formDataIssue.append(
       "startDate",
       dayjs(values.dateRange[0]).format("YYYY-MM-DD")
     ); // Format to 'yyyy-MM-dd'
-    formData.append("dueDate", dayjs(values.dateRange[1]).format("YYYY-MM-DD"));
-    formData.append("priority", values.priority);
-    formData.append("severity", values.severity);
+    formDataIssue.append(
+      "dueDate",
+      dayjs(values.dateRange[1]).format("YYYY-MM-DD")
+    );
+    formDataIssue.append("priority", values.priority);
+    formDataIssue.append("severity", values.severity);
     // Append the file if it exists
     if (fileList.length > 0) {
-      formData.append("file", fileList[0].originFileObj);
+      formDataIssue.append("file", fileList[0].originFileObj);
     }
-    console.log(formData);
+    console.log(formDataIssue);
     try {
-      const response = await issueService.createIssue(formData, params);
+      const response = await issueService.createIssue(formDataIssue, params);
       console.log(response);
       toast.success("Issue created successfully!");
       fetchIssue();
@@ -864,7 +870,7 @@ export default function ProjectDetailPage() {
       label: "Assigned to Me",
       children: (
         <>
-          {loadingTasks ? (
+          {/* {loadingTasks ? (
             <div className="flex justify-center items-center">
               <Spin size="large" />
             </div>
@@ -892,7 +898,7 @@ export default function ProjectDetailPage() {
                 })}
               />
             </>
-          )}
+          )} */}
         </>
       ),
     },
@@ -938,10 +944,18 @@ export default function ProjectDetailPage() {
   const getMenu = (task) => {
     return (
       <Menu>
-        <Menu.Item key="update" onClick={() => handleShowModalUpdateTask(task)}>
+        <Menu.Item
+          key="update"
+          onClick={() => handleShowModalUpdateTask(task)}
+          icon={<EditOutlined />}
+        >
           Update
         </Menu.Item>
-        <Menu.Item key="delete" onClick={() => handleShowModalDeleteTask(task)}>
+        <Menu.Item
+          key="delete"
+          onClick={() => handleShowModalDeleteTask(task)}
+          icon={<DeleteOutlined />}
+        >
           Delete
         </Menu.Item>
       </Menu>
@@ -952,6 +966,13 @@ export default function ProjectDetailPage() {
   const handleShowModalUpdateTask = (task) => {
     setSelectedTask(task);
     setIsModalUpdateTask(true);
+    formUpdateTask.setFieldsValue({
+      summer: task.summer,
+      description: task.description,
+      dateRange: [dayjs(task.startDate), dayjs(task.dueDate)],
+
+      priority: task.priority,
+    });
   };
 
   const [isModalDeleteTask, setIsModalDeleteTask] = useState(false);
@@ -978,6 +999,40 @@ export default function ProjectDetailPage() {
       console.error(error.response.data);
     }
   };
+
+  const handleUpdateTask = async (values) => {
+    const formDataUpdate = new FormData();
+    formDataUpdate.append("summer", values.summer);
+    formDataUpdate.append("description", values.description);
+    formDataUpdate.append(
+      "startDate",
+      dayjs(values.dateRange[0]).format("YYYY-MM-DD")
+    );
+    formDataUpdate.append(
+      "dueDate",
+      dayjs(values.dateRange[1]).format("YYYY-MM-DD")
+    );
+    formDataUpdate.append("priority", values.priority);
+    console.log(formDataUpdate);
+    try {
+      const params = {
+        projectId: id,
+        topicId: activeTabKey,
+      };
+      const response = await taskService.updateTask(selectedTask.id, params);
+      console.log(response);
+      toast.success("Task Updated successfully!");
+      fetchTasks();
+      setTaskDetail(null);
+      setSelectedTask(null);
+      setIsModalUpdateTask(false);
+      formUpdateTask.resetFields();
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error(error.response.data);
+    }
+  };
+
   return (
     <div className="container mx-auto">
       <motion.div
@@ -1185,6 +1240,31 @@ export default function ProjectDetailPage() {
                           </span>
                         </p>
                       </div>
+
+                      {taskDetail.severity && (
+                        <div className="ml-4">
+                          <p className="text-sm text-gray-500">Severity</p>
+                          <p>
+                            <span
+                              className={`inline-block px-3 py-1 rounded-full ${
+                                taskDetail.severity === "MINOR"
+                                  ? "bg-green-100"
+                                  : taskDetail.severity === "MODERATE"
+                                  ? "bg-yellow-100"
+                                  : taskDetail.severity === "SIGNIFICANT"
+                                  ? "bg-orange-200"
+                                  : taskDetail.severity === "SEVERE"
+                                  ? "bg-red-200"
+                                  : taskDetail.severity === "CATASTROPHIC"
+                                  ? "bg-red-500 text-white"
+                                  : "bg-gray-200"
+                              }`}
+                            >
+                              {taskDetail.severity}
+                            </span>
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     {taskDetail.reporter?.id === user.id && (
@@ -1970,11 +2050,83 @@ export default function ProjectDetailPage() {
             >
               Delete
             </Button>
-            <Button onClick={() => setIsModalDeleteTask(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                setIsModalDeleteTask(false);
+                formUpdateTask.resetFields();
+                setFileList([]);
+                setSelectedTask(null);
+              }}
+            >
+              Cancel
+            </Button>
           </>
         }
       >
         <p>Are you sure want to delete this task</p>
+      </Modal>
+
+      <Modal
+        visible={isModalUpdateTask}
+        onCancel={() => setIsModalUpdateTask(false)}
+        title={`Update Task ${taskDetail?.label}`}
+        footer={
+          <>
+            <Button onClick={() => setIsModalUpdateTask(false)}>Cancel</Button>
+            <Button type="primary" onClick={() => formUpdateTask.submit()}>
+              Update
+            </Button>
+          </>
+        }
+      >
+        <Form
+          form={formUpdateTask}
+          layout="vertical"
+          requiredMark={false}
+          onFinish={() => handleUpdateTask(taskDetail)}
+        >
+          <Form.Item
+            name="summer"
+            label="Task Summer"
+            rules={[{ required: true, message: "Please Enter Summer" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Task Description"
+            rules={[{ required: true, message: "Please Enter Description" }]}
+          >
+            <TextArea rows={3} />
+          </Form.Item>
+
+          <Form.Item
+            name="dateRange"
+            label="Select Date Start - End"
+            rules={[
+              { required: true, message: "Please Select Date Start - End" },
+            ]}
+          >
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              disabledDate={(current) =>
+                current && current < dayjs().startOf("day")
+              } // Disable past dates
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="priority"
+            label="Priority"
+            rules={[{ required: true, message: "Please Select Priority" }]}
+          >
+            <Select placeholder="Select Priority" size="large">
+              <Select.Option value="HIGH">High</Select.Option>
+              <Select.Option value="MEDIUM">Medium</Select.Option>
+              <Select.Option value="LOW">Low</Select.Option>
+            </Select>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

@@ -23,6 +23,8 @@ import BoardPage from "./pages/BoardPage/BoardPage";
 import SettingProjectPage from "./pages/SettingProjectPage/SettingProjectPage";
 import AdminLayout from "./layouts/AdminLayout/AdminLayout";
 import ManageUser from "./pages/AdminPage/ManageUser/ManageUser";
+import Dashboard from "./pages/AdminPage/Dashboard/Dashboard";
+import ProjectStatistic from "./pages/AdminPage/ProjectStatistic/ProjectStatistic";
 
 function App() {
   const router = createBrowserRouter([
@@ -99,8 +101,17 @@ function App() {
       element: <AdminLayout />,
       children: [
         {
+          index: true,
+          path: route.dashboard,
+          element: <Dashboard />,
+        },
+        {
           path: route.adminUser,
           element: <ManageUser />,
+        },
+        {
+          path: route.projectStatistic,
+          element: <ProjectStatistic />,
         },
       ],
     },
