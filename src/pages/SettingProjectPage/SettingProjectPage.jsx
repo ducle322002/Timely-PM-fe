@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, Switch, Button, Modal } from "antd";
+import { Card, Switch, Button, Modal, Input } from "antd";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
 import projectService from "../../services/projectService";
 import toast from "react-hot-toast";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 
 export default function SettingProjectPage() {
   const { id } = useParams();
@@ -51,6 +52,16 @@ export default function SettingProjectPage() {
         <div className="flex justify-between items-center mb-4">
           <span className="text-lg font-medium">Enable Notifications</span>
           <Switch defaultChecked />
+        </div>
+
+        <div className="flex justify-between items-center mb-4">
+          <span className="text-lg font-medium">Project Code</span>
+          <Input.Password
+            value={projectDetail.code}
+            readOnly
+            bordered={false}
+            style={{ width: "100px", backgroundColor: "transparent" }}
+          />
         </div>
 
         <div className="flex justify-between items-center">

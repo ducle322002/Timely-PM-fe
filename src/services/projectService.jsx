@@ -32,8 +32,9 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
 const projectService = {
   getProjects: () => request("GET", "project"),
   getProjectsForUser: () => request("GET", "project/user"),
-  getMembers: (projectIdParam) =>
-    request("GET", `member`, null, {}, projectIdParam),
+  getMembers: (projectId) => request("GET", `member/${projectId}`),
+  getMemberRequest: (projectId) =>
+    request("GET", `member/${projectId}/pending`),
   inviteMember: (projectId, params) =>
     request("POST", `project/${projectId}/invite`, null, {}, params),
   createProjects: (projectData) =>
@@ -44,6 +45,10 @@ const projectService = {
 
   removeMember: (projectId, params) =>
     request("DELETE", `project/${projectId}/delete/member`, null, {}, params),
+
+  joinProject: (params) => request("POST", `project/join`, null, {}, params),
+  statusMember: (projectId, params) =>
+    request("PUT", `member/${projectId}/status`, null, {}, params),
 };
 
 export default projectService;

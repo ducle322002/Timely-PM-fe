@@ -21,10 +21,14 @@ export default function IntroWorkspacePage() {
   const user = useSelector(selectUser);
 
   const [isModalCreateProject, setIsModalCreateProject] = useState(false);
+  const [isModalJoinProject, setIsModalJoinProject] = useState(false);
+
   const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
   const [progress, setProgress] = useState(0);
   const [projects, setProjects] = useState([]);
   const [formCreateProject] = Form.useForm();
+  const [formJoinProject] = Form.useForm();
+
   const navigate = useNavigate();
   const showModalCreateProject = () => {
     setIsModalCreateProject(true);
@@ -32,6 +36,7 @@ export default function IntroWorkspacePage() {
   const handleCancelCreateProject = () => {
     setIsModalCreateProject(false);
   };
+
   const fetchProject = async () => {
     try {
       const response = await projectService.getProjectsForUser();
@@ -102,6 +107,23 @@ export default function IntroWorkspacePage() {
     }
   };
 
+  const handleJoinProject = async (values) => {
+    const params = {
+      code: values.code,
+    };
+    try {
+      const response = await projectService.joinProject(params);
+      console.log(response);
+      fetchProject();
+      formJoinProject.resetFields();
+      setIsModalJoinProject(false);
+      toast.success("Joining Project Request Sent, Please Wait For Approval");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
   return (
     <div>
       <motion.div
@@ -121,7 +143,9 @@ export default function IntroWorkspacePage() {
                   <Menu.Item onClick={() => showModalCreateProject()}>
                     Create new Workspace
                   </Menu.Item>
-                  <Menu.Item>Join an existing Workspace</Menu.Item>
+                  <Menu.Item onClick={() => setIsModalJoinProject(true)}>
+                    Join an existing Workspace
+                  </Menu.Item>
                 </Menu>
               </div>
             </Card>
@@ -181,6 +205,44 @@ export default function IntroWorkspacePage() {
               {
                 required: true,
                 message: "Please Enter Project Name",
+              },
+            ]}
+          >
+            <Input type="text" />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        open={isModalJoinProject}
+        onCancel={handleCancelCreateProject}
+        title="Join Project"
+        footer={[
+          <Button key="back" onClick={() => setIsModalJoinProject(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => formJoinProject.submit()}
+          >
+            Join
+          </Button>,
+        ]}
+      >
+        <Form
+          layout="vertical"
+          form={formJoinProject}
+          onFinish={handleJoinProject}
+          requiredMark={false}
+        >
+          <Form.Item
+            label="Project Code"
+            name="code"
+            rules={[
+              {
+                required: true,
+                message: "Please Enter Project Code",
               },
             ]}
           >

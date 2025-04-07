@@ -42,6 +42,7 @@ import { motion } from "framer-motion";
 import "./ProjectDetailPage.scss";
 import issueService from "../../services/issueService";
 import questionService from "../../services/questionService";
+import TabPane from "antd/es/tabs/TabPane";
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
@@ -70,9 +71,12 @@ export default function ProjectDetailPage() {
   const [formUpdateTopic] = Form.useForm();
   const [formCreateIssueInTask] = Form.useForm();
   const [formUpdateTask] = Form.useForm();
+  const [formUpdateStatusMember] = Form.useForm();
 
   const [selectedTopic, setSelectedTopic] = useState({});
   const [members, setMembers] = useState([]);
+  const [memberRequest, setMemberRequest] = useState([]);
+
   const [tasks, setTasks] = useState([]);
   const [taskDetail, setTaskDetail] = useState(null);
   const [issueDetail, setIssueDetail] = useState({});
@@ -114,10 +118,7 @@ export default function ProjectDetailPage() {
 
   const fetchMemberProject = async () => {
     try {
-      const params = {
-        projectId: id,
-      };
-      const response = await projectService.getMembers(params);
+      const response = await projectService.getMembers(id);
       console.log(response.data);
       setMembers(response.data);
     } catch (error) {
@@ -125,6 +126,15 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const fetchMemberRequestProject = async () => {
+    try {
+      const response = await projectService.getMemberRequest(id);
+      console.log("Member Request", response.data);
+      setMemberRequest(response.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  };
   const fetchTasks = async () => {
     setLoadingTasks(true); // Set loading state to true
 
@@ -244,6 +254,7 @@ export default function ProjectDetailPage() {
   };
 
   useEffect(() => {
+    fetchMemberRequestProject();
     fetchMemberProject();
     fetchProjectDetail();
   }, [id]);
@@ -1033,6 +1044,30 @@ export default function ProjectDetailPage() {
       toast.success("Member removed successfully!");
       fetchMemberProject();
       setIsRemoveMemberModal(false);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error(error.response.data);
+    }
+  };
+
+  const handleStatusMember = async (values, member, status) => {
+    const params = {
+      memberId: member.id,
+      role: values?.role ? values?.role : "",
+      status: status,
+    };
+    try {
+      if (status === "APPROVED") {
+        const response = await projectService.statusMember(id, params);
+        toast.success(" Approved Member successfully!");
+        console.log(response);
+      } else if (status === "REJECTED") {
+        const response = await projectService.statusMember(id, params);
+        toast.success("Rejected Member successfully!");
+        console.log(response);
+      }
+      fetchMemberProject();
+      fetchMemberRequestProject();
     } catch (error) {
       toast.error(error.response.data.message);
       console.error(error.response.data);
@@ -1909,49 +1944,122 @@ export default function ProjectDetailPage() {
           <Button onClick={() => setIsProjectMemberModal(false)}>Close</Button>
         }
       >
-        <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 pb-2">
-          {members.map((member) => (
-            <div
-              key={member.id}
-              className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
-            >
-              <div className="flex items-center gap-4">
-                <Avatar
-                  icon={<UserOutlined />}
-                  src={member.avatarUrl}
-                  size="large"
-                />
-                <div>
-                  <p className="font-medium text-base text-gray-800">
-                    {member.fullName}
-                  </p>
-                  <p className="text-sm text-gray-500">{member.email}</p>
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="Members" key="1">
+            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 pb-2">
+              {members.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-4">
+                    <Avatar
+                      icon={<UserOutlined />}
+                      src={member.avatarUrl}
+                      size="large"
+                    />
+                    <div>
+                      <p className="font-medium text-base text-gray-800">
+                        {member.fullName}
+                      </p>
+                      <p className="text-sm text-gray-500">{member.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-gray-600">
+                    <span className="block">
+                      <strong>Role:</strong> {member.role}
+                    </span>
+                    <span className="block">
+                      <strong>Joined:</strong>{" "}
+                      {moment(member.createdAt).format("DD/MM/YYYY")}
+                    </span>
+                  </div>
+
+                  <Popconfirm
+                    title={`Are you sure to remove ${member.fullName} from the project?`}
+                    description="This action cannot be undone."
+                    onConfirm={() => handleRemoveMember(member.id)}
+                    okText="Yes"
+                    okType="danger"
+                    cancelText="No"
+                  >
+                    <Button danger>Remove</Button>
+                  </Popconfirm>
                 </div>
-              </div>
-
-              <div className="text-sm text-gray-600">
-                <span className="block">
-                  <strong>Role:</strong> {member.role}
-                </span>
-                <span className="block">
-                  <strong>Joined:</strong>{" "}
-                  {moment(member.createdAt).format("DD/MM/YYYY")}
-                </span>
-              </div>
-
-              <Popconfirm
-                title={`Are you sure to remove ${member.fullName} from the project?`}
-                description="This action cannot be undone."
-                onConfirm={() => handleRemoveMember(member.id)}
-                okText="Yes"
-                okType="danger"
-                cancelText="No"
-              >
-                <Button danger>Remove</Button>
-              </Popconfirm>
+              ))}
             </div>
-          ))}
-        </div>
+          </TabPane>
+          <TabPane tab="Pending Request" key="2">
+            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 pb-2">
+              {memberRequest.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-4">
+                    <Avatar
+                      icon={<UserOutlined />}
+                      src={member.avatarUrl}
+                      size="large"
+                    />
+                    <div>
+                      <p className="font-medium text-base text-gray-800">
+                        {member.fullName}
+                      </p>
+                      <p className="text-sm text-gray-500">{member.email}</p>
+                    </div>
+                  </div>
+
+                  <Popconfirm
+                    title={`Are you sure to Approve ${member.fullName} to join the project?`}
+                    description={
+                      <>
+                        <p>This action cannot be undone.</p>
+                        <Form
+                          requiredMark={false}
+                          layout="vertical"
+                          title="Role"
+                          onFinish={(values) =>
+                            handleStatusMember(values, member, "APPROVED")
+                          }
+                          form={formUpdateStatusMember}
+                        >
+                          <Form.Item name="role" required>
+                            <Select placeholder="Select Role" size="large">
+                              <Select.Option value="DEV">Dev</Select.Option>
+                              <Select.Option value="QA">Qa</Select.Option>
+                            </Select>
+                          </Form.Item>
+                        </Form>
+                      </>
+                    }
+                    onConfirm={() => formUpdateStatusMember.submit()}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button type="primary">Approve</Button>
+                  </Popconfirm>
+
+                  <Popconfirm
+                    title={`Are you sure to Reject ${member.fullName} from the project?`}
+                    description="This action cannot be undone."
+                    onConfirm={() =>
+                      handleStatusMember(null, member, "REJECTED")
+                    }
+                    okText="Yes"
+                    okType="danger"
+                    cancelText="No"
+                  >
+                    <Button color="danger" variant="solid">
+                      Rejected
+                    </Button>
+                  </Popconfirm>
+                </div>
+              ))}
+            </div>
+          </TabPane>
+        </Tabs>
       </Modal>
 
       <Modal
