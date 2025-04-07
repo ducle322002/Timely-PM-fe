@@ -507,27 +507,39 @@ export default function ProjectDetailPage() {
       projectId: id,
       topicId: activeTabKey,
     };
-    const requestData = {
-      label: values.label,
-      summer: values.summer,
-      description: values.description,
-      attachment: "string",
-      startDate: dayjs(values.dateRange[0]).toISOString(),
-      dueDate: dayjs(values.dateRange[1]).toISOString(),
-      priority: values.priority,
-      severity: values.severity,
-    };
-    console.log(requestData);
+
+    const formDataIssue = new FormData();
+    formDataIssue.append("label", values.label);
+    formDataIssue.append("assigneeTo", values.assigneeTo);
+    formDataIssue.append("reporter", values.reporter);
+    formDataIssue.append("summer", values.summer);
+    formDataIssue.append("description", values.description);
+    formDataIssue.append(
+      "startDate",
+      dayjs(values.dateRange[0]).format("YYYY-MM-DD")
+    );
+    formDataIssue.append(
+      "dueDate",
+      dayjs(values.dateRange[1]).format("YYYY-MM-DD")
+    );
+    formDataIssue.append("priority", values.priority);
+    formDataIssue.append("severity", values.severity);
+    if (fileList.length > 0) {
+      formDataIssue.append("file", fileList[0].originFileObj);
+    }
+
+    console.log(formDataIssue);
     try {
       const response = await taskService.createIssueInTask(
         taskDetail.id,
-        requestData,
+        formDataIssue,
         params
       );
       console.log(response);
       toast.success("Issue created successfully!");
       fetchTasks();
       fetchTaskDetail(taskDetail);
+      setFileList([]);
       setIsCreateIssueInTaskModal(false);
       formCreateIssueInTask.resetFields();
     } catch (error) {
@@ -848,7 +860,12 @@ export default function ProjectDetailPage() {
                   columns={
                     topic.type === "QUESTION" ? questionColumns : taskColumns
                   }
-                  pagination={false}
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: false,
+                    hideOnSinglePage: true,
+                    position: ["bottomCenter"],
+                  }}
                   bordered={false}
                   rowHoverable={false}
                   onRow={(record) => ({
@@ -2107,6 +2124,42 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Enter Description" }]}
           >
             <TextArea rows={3} />
+          </Form.Item>
+
+          <Form.Item
+            name="assigneeTo"
+            label="Assign to"
+            rules={[{ required: true, message: "Please Select Assignee" }]}
+          >
+            <Select placeholder="Select Team member" size="large">
+              {members.map((member) => (
+                <Select.Option value={member.id}>
+                  <div className="!flex !justify-start !items-center !gap-[5%]">
+                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                    <span>{member.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="reporter"
+            label="Reporter"
+            rules={[{ required: true, message: "Please Select Reporter" }]}
+          >
+            <Select placeholder="Select Reporter" size="large">
+              {members
+                .filter((member) => member.role === "QA")
+                .map((member) => (
+                  <Select.Option value={member.id}>
+                    <div className="!flex !justify-start !items-center !gap-[5%]">
+                      <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                      <span>{member.fullName}</span>
+                    </div>
+                  </Select.Option>
+                ))}
+            </Select>
           </Form.Item>
 
           <Form.Item name="attachment" label="Attachment">
