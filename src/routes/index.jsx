@@ -18,4 +18,5 @@ export const route = {
   dashboard: "dashboard",
   projectStatistic: "project-statistic",
   adminUser: "manage-user",
+  newsManagement: "news-management",
 };

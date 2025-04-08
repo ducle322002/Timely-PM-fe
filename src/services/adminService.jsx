@@ -1,3 +1,4 @@
+import create from "@ant-design/icons/lib/components/IconFont";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -34,6 +35,13 @@ const adminService = {
   getDataDashboard: () => request("GET", "admin/dashboard"),
   getAllProject: () => request("GET", "admin/project"),
   banUser: (userId) => request("DELETE", `user/${userId}`),
+
+  getAllNews: () => request("GET", "news"),
+  createNews: (data) => request("POST", "news/create", data),
+  imageNews: (data) =>
+    request("POST", "news/image", data, {
+      "Content-Type": "multipart/form-data",
+    }),
 };
 
 export default adminService;

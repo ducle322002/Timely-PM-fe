@@ -25,6 +25,7 @@ import AdminLayout from "./layouts/AdminLayout/AdminLayout";
 import ManageUser from "./pages/AdminPage/ManageUser/ManageUser";
 import Dashboard from "./pages/AdminPage/Dashboard/Dashboard";
 import ProjectStatistic from "./pages/AdminPage/ProjectStatistic/ProjectStatistic";
+import NewsManagement from "./pages/AdminPage/NewsManagement/NewsManagement";
 
 function App() {
   const router = createBrowserRouter([
@@ -112,6 +113,10 @@ function App() {
         {
           path: route.projectStatistic,
           element: <ProjectStatistic />,
+        },
+        {
+          path: route.newsManagement,
+          element: <NewsManagement />,
         },
       ],
     },
