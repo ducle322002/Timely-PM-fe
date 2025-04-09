@@ -61,6 +61,25 @@ export default function NewsManagement() {
         );
       },
     },
+
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (text, record) => {
+        return (
+          <Button
+            color="danger"
+            variant="solid"
+            onClick={() => {
+              handleDeleteNews(record);
+            }}
+          >
+            Delete
+          </Button>
+        );
+      },
+    },
   ];
 
   const imageHandler = useCallback(() => {
@@ -134,6 +153,39 @@ export default function NewsManagement() {
   //     toolbar.addHandler("image", imageHandler);
   //   }
   // }, []);
+  const parseImageAlts = (html) => {
+    // Convert Google Drive image URLs to direct image links
+
+    // Add alt="news image" to any <img> tag that doesn't have an alt attribute
+    const withAltText = html.replace(
+      /<img(?![^>]*\balt=)([^>]*)>/g,
+      '<img alt="news image"$1>'
+    );
+
+    return withAltText;
+  };
+
+  const handleDeleteNews = async (record) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this news?",
+      content: `Title: ${record.title}`,
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          const response = await adminService.deleteNews(record.id);
+          console.log(response.data);
+          toast.success("News deleted successfully");
+          fetchNews(); // Refresh the news list after deleting
+        } catch (error) {
+          console.error("Error deleting news:", error);
+          toast.error(error.response.data.message);
+        }
+      },
+    });
+  };
+
   return (
     <div>
       <Button
@@ -202,7 +254,11 @@ export default function NewsManagement() {
         {selectedNews && (
           <div
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(selectedNews.content),
+              __html: DOMPurify.sanitize(
+                parseImageAlts(
+                  selectedNews.content || "<p>No Content Available</p>"
+                )
+              ),
             }}
             style={{
               padding: "1rem",

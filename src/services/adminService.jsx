@@ -38,6 +38,7 @@ const adminService = {
 
   getAllNews: () => request("GET", "news"),
   createNews: (data) => request("POST", "news/create", data),
+  deleteNews: (newsId) => request("DELETE", `news/${newsId}`),
   imageNews: (data) =>
     request("POST", "news/image", data, {
       "Content-Type": "multipart/form-data",
