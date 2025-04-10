@@ -31,31 +31,27 @@ export default function HeaderWelcome() {
           <img src={logoNoBg} alt="" className="h-[50px]" />
           Timely PM
         </Link>
-
-        {user && user.username && (
-          <div className="w-[250px]">
-            <Menu theme="light" mode="horizontal">
-              <Menu.Item key={1} className="!py-[5%]">
-                <Link to={`${route.home}/${route.introWorkspace}`}>
-                  Go To Your Workspace
-                </Link>
-              </Menu.Item>
-              {/* <Menu.SubMenu
-              key={"1"}
-              icon={""}
-              title="About Us"
-              className="!py-[15%]"
-            >
-              <Menu.Item key={2}>
-                <Link to={`${route.home}/${route.introWorkspace}`}>
-                  Go To Your Workspace
-                </Link>
-              </Menu.Item>
-            </Menu.SubMenu> */}
-            </Menu>
-          </div>
-        )}
       </div>
+
+      {user && user.username && (
+        <div className="flex justify-between items-center w-[800px]">
+          <div className="hover:color-[#1968db] hover:!underline">
+            <Link to={`${route.home}/${route.introWorkspace}`}>
+              Go To Your Workspace
+            </Link>
+          </div>
+          <div className="hover:color-[#1968db] hover:underline">
+            <Link to={`${route.home}/${route.introWorkspace}`}>
+              News & Update
+            </Link>
+          </div>
+          <div className="hover:color-[#1968db] hover:underline">
+            <Link to={`${route.home}/${route.introWorkspace}`}>
+              Go To Your Workspace
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-between items-center gap-[10%]">
         {user ? (

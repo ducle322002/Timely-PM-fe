@@ -25,7 +25,7 @@ import {
   Popconfirm,
 } from "antd";
 const { RangePicker } = DatePicker;
-import React, { Children, useEffect, useState } from "react";
+import React, { Children, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import TextArea from "antd/es/input/TextArea";
@@ -43,6 +43,7 @@ import "./ProjectDetailPage.scss";
 import issueService from "../../services/issueService";
 import questionService from "../../services/questionService";
 import TabPane from "antd/es/tabs/TabPane";
+import Cookies from "js-cookie";
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
@@ -92,8 +93,38 @@ export default function ProjectDetailPage() {
   const [selectedMember, setSelectedMember] = useState(null);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [countdown, setCountdown] = useState(null);
-
+  const [comments, setComments] = useState([]);
   const user = useSelector(selectUser);
+  const ws = useRef(null);
+
+  useEffect(() => {
+    const token = Cookies.get("token")?.replaceAll('"', "");
+    // Connect to WebSocket server
+    ws.current = new WebSocket("ws://14.225.220.28:8080/comment");
+
+    ws.current.onopen = () => {
+      console.log("WebSocket connected");
+      ws.current.send("Hello from React!");
+    };
+
+    ws.current.onmessage = (event) => {
+      console.log("Received:", event.data);
+      setComments((prev) => [...prev, event.data]);
+    };
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    // Cleanup on unmount
+    return () => {
+      ws.current.close();
+    };
+  }, []);
 
   const fetchProjectDetail = async () => {
     try {
@@ -691,14 +722,12 @@ export default function ProjectDetailPage() {
         </p>
         <span
           className={`px-2 py-1 text-xs rounded-full text-white ${
-            issue.severity === "CATASTROPHIC"
+            issue.severity === "MINOR"
               ? "bg-red-700"
-              : issue.severity === "SEVERE"
+              : issue.severity === "MAJOR"
               ? "bg-red-500"
-              : issue.severity === "SIGNIFICANT"
+              : issue.severity === "CRITICAL"
               ? "bg-orange-500"
-              : issue.severity === "MODERATE"
-              ? "bg-yellow-500"
               : "bg-green-500"
           }`}
         >
@@ -1307,15 +1336,11 @@ export default function ProjectDetailPage() {
                               className={`inline-block px-3 py-1 rounded-full ${
                                 taskDetail.severity === "MINOR"
                                   ? "bg-green-100"
-                                  : taskDetail.severity === "MODERATE"
+                                  : taskDetail.severity === "MAJOR"
                                   ? "bg-yellow-100"
-                                  : taskDetail.severity === "SIGNIFICANT"
+                                  : taskDetail.severity === "CRITICAL"
                                   ? "bg-orange-200"
-                                  : taskDetail.severity === "SEVERE"
-                                  ? "bg-red-200"
-                                  : taskDetail.severity === "CATASTROPHIC"
-                                  ? "bg-red-500 text-white"
-                                  : "bg-gray-200"
+                                  : "bg-red-200"
                               }`}
                             >
                               {taskDetail.severity}
@@ -1697,10 +1722,8 @@ export default function ProjectDetailPage() {
           >
             <Select placeholder="Select severity" size="large">
               <Select.Option value="MINOR">Minor</Select.Option>
-              <Select.Option value="MODERATE">Moderate</Select.Option>
-              <Select.Option value="SIGNIFICANT">Significant</Select.Option>
-              <Select.Option value="SEVERE">Severe</Select.Option>
-              <Select.Option value="CATASTROPHIC">Catastrophic</Select.Option>
+              <Select.Option value="MAJOR">Major</Select.Option>
+              <Select.Option value="CRITICAL">Critical</Select.Option>
             </Select>
           </Form.Item>
         </Form>
@@ -2215,10 +2238,8 @@ export default function ProjectDetailPage() {
           >
             <Select placeholder="Select severity" size="large">
               <Select.Option value="MINOR">Minor</Select.Option>
-              <Select.Option value="MODERATE">Moderate</Select.Option>
-              <Select.Option value="SIGNIFICANT">Significant</Select.Option>
-              <Select.Option value="SEVERE">Severe</Select.Option>
-              <Select.Option value="CATASTROPHIC">Catastrophic</Select.Option>
+              <Select.Option value="MAJOR">Major</Select.Option>
+              <Select.Option value="CRITICAL">Critical</Select.Option>
             </Select>
           </Form.Item>
         </Form>
