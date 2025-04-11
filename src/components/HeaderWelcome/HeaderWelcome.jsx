@@ -34,22 +34,22 @@ export default function HeaderWelcome() {
       </div>
 
       {user && user.username && (
-        <div className="flex justify-between items-center w-[800px]">
-          <div className="hover:color-[#1968db] hover:!underline">
-            <Link to={`${route.home}/${route.introWorkspace}`}>
-              Go To Your Workspace
-            </Link>
-          </div>
-          <div className="hover:color-[#1968db] hover:underline">
-            <Link to={`${route.home}/${route.introWorkspace}`}>
-              News & Update
-            </Link>
-          </div>
-          <div className="hover:color-[#1968db] hover:underline">
-            <Link to={`${route.home}/${route.introWorkspace}`}>
-              Go To Your Workspace
-            </Link>
-          </div>
+        <div className="flex justify-between items-center">
+          <Menu mode="horizontal" className="!bg-white !border-none">
+            <Menu.Item key="setting" icon={<SettingOutlined />}>
+              <Link to={`${route.home}/${route.introWorkspace}`}>
+                Go To Your Workspace
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="News" icon={<SettingOutlined />}>
+              <Link to={`${route.blog}`}>News & Update</Link>
+            </Menu.Item>
+            <Menu.Item key="Setting" icon={<SettingOutlined />}>
+              <Link to={`${route.home}/${route.introWorkspace}`}>
+                Go To Your Workspace
+              </Link>
+            </Menu.Item>
+          </Menu>
         </div>
       )}
 

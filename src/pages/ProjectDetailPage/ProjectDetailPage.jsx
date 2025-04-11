@@ -96,11 +96,24 @@ export default function ProjectDetailPage() {
   const [comments, setComments] = useState([]);
   const user = useSelector(selectUser);
   const ws = useRef(null);
+  const [newComment, setNewComment] = useState("");
+
+  const handleSendComment = () => {
+    const token = Cookies.get("token")?.replaceAll('"', "");
+    if (ws.current && newComment.trim()) {
+      const commentData = {
+        questionId: taskDetail.id,
+        token: token,
+        content: newComment,
+      };
+      ws.current.send(JSON.stringify(commentData));
+      setNewComment(""); // Clear the input field
+    }
+  };
 
   useEffect(() => {
-    const token = Cookies.get("token")?.replaceAll('"', "");
     // Connect to WebSocket server
-    ws.current = new WebSocket("ws://14.225.220.28:8080/comment");
+    ws.current = new WebSocket(`ws://14.225.220.28:8080/comment`);
 
     ws.current.onopen = () => {
       console.log("WebSocket connected");
@@ -108,8 +121,9 @@ export default function ProjectDetailPage() {
     };
 
     ws.current.onmessage = (event) => {
-      console.log("Received:", event.data);
-      setComments((prev) => [...prev, event.data]);
+      const newComment = JSON.parse(event.data);
+      setComments((prev) => [...prev, newComment]);
+      console.log("Comments:", comments);
     };
 
     ws.current.onerror = (error) => {
@@ -470,7 +484,7 @@ export default function ProjectDetailPage() {
       toast.error(error.response.data.message);
     }
   };
-
+  console.log(comments);
   const handleCreateQuestion = async (values) => {
     const params = {
       projectId: id,
@@ -1048,6 +1062,7 @@ export default function ProjectDetailPage() {
   };
 
   const handleUpdateTask = async (values) => {
+    console.log(values);
     const formDataUpdate = new FormData();
     formDataUpdate.append("summer", values.summer);
     formDataUpdate.append("description", values.description);
@@ -1405,6 +1420,44 @@ export default function ProjectDetailPage() {
                       )}
                     </div>
                   )}
+
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold">Comments</h3>
+                    <div className="mt-4 space-y-4">
+                      {comments.map((comment, index) => (
+                        <div
+                          key={index}
+                          className="p-4 bg-gray-100 rounded-lg flex justify-between items-center"
+                        >
+                          <div>
+                            <p className="text-xl font-bold">
+                              {comment.fullName}
+                            </p>
+                            <p className="text-gray-700">{comment.content}</p>
+                          </div>
+
+                          <div>
+                            <p className="text-sm text-gray-500">
+                              {moment(comment.createdAt).format(
+                                "DD/MM/YYYY HH:mm"
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <Input.TextArea
+                        rows={2}
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Write a comment..."
+                      />
+                      <Button type="primary" onClick={handleSendComment}>
+                        Send
+                      </Button>
+                    </div>
+                  </div>
                 </motion.div>
               ) : (
                 <div className="text-gray-400 text-center mt-10">
@@ -2291,7 +2344,7 @@ export default function ProjectDetailPage() {
           form={formUpdateTask}
           layout="vertical"
           requiredMark={false}
-          onFinish={() => handleUpdateTask(taskDetail)}
+          onFinish={handleUpdateTask}
         >
           <Form.Item
             name="summer"

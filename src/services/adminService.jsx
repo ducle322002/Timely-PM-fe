@@ -43,6 +43,8 @@ const adminService = {
     request("POST", "news/image", data, {
       "Content-Type": "multipart/form-data",
     }),
+
+  getBlogDetail: (newsId) => request("GET", `news/${newsId}`),
 };
 
 export default adminService;

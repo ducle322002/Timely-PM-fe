@@ -3,7 +3,8 @@ export const route = {
   login: "/login",
   register: "/register",
   verifyEmail: "/verify-email",
-
+  blog: "/blog",
+  blogDetail: "/blog/:id",
   home: "/home",
   introWorkspace: "intro-workspace",
 
@@ -19,4 +20,5 @@ export const route = {
   projectStatistic: "project-statistic",
   adminUser: "manage-user",
   newsManagement: "news-management",
+  projectIssue: "project-issue",
 };

@@ -26,6 +26,9 @@ import ManageUser from "./pages/AdminPage/ManageUser/ManageUser";
 import Dashboard from "./pages/AdminPage/Dashboard/Dashboard";
 import ProjectStatistic from "./pages/AdminPage/ProjectStatistic/ProjectStatistic";
 import NewsManagement from "./pages/AdminPage/NewsManagement/NewsManagement";
+import IssueProjectPage from "./pages/IssueProjectPage/IssueProjectPage";
+import BlogPage from "./pages/BlogPage/BlogPage";
+import BlogDetailPage from "./pages/BlogDetailPage/BlogDetailPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -48,6 +51,14 @@ function App() {
         {
           path: route.verifyEmail,
           element: <EmailVerifiedPage />,
+        },
+        {
+          path: route.blog,
+          element: <BlogPage />,
+        },
+        {
+          path: route.blogDetail,
+          element: <BlogDetailPage />,
         },
       ],
     },
@@ -93,6 +104,10 @@ function App() {
         {
           path: `${route.workspace}/${route.project}/:id/${route.projectSetting}`,
           element: <SettingProjectPage />,
+        },
+        {
+          path: `${route.workspace}/${route.project}/:id/${route.projectIssue}`,
+          element: <IssueProjectPage />,
         },
       ],
     },
