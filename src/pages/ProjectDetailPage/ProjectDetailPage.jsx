@@ -107,9 +107,23 @@ export default function ProjectDetailPage() {
         content: newComment,
       };
       ws.current.send(JSON.stringify(commentData));
+
       setNewComment(""); // Clear the input field
     }
   };
+  useEffect(() => {
+    if (ws.current && taskDetail) {
+      const token = Cookies.get("token")?.replaceAll('"', "");
+      const commentData = {
+        questionId: taskDetail.id,
+        token: token,
+        action: "getComments",
+      };
+
+      // Request comments for the selected task
+      ws.current.send(JSON.stringify(commentData));
+    }
+  }, [taskDetail]);
 
   useEffect(() => {
     // Connect to WebSocket server
@@ -122,8 +136,19 @@ export default function ProjectDetailPage() {
 
     ws.current.onmessage = (event) => {
       const newComment = JSON.parse(event.data);
-      setComments((prev) => [...prev, newComment]);
-      console.log("Comments:", comments);
+
+      // Check if the received data is a single comment or an array
+      if (Array.isArray(newComment)) {
+        // If it's an array, replace the entire comments list
+        setComments(
+          newComment.sort(
+            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+          )
+        );
+      } else {
+        // If it's a single comment, append it to the existing list
+        setComments((prev) => [...prev, newComment]);
+      }
     };
 
     ws.current.onerror = (error) => {
@@ -1248,7 +1273,6 @@ export default function ProjectDetailPage() {
                       </span>
                     </div>
                   </div>
-
                   {taskDetail.reporter && (
                     <div className="flex items-center gap-4 mb-4">
                       <p className="w-25">Reported by: </p>
@@ -1262,7 +1286,6 @@ export default function ProjectDetailPage() {
                       </div>
                     </div>
                   )}
-
                   {taskDetail.createBy && (
                     <div className="flex items-center gap-4 mb-4">
                       <p className="w-25">Created by: </p>
@@ -1287,7 +1310,6 @@ export default function ProjectDetailPage() {
                       </div>
                     </div>
                   )}
-
                   <div className="flex gap-6 mb-4">
                     <div>
                       <p className="text-sm text-gray-500">Start Date</p>
@@ -1398,7 +1420,6 @@ export default function ProjectDetailPage() {
                       )}
                     </div>
                   </div>
-
                   {issueInTask != null && (
                     <div className="mt-4">
                       <p className="text-lg font-semibold text-gray-700 mb-2">
@@ -1420,44 +1441,62 @@ export default function ProjectDetailPage() {
                       )}
                     </div>
                   )}
-
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold">Comments</h3>
-                    <div className="mt-4 space-y-4">
-                      {comments.map((comment, index) => (
-                        <div
-                          key={index}
-                          className="p-4 bg-gray-100 rounded-lg flex justify-between items-center"
-                        >
-                          <div>
-                            <p className="text-xl font-bold">
-                              {comment.fullName}
-                            </p>
-                            <p className="text-gray-700">{comment.content}</p>
-                          </div>
-
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              {moment(comment.createdAt).format(
-                                "DD/MM/YYYY HH:mm"
-                              )}
-                            </p>
-                          </div>
+                  {taskDetail.createBy && (
+                    <>
+                      <div className="mt-6">
+                        <h3 className="text-lg font-semibold">Comments</h3>
+                        <div className="mt-4 space-y-4 overflow-y-auto max-h-[30vh]">
+                          {comments.map((comment) => (
+                            <div
+                              key={comment.id}
+                              className="p-4 bg-gray-100 rounded-lg flex items-start gap-4 shadow-sm hover:shadow-md transition"
+                            >
+                              <div className="flex-shrink-0">
+                                <Avatar
+                                  size="large"
+                                  style={{
+                                    backgroundColor:
+                                      comment.userId === user.id
+                                        ? "#1890ff"
+                                        : "#f56a00",
+                                  }}
+                                >
+                                  {comment.fullName?.charAt(0).toUpperCase()}
+                                </Avatar>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-center">
+                                  <p className="font-medium text-gray-800">
+                                    {comment.fullName}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    {moment(comment.createdAt).format(
+                                      "DD/MM/YYYY HH:mm"
+                                    )}
+                                  </p>
+                                </div>
+                                <p className="text-gray-700 mt-1">
+                                  {comment.content}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 flex items-center gap-2">
-                      <Input.TextArea
-                        rows={2}
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Write a comment..."
-                      />
-                      <Button type="primary" onClick={handleSendComment}>
-                        Send
-                      </Button>
-                    </div>
-                  </div>
+                        <div className="mt-4 flex items-center gap-2">
+                          <Input.TextArea
+                            rows={2}
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Write a comment..."
+                            className="flex-1"
+                          />
+                          <Button type="primary" onClick={handleSendComment}>
+                            Send
+                          </Button>
+                        </div>
+                      </div>
+                    </>
+                  )}{" "}
                 </motion.div>
               ) : (
                 <div className="text-gray-400 text-center mt-10">
