@@ -51,7 +51,24 @@ export default function IntroWorkspacePage() {
   const items = projects.map((project) => {
     return {
       key: project.id,
-      label: project.name,
+      label: (
+        <div className="flex justify-between items-center">
+          <span className="font-medium">{project.name}</span>
+          <span
+            className={`ml-2 px-2 py-1 text-xs rounded-full ${
+              project.status === "PENDING"
+                ? "bg-yellow-100 text-yellow-600"
+                : project.status === "PROCESSING"
+                ? "bg-blue-100 text-blue-600"
+                : project.status === "DONE"
+                ? "bg-green-100 text-green-600"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {project.status}
+          </span>
+        </div>
+      ),
       children: (
         <div className="flex justify-between items-center">
           <p>{project.name}</p>
