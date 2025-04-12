@@ -49,6 +49,11 @@ const projectService = {
   joinProject: (params) => request("POST", `project/join`, null, {}, params),
   statusMember: (projectId, params) =>
     request("PUT", `member/${projectId}/status`, null, {}, params),
+
+  getTasksForProject: (projectId) =>
+    request("GET", `task/task/${projectId}/project`),
+  getIssuesForProject: (projectId) =>
+    request("GET", `issue/issue/${projectId}/project`),
 };
 
 export default projectService;

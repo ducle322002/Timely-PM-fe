@@ -1460,6 +1460,7 @@ export default function ProjectDetailPage() {
                                         ? "#1890ff"
                                         : "#f56a00",
                                   }}
+                                  src={comment.avatarUrl}
                                 >
                                   {comment.fullName?.charAt(0).toUpperCase()}
                                 </Avatar>
