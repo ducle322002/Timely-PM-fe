@@ -11,11 +11,13 @@ import {
   Menu,
   Modal,
   Progress,
+  Steps,
 } from "antd";
 import toast from "react-hot-toast";
 import projectService from "../../services/projectService";
 import { useNavigate } from "react-router-dom";
 import { route } from "../../routes";
+import moment from "moment/moment";
 
 export default function IntroWorkspacePage() {
   const user = useSelector(selectUser);
@@ -25,6 +27,8 @@ export default function IntroWorkspacePage() {
 
   const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [selectedProjectLog, setSelectedProjectLog] = useState({});
+
   const [projects, setProjects] = useState([]);
   const [formCreateProject] = Form.useForm();
   const [formJoinProject] = Form.useForm();
@@ -48,30 +52,64 @@ export default function IntroWorkspacePage() {
     }
   };
 
-  const items = projects.map((project) => {
-    return {
-      key: project.id,
-      label: (
-        <div className="flex justify-between items-center">
-          <span className="font-medium">{project.name}</span>
-          <span
-            className={`ml-2 px-2 py-1 text-xs rounded-full ${
-              project.status === "PENDING"
-                ? "bg-yellow-100 text-yellow-600"
-                : project.status === "PROCESSING"
-                ? "bg-blue-100 text-blue-600"
-                : project.status === "DONE"
-                ? "bg-green-100 text-green-600"
-                : "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {project.status}
-          </span>
-        </div>
-      ),
-      children: (
-        <div className="flex justify-between items-center">
-          <p>{project.name}</p>
+  const fetchProjectLog = async (projectId) => {
+    try {
+      const response = await projectService.getProjectLog(projectId);
+      console.log(response.data);
+      setSelectedProjectLog((prevLogs) => ({
+        ...prevLogs,
+        [projectId]: response.data,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const items = projects.map((project) => ({
+    key: project.id,
+    label: (
+      <div className="flex justify-between items-center">
+        <span className="font-medium">{project.name}</span>
+        <span
+          className={`ml-2 px-2 py-1 text-xs rounded-full ${
+            project.status === "PENDING"
+              ? "bg-yellow-100 text-yellow-600"
+              : project.status === "PROCESSING"
+              ? "bg-blue-100 text-blue-600"
+              : project.status === "DONE"
+              ? "bg-green-100 text-green-600"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {project.status}
+        </span>
+      </div>
+    ),
+    children: (
+      <div className="space-y-2">
+        <div className="flex justify-between items-center mb-2">
+          <div className=" max-h-[300px] w-full overflow-hidden hover:overflow-auto mr-20">
+            {/* <p className="font-semibold mb-1">Project Logs:</p> */}
+            {selectedProjectLog[project.id] ? (
+              <Steps
+                direction="vertical"
+                size="small"
+                current={selectedProjectLog[project.id].length - 1}
+                items={selectedProjectLog[project.id]
+                  .sort(
+                    (a, b) => new Date(a.updateTime) - new Date(b.updateTime)
+                  ) // Sort by updateTime
+                  .map((logEntry, idx) => ({
+                    title: moment(logEntry.updateTime).format(
+                      "DD-MM-YYYY - HH:mm"
+                    ),
+                    description: logEntry.activityType,
+                  }))}
+              />
+            ) : (
+              <p className="italic text-gray-500">Loading logs...</p>
+            )}
+          </div>
           <Button
             className="!bg-[#1968db] !text-white"
             onClick={() =>
@@ -81,10 +119,10 @@ export default function IntroWorkspacePage() {
             Go To This Workspace
           </Button>
         </div>
-      ),
-    };
-  });
-  console.log(items);
+      </div>
+    ),
+  }));
+
   useEffect(() => {
     fetchProject();
     console.log("fetching");
@@ -141,6 +179,12 @@ export default function IntroWorkspacePage() {
     }
   };
 
+  const handleCollapseChange = (key) => {
+    if (key) {
+      fetchProjectLog(key); // key is the project ID
+    }
+  };
+
   return (
     <div>
       <motion.div
@@ -180,6 +224,7 @@ export default function IntroWorkspacePage() {
                   items={items}
                   bordered={false}
                   ghost={true}
+                  onChange={handleCollapseChange}
                 />
               ) : (
                 <div className="text-center text-2xl">

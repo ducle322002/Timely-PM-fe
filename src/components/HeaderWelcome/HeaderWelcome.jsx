@@ -7,6 +7,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout, selectUser } from "../../redux/features/userSlice";
 import Cookies from "js-cookie";
 import logoNoBg from "../../assets/logoNoBG.png";
+import { FaRegNewspaper } from "react-icons/fa6";
+import { BsPersonWorkspace } from "react-icons/bs";
+import { MdAdminPanelSettings } from "react-icons/md";
 
 export default function HeaderWelcome() {
   const navigate = useNavigate();
@@ -35,20 +38,25 @@ export default function HeaderWelcome() {
 
       {user && user.username && (
         <div className="flex justify-between items-center">
-          <Menu mode="horizontal" className="!bg-white !border-none">
-            <Menu.Item key="setting" icon={<SettingOutlined />}>
+          <Menu
+            mode="horizontal"
+            className="!bg-none !border-none w-[800px] flex justify-center items-center "
+          >
+            <Menu.Item key="setting" icon={<BsPersonWorkspace />}>
               <Link to={`${route.home}/${route.introWorkspace}`}>
                 Go To Your Workspace
               </Link>
             </Menu.Item>
-            <Menu.Item key="News" icon={<SettingOutlined />}>
+            <Menu.Item key="News" icon={<FaRegNewspaper />}>
               <Link to={`${route.blog}`}>News & Update</Link>
             </Menu.Item>
-            <Menu.Item key="Setting" icon={<SettingOutlined />}>
-              <Link to={`${route.home}/${route.introWorkspace}`}>
-                Go To Your Workspace
-              </Link>
-            </Menu.Item>
+            {user.role === "ADMIN" && (
+              <Menu.Item key="Admin" icon={<MdAdminPanelSettings />}>
+                <Link to={`${route.admin}/${route.dashboard}`}>
+                  Go To Your Admin
+                </Link>
+              </Menu.Item>
+            )}
           </Menu>
         </div>
       )}
