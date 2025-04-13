@@ -39,7 +39,7 @@ export default function SidebarProject() {
       ),
 
       getItem(
-        "Issue",
+        "Overview",
         `${route.workspace}/${route.project}/${id}/${route.projectIssue}`,
         <ProjectOutlined />
       ),

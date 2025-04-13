@@ -61,8 +61,10 @@ export default function UserProfilePage() {
         <Card className="text-center w-[400px]">
           <Avatar
             size={120}
-            src={user.profile?.avatarUrl || null}
-            icon={<UserOutlined />}
+            src={
+              user.profile?.avatarUrl || "https://joeschmoe.io/api/v1/random"
+            }
+            // icon={<UserOutlined />}
             style={{ marginBottom: 20 }}
           />
           <Title level={4}>{user.profile?.fullName}</Title>

@@ -202,10 +202,9 @@ export default function IssueProjectPage() {
       key: "reporter",
     },
   ];
-
   return (
     <>
-      <h1 className="text-2xl font-bold">Overview Task </h1>
+      <h1 className="text-2xl font-bold">Overview </h1>
       <Table
         rowKey="id"
         pagination={true}
