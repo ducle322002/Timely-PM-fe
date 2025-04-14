@@ -30,6 +30,8 @@ import IssueProjectPage from "./pages/IssueProjectPage/IssueProjectPage";
 import BlogPage from "./pages/BlogPage/BlogPage";
 import BlogDetailPage from "./pages/BlogDetailPage/BlogDetailPage";
 import OTPLoginPage from "./pages/OTPLoginPage/OTPLoginPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import ProjectLogHistory from "./pages/ProjectLogHistory/ProjectLogHistory";
 
 function App() {
   const router = createBrowserRouter([
@@ -114,12 +116,20 @@ function App() {
           path: `${route.workspace}/${route.project}/:id/${route.projectIssue}`,
           element: <IssueProjectPage />,
         },
+        {
+          path: `${route.workspace}/${route.project}/:id/${route.projectHistory}`,
+          element: <ProjectLogHistory />,
+        },
       ],
     },
 
     {
       path: route.admin,
-      element: <AdminLayout />,
+      element: (
+        <ProtectedRoute roles={["ADMIN"]}>
+          <AdminLayout />
+        </ProtectedRoute>
+      ),
       children: [
         {
           index: true,

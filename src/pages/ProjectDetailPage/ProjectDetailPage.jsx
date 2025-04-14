@@ -240,6 +240,7 @@ export default function ProjectDetailPage() {
       setTaskDetail(response.data);
       setIssueInTask(response.data.issues);
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error(error.response.data);
     }
   };
@@ -255,6 +256,7 @@ export default function ProjectDetailPage() {
       console.log("Issue Detail", response.data);
       setTaskDetail(response.data);
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error(error.response.data);
     }
   };

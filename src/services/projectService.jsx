@@ -55,6 +55,9 @@ const projectService = {
   getIssuesForProject: (projectId) =>
     request("GET", `issue/issue/${projectId}/project`),
   getProjectLog: (projectId) => request("GET", `activity/${projectId}`),
+
+  updateProject: (projectId, projectData) =>
+    request("PUT", `project/${projectId}`, projectData),
 };
 
 export default projectService;

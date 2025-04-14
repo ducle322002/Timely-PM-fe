@@ -18,12 +18,14 @@ import projectService from "../../services/projectService";
 import { useNavigate } from "react-router-dom";
 import { route } from "../../routes";
 import moment from "moment/moment";
+import { SearchOutlined } from "@ant-design/icons";
 
 export default function IntroWorkspacePage() {
   const user = useSelector(selectUser);
 
   const [isModalCreateProject, setIsModalCreateProject] = useState(false);
   const [isModalJoinProject, setIsModalJoinProject] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -65,7 +67,11 @@ export default function IntroWorkspacePage() {
     }
   };
 
-  const items = projects.map((project) => ({
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const items = filteredProjects.map((project) => ({
     key: project.id,
     label: (
       <div className="flex justify-between items-center">
@@ -86,29 +92,13 @@ export default function IntroWorkspacePage() {
       </div>
     ),
     children: (
-      <div className="space-y-2">
-        <div className="flex justify-between items-center mb-2">
-          <div className=" max-h-[300px] w-full overflow-hidden hover:overflow-auto mr-20">
-            {/* <p className="font-semibold mb-1">Project Logs:</p> */}
-            {selectedProjectLog[project.id] ? (
-              <Steps
-                direction="vertical"
-                size="small"
-                current={selectedProjectLog[project.id].length - 1}
-                items={selectedProjectLog[project.id]
-                  .sort(
-                    (a, b) => new Date(a.updateTime) - new Date(b.updateTime)
-                  ) // Sort by updateTime
-                  .map((logEntry, idx) => ({
-                    title: moment(logEntry.updateTime).format(
-                      "DD-MM-YYYY - HH:mm"
-                    ),
-                    description: logEntry.activityType,
-                  }))}
-              />
-            ) : (
-              <p className="italic text-gray-500">Loading logs...</p>
-            )}
+      <div className="rounded-xl">
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex items-center gap-4">
+            <h3 className="text-gray-800 font-semibold">Project Manager:</h3>
+            <p className="text-gray-600 font-medium">
+              {project.profile.fullName}
+            </p>
           </div>
           <Button
             className="!bg-[#1968db] !text-white"
@@ -214,7 +204,21 @@ export default function IntroWorkspacePage() {
 
           <div className="flex items-center justify-center mt-[5%]">
             <Card
-              title={<div className="text-center">Your Workspace</div>}
+              title={
+                <>
+                  <div className="flex justify-between items-center w-full">
+                    <div className="!w-[250px]"></div>
+                    <div className="text-center">Your Project</div>
+                    <Input
+                      placeholder="Search workspace..."
+                      prefix={<SearchOutlined />}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="!w-[250px]"
+                    />
+                  </div>
+                </>
+              }
               className="w-[55%] mt-[5%]"
               style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
             >

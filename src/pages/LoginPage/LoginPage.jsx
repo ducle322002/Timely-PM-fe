@@ -18,6 +18,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [loadingGG, setLoadingGG] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -55,7 +56,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
+    setLoadingGG(true);
     try {
       const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider);
@@ -82,7 +83,7 @@ export default function LoginPage() {
       console.error("Google login failed:", error);
       toast.error("Google login failed");
     } finally {
-      setLoading(false);
+      setLoadingGG(false);
     }
   };
   return (
@@ -166,7 +167,7 @@ export default function LoginPage() {
               <Button
                 onClick={handleGoogleLogin}
                 className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition"
-                loading={loading}
+                loading={loadingGG}
               >
                 <img
                   src="https://w7.pngwing.com/pngs/326/85/png-transparent-google-logo-google-text-trademark-logo-thumbnail.png"

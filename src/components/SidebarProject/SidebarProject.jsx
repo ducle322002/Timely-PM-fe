@@ -9,6 +9,7 @@ import { selectUser } from "../../redux/features/userSlice";
 import { route } from "../../routes";
 import { CiViewBoard } from "react-icons/ci";
 import { IoRocketOutline } from "react-icons/io5";
+import { FaHistory } from "react-icons/fa";
 
 export default function SidebarProject() {
   function getItem(label, key, icon, children) {
@@ -49,7 +50,13 @@ export default function SidebarProject() {
         <ProjectOutlined />
       ),
       getItem(
-        "Back to Home",
+        "Project History",
+        `${route.workspace}/${route.project}/${id}/${route.projectHistory}`,
+        <FaHistory />
+      ),
+
+      getItem(
+        "Back to Workspace",
         `${route.home}/${route.introWorkspace}`,
         <HomeOutlined />
       ),
