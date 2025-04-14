@@ -71,7 +71,12 @@ function App() {
     },
     {
       path: route.home,
-      element: <UserLayout />,
+      element: (
+        <ProtectedRoute roles={["USER"]}>
+          <UserLayout />
+        </ProtectedRoute>
+      ),
+
       children: [
         {
           index: true,
@@ -94,7 +99,11 @@ function App() {
 
     {
       path: route.workspace,
-      element: <ProjectLayout />,
+      element: (
+        <ProtectedRoute roles={["USER"]}>
+          <ProjectLayout />
+        </ProtectedRoute>
+      ),
       children: [
         {
           path: `${route.workspace}/${route.project}/:id`,
