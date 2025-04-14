@@ -6,6 +6,8 @@ export const route = {
   blog: "/blog",
   blogDetail: "/blog/:id",
   home: "/home",
+  otpPage: "/otp",
+  emailVerified: "/email-verified",
   introWorkspace: "intro-workspace",
 
   workspace: "/workspace",

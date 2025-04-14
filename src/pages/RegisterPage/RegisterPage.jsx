@@ -41,7 +41,7 @@ export default function RegisterPage() {
     try {
       const response = await authService.register(requestData);
       console.log(response);
-      navigate(route.login);
+      navigate(route.otpPage, { state: { email: values.email } });
       toast.success(response.message);
     } catch (error) {
       console.error("Register Error:", error);

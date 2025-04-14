@@ -26,6 +26,9 @@ const authService = {
   register: (registerData) => request("POST", `user/register`, registerData),
   loginWithGoogle: (params) =>
     request("POST", `user/google-auth/login`, null, {}, params),
+
+  verifyOTP: (params) => request("POST", "user/verify-email", null, {}, params),
+  resendOTP: (params) => request("POST", "user/resend-email", null, {}, params),
 };
 
 export default authService;

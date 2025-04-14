@@ -29,6 +29,7 @@ import NewsManagement from "./pages/AdminPage/NewsManagement/NewsManagement";
 import IssueProjectPage from "./pages/IssueProjectPage/IssueProjectPage";
 import BlogPage from "./pages/BlogPage/BlogPage";
 import BlogDetailPage from "./pages/BlogDetailPage/BlogDetailPage";
+import OTPLoginPage from "./pages/OTPLoginPage/OTPLoginPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -43,6 +44,10 @@ function App() {
         {
           path: route.login,
           element: <LoginPage />,
+        },
+        {
+          path: route.otpPage,
+          element: <OTPLoginPage />,
         },
         {
           path: route.register,

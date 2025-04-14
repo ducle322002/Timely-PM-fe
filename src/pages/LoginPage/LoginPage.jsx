@@ -149,7 +149,36 @@ export default function LoginPage() {
               </Button>
             </Form.Item>
             <Form.Item className="!text-center flex justify-center items-center !w-full">
-              <GoogleButton type="dark" onClick={handleGoogleLogin} />
+              <Button
+                type="default"
+                className="w-full !rounded-2xl !py-[4%] !flex !items-center !justify-center !gap-2 !border-gray-300 !hover:bg-gray-100 !transition !duration-200"
+                onClick={handleGoogleLogin}
+              >
+                <img
+                  src="https://w7.pngwing.com/pngs/326/85/png-transparent-google-logo-google-text-trademark-logo-thumbnail.png"
+                  alt="Google Logo"
+                  className="w-5 h-5"
+                />
+                <span className="text-gray-700 font-medium">
+                  Sign in with Google
+                </span>
+              </Button>
+            </Form.Item>
+            <Form.Item className="!text-center flex justify-center items-center !w-full">
+              <Button
+                type="default"
+                className="w-full !rounded-2xl !py-[4%] !flex !items-center !justify-center !gap-2 !border-gray-300 !hover:bg-gray-100 !transition !duration-200"
+                // onClick={handleGitHubLogin}
+              >
+                <img
+                  src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+                  alt="GitHub Logo"
+                  className="w-5 h-5"
+                />
+                <span className="text-gray-700 font-medium">
+                  Sign in with GitHub
+                </span>
+              </Button>
             </Form.Item>
           </Form>
           <div className="!text-center !text-sm mt-[5%]">
