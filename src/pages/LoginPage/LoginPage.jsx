@@ -17,7 +17,11 @@ export default function LoginPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+
   const onFinish = async (values) => {
+    setLoading(true);
+
     console.log("Success:", values);
     try {
       const response = await authService.login(values);
@@ -41,6 +45,8 @@ export default function LoginPage() {
     } catch (error) {
       console.error("Login Error:", error.response.data.message);
       toast.error(error.response.data.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,6 +55,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider);
@@ -74,40 +81,39 @@ export default function LoginPage() {
     } catch (error) {
       console.error("Google login failed:", error);
       toast.error("Google login failed");
+    } finally {
+      setLoading(false);
     }
   };
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen  px-4">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex justify-center items-center bg-white rounded-lg w-[70%]"
-        style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
+        transition={{ duration: 0.6 }}
+        className="flex flex-col md:flex-row bg-white rounded-3xl overflow-hidden w-full max-w-6xl shadow-md"
       >
-        <div className="w-[50%]">
+        <div className="w-full hidden md:block">
           <img
             src="https://img.freepik.com/premium-vector/checklist-complete-project-task-accomplish-work-checkmark_980117-4411.jpg"
-            alt=""
-            className="w-[100%] object-cover"
+            alt="Illustration"
+            className="w-full h-full object-fill"
           />
         </div>
-        <Card
-          title={
-            <div className="text-center text-[#1968db] !border-none text-2xl  font-bold">
-              Sign In
-            </div>
-          }
-          className=" bg-white !border-none w-[50%] card-antd-login"
-        >
+
+        <div className=" w-full p-8 md:p-12">
+          <h2 className="text-center text-3xl font-bold text-blue-600 mb-6">
+            Welcome Back
+          </h2>
+
           <Form
-            requiredMark={false}
             form={form}
             layout="vertical"
             name="Sign In"
             initialValues={{ remember: true }}
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
+            requiredMark={false}
           >
             <Form.Item
               name="username"
@@ -117,9 +123,9 @@ export default function LoginPage() {
               ]}
             >
               <Input
+                prefix={<UserOutlined />}
                 placeholder="Username"
-                prefix={<UserOutlined className="site-form-item-icon" />}
-                className="!w-full !p-3 !border !rounded-lg !focus:outline-none !focus:ring-2 !focus:ring-blue-500"
+                className="!p-3 !rounded-xl border-gray-300"
               />
             </Form.Item>
 
@@ -131,60 +137,72 @@ export default function LoginPage() {
               ]}
             >
               <Input.Password
+                prefix={<LockOutlined />}
                 placeholder="Password"
-                prefix={<LockOutlined className="site-form-item-icon" />}
-                className="!w-full !p-3 !border !rounded-lg !focus:outline-none !focus:ring-2 !focus:ring-blue-500"
+                className="!p-3 !rounded-xl border-gray-300"
               />
             </Form.Item>
-            <div className="!text-end mb-[5%] !text-sm">
-              <Link>Forgot Password ?</Link>
+
+            <div className="text-right text-sm mb-4">
+              <Link className="text-blue-500 hover:underline">
+                Forgot Password?
+              </Link>
             </div>
+
             <Form.Item>
               <Button
                 type="primary"
                 htmlType="submit"
-                className="w-full !rounded-2xl !py-[4%] !hover:bg-blue-600 !transition !duration-200"
+                className="w-full !py-3 !rounded-xl bg-blue-500 hover:bg-blue-600 transition"
+                loading={loading}
               >
                 Sign In
               </Button>
             </Form.Item>
-            <Form.Item className="!text-center flex justify-center items-center !w-full">
+
+            <div className="text-center text-gray-500 my-4">or</div>
+
+            <Form.Item>
               <Button
-                type="default"
-                className="w-full !rounded-2xl !py-[4%] !flex !items-center !justify-center !gap-2 !border-gray-300 !hover:bg-gray-100 !transition !duration-200"
                 onClick={handleGoogleLogin}
+                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition"
+                loading={loading}
               >
                 <img
                   src="https://w7.pngwing.com/pngs/326/85/png-transparent-google-logo-google-text-trademark-logo-thumbnail.png"
-                  alt="Google Logo"
+                  alt="Google"
                   className="w-5 h-5"
                 />
-                <span className="text-gray-700 font-medium">
+                <span className="font-medium text-gray-700">
                   Sign in with Google
                 </span>
               </Button>
             </Form.Item>
-            <Form.Item className="!text-center flex justify-center items-center !w-full">
+
+            <Form.Item>
               <Button
-                type="default"
-                className="w-full !rounded-2xl !py-[4%] !flex !items-center !justify-center !gap-2 !border-gray-300 !hover:bg-gray-100 !transition !duration-200"
-                // onClick={handleGitHubLogin}
+                disabled
+                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed"
               >
                 <img
                   src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-                  alt="GitHub Logo"
+                  alt="GitHub"
                   className="w-5 h-5"
                 />
-                <span className="text-gray-700 font-medium">
-                  Sign in with GitHub
+                <span className="font-medium">
+                  Sign in with GitHub (Coming soon)
                 </span>
               </Button>
             </Form.Item>
+
+            <div className="text-center text-sm mt-4">
+              Don’t have an account?{" "}
+              <Link to="/register" className="text-blue-500 hover:underline">
+                Sign Up
+              </Link>
+            </div>
           </Form>
-          <div className="!text-center !text-sm mt-[5%]">
-            Don't have an account ? <Link to="/register">Sign Up</Link>
-          </div>
-        </Card>
+        </div>
       </motion.div>
     </div>
   );

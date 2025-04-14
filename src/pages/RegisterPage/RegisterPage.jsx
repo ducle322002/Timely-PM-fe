@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
@@ -17,8 +17,13 @@ import "./RegisterPage.scss";
 export default function RegisterPage() {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const onFinish = async (values) => {
+    setLoading(true);
+
+    const loadingToast = toast.loading("Signing you in...");
+
     values.user = {
       username: values.username,
       password: values.password,
@@ -39,13 +44,18 @@ export default function RegisterPage() {
     // console.log(values);
 
     try {
+      toast.dismiss(loadingToast); // remove loading
+
       const response = await authService.register(requestData);
       console.log(response);
       navigate(route.otpPage, { state: { email: values.email } });
       toast.success(response.message);
     } catch (error) {
       console.error("Register Error:", error);
+      toast.dismiss(loadingToast); // remove loading
       toast.error(error.response.data.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -200,6 +210,7 @@ export default function RegisterPage() {
 
             <Form.Item>
               <Button
+                loading={loading}
                 type="primary"
                 htmlType="submit"
                 className="w-full !rounded-2xl !py-[4%] !hover:bg-blue-600 !transition !duration-200"
