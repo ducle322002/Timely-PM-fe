@@ -24,7 +24,6 @@ export default function HeaderProject() {
 
   useEffect(() => {
     setItems([
-      getItem("Dashboard", route.manage, <HomeOutlined />),
       user
         ? getItem(
             `Welcome ${user.username}`,
@@ -40,7 +39,7 @@ export default function HeaderProject() {
   }, [currentURI]);
 
   return (
-    <header className="border !border-[#cccccc] !border-r-0 !bg-[#ffffff] flex justify-between items-center px-[5%] ">
+    <header className="border !border-[#cccccc] !border-r-0 !bg-[#ffffff] flex justify-between items-center px-[3%]">
       <h1 className="text-xl font-bold flex items-center justify-between gap-[5%] text-nowrap">
         <img src={logoNoBg} alt="" className="h-[50px]" />
         Timely PM

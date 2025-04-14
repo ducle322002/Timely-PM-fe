@@ -24,7 +24,6 @@ export default function HeaderUser() {
 
   useEffect(() => {
     setItems([
-      getItem("Dashboard", route.manage, <HomeOutlined />),
       user
         ? getItem(
             `Welcome ${user.username}`,
