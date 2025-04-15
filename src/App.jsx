@@ -34,7 +34,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import ProjectLogHistory from "./pages/ProjectLogHistory/ProjectLogHistory";
 import DetailPage from "./pages/DetailPage/DetailPage";
 import SummaryProjectPage from "./pages/SummaryProjectPage/SummaryProjectPage";
-
+import Feedback from "./pages/AdminPage/Feedback/Feedback";
 function App() {
   const router = createBrowserRouter([
     {
@@ -167,13 +167,17 @@ function App() {
           path: route.newsManagement,
           element: <NewsManagement />,
         },
+        {
+          path: route.feedbackManage,
+          element: <Feedback />,
+        },
       ],
     },
 
-    // {
-    //   path: "*",
-    //   element: <Navigate to={route.welcome} />,
-    // },
+    {
+      path: "*",
+      element: <Navigate to={route.welcome} />,
+    },
   ]);
   return (
     <ThemeProvider>

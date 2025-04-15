@@ -42,11 +42,14 @@ export default function HeaderWelcome() {
             mode="horizontal"
             className="!bg-none !border-none w-[800px] flex justify-center items-center "
           >
-            <Menu.Item key="setting" icon={<BsPersonWorkspace />}>
-              <Link to={`${route.home}/${route.introWorkspace}`}>
-                Go To Your Workspace
-              </Link>
-            </Menu.Item>
+            {user.role !== "ADMIN" && (
+              <Menu.Item key="setting" icon={<BsPersonWorkspace />}>
+                <Link to={`${route.home}/${route.introWorkspace}`}>
+                  Go To Your Workspace
+                </Link>
+              </Menu.Item>
+            )}
+
             <Menu.Item key="News" icon={<FaRegNewspaper />}>
               <Link to={`${route.blog}`}>News & Update</Link>
             </Menu.Item>

@@ -66,6 +66,11 @@ export default function ProjectDetailPage() {
   const [isCreateIssueInTaskModal, setIsCreateIssueInTaskModal] =
     useState(false);
 
+  const [loadingCreateTask, setLoadingCreateTask] = useState(false);
+  const [loadingCreateIssue, setLoadingCreateIssue] = useState(false);
+  const [loadingCreateQuestion, setLoadingCreateQuestion] = useState(false);
+  const [loadingCreateTopic, setLoadingCreateTopic] = useState(false);
+
   const [formInviteMember] = Form.useForm();
   const [formCreateTopic] = Form.useForm();
   const [formCreateTask] = Form.useForm();
@@ -416,6 +421,7 @@ export default function ProjectDetailPage() {
   };
 
   const handleCreateTopic = async (values) => {
+    setLoadingCreateTopic(true); // Set loading state to true
     const requestData = {
       projectId: id,
       type: values.type,
@@ -435,10 +441,13 @@ export default function ProjectDetailPage() {
     } catch (error) {
       console.error(error);
       toast.error(error.response.data.message);
+    } finally {
+      setLoadingCreateTopic(false); // Set loading state to false
     }
   };
 
   const handleCreateTask = async (values) => {
+    setLoadingCreateTask(true);
     const params = {
       projectId: id,
       topicId: selectedTopic.id,
@@ -472,10 +481,13 @@ export default function ProjectDetailPage() {
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
+    } finally {
+      setLoadingCreateTask(false); // Set loading state to false
     }
   };
 
   const handleCreateIssue = async (values) => {
+    setLoadingCreateIssue(true); // Set loading state to true
     const params = {
       projectId: id,
       topicId: selectedTopic.id,
@@ -511,10 +523,13 @@ export default function ProjectDetailPage() {
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
+    } finally {
+      setLoadingCreateIssue(false); // Set loading state to false
     }
   };
   console.log(comments);
   const handleCreateQuestion = async (values) => {
+    setLoadingCreateQuestion(true); // Set loading state to true
     const params = {
       projectId: id,
       topicId: selectedTopic.id,
@@ -543,6 +558,8 @@ export default function ProjectDetailPage() {
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
+    } finally {
+      setLoadingCreateQuestion(false); // Set loading state to false
     }
   };
 
@@ -1565,7 +1582,11 @@ export default function ProjectDetailPage() {
         title="Create Task"
         footer={
           <>
-            <Button type="primary" onClick={() => formCreateTask.submit()}>
+            <Button
+              type="primary"
+              onClick={() => formCreateTask.submit()}
+              loading={loadingCreateTask}
+            >
               Create
             </Button>
             <Button
@@ -1694,7 +1715,11 @@ export default function ProjectDetailPage() {
         title="Create Issue"
         footer={
           <>
-            <Button type="primary" onClick={() => formCreateIssue.submit()}>
+            <Button
+              type="primary"
+              onClick={() => formCreateIssue.submit()}
+              loading={loadingCreateIssue}
+            >
               Create
             </Button>
             <Button
@@ -1833,7 +1858,11 @@ export default function ProjectDetailPage() {
         title="Create Question"
         footer={
           <>
-            <Button type="primary" onClick={() => formCreateQuestion.submit()}>
+            <Button
+              type="primary"
+              onClick={() => formCreateQuestion.submit()}
+              loading={loadingCreateQuestion}
+            >
               Create
             </Button>
             <Button
@@ -1942,7 +1971,11 @@ export default function ProjectDetailPage() {
         title="Create Topic"
         footer={
           <>
-            <Button type="primary" onClick={() => formCreateTopic.submit()}>
+            <Button
+              type="primary"
+              onClick={() => formCreateTopic.submit()}
+              loading={loadingCreateTopic}
+            >
               Create
             </Button>
             <Button onClick={() => setIsCreateTopicModal(false)}>Cancel</Button>

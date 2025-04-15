@@ -19,6 +19,7 @@ export const route = {
   summary: "summary",
 
   admin: "/admin",
+  feedbackManage: "feedback-manage",
   dashboard: "dashboard",
   projectStatistic: "project-statistic",
   adminUser: "manage-user",

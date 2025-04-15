@@ -1,11 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import HeaderWelcome from "../../components/HeaderWelcome/HeaderWelcome";
 import FooterWelcome from "../../components/FooterWelcome/FooterWelcome";
 import { motion } from "framer-motion";
-import { Button } from "antd";
+import { Button, Form, Modal } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import userService from "./../../services/userService";
+import { Input } from "antd";
+import Cookies from "js-cookie"; // Import js-cookie
+
+const { TextArea } = Input;
+
+import toast from "react-hot-toast";
+
 export default function WelcomePage() {
   const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const [isModalFeedbackVisible, setIsModalFeedbackVisible] = useState(false);
+  const [isModalLoginRequiredVisible, setIsModalLoginRequiredVisible] =
+    useState(false);
+
+  // Simulate user login status (replace with actual logic)
+  const isLoggedIn = !!Cookies.get("token"); // Check if the token exists in cookies
+
+  const handleOpenModalFeedback = () => {
+    if (isLoggedIn) {
+      setIsModalFeedbackVisible(true);
+    } else {
+      setIsModalLoginRequiredVisible(true);
+    }
+  };
+
+  const handleCloseModalFeedback = () => {
+    setIsModalFeedbackVisible(false);
+    form.resetFields(); // Reset form fields when closing the modal
+  };
+
+  const handleCloseModalLoginRequired = () => {
+    setIsModalLoginRequiredVisible(false);
+  };
+
+  const handleSendFeedback = async (values) => {
+    try {
+      // Call your API to send feedback here
+      const response = await userService.sendFeedback(values);
+      console.log("Feedback submitted:", values);
+      console.log("API response:", response);
+      form.resetFields();
+      handleCloseModalFeedback();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error submitting feedback");
+      console.error("Error submitting feedback:", error);
+    }
+  };
+
   return (
     <>
       <motion.div
@@ -57,8 +104,11 @@ export default function WelcomePage() {
                 Organize tasks, boost productivity, and collaborate with ease.
               </p>
               <div className="mt-[5%] text-end">
-                <Link className="text-xl font-bold text-[#1968db]  hover:underline">
-                  Learn How to use our System
+                <Link
+                  className="text-xl font-bold text-[#1968db]  hover:underline"
+                  onClick={() => handleOpenModalFeedback()}
+                >
+                  Give Us A Feedback
                 </Link>
               </div>
             </div>
@@ -70,6 +120,59 @@ export default function WelcomePage() {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Feedback Modal */}
+      <Modal
+        open={isModalFeedbackVisible}
+        footer={
+          <div className="flex justify-end items-center gap-5 ">
+            <Button onClick={handleCloseModalFeedback}>Close</Button>
+            <Button onClick={() => form.submit()} type="primary" color="blue">
+              Send
+            </Button>
+          </div>
+        }
+      >
+        <Form form={form} layout="vertical" onFinish={handleSendFeedback}>
+          <h1 className="text-2xl font-bold text-center mb-4">Feedback Form</h1>
+          <p className="text-center mb-4">
+            We value your feedback! Please let us know your thoughts.
+          </p>
+          <Form.Item
+            name="feedback"
+            rules={[
+              { required: true, message: "Please provide your feedback!" }, // Validation rule
+            ]}
+          >
+            <TextArea rows={4} placeholder="Write your feedback here..." />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Login Required Modal */}
+      <Modal
+        open={isModalLoginRequiredVisible}
+        footer={
+          <div className="flex justify-end items-center gap-5 ">
+            <Button onClick={handleCloseModalLoginRequired}>Close</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                handleCloseModalLoginRequired();
+                navigate("/login");
+              }}
+            >
+              Login
+            </Button>
+          </div>
+        }
+      >
+        <h1 className="text-2xl font-bold text-center mb-4">Login Required</h1>
+        <p className="text-center mb-4">
+          You need to be logged in to provide feedback. Please log in to
+          continue.
+        </p>
+      </Modal>
     </>
   );
 }

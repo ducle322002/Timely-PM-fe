@@ -45,6 +45,9 @@ const adminService = {
     }),
 
   getBlogDetail: (newsId) => request("GET", `news/${newsId}`),
+
+  getAllFeedback: () => request("GET", "feedback"),
+  deleteFeedback: (feedbackId) => request("DELETE", `feedback/${feedbackId}`),
 };
 
 export default adminService;
