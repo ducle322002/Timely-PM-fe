@@ -18,6 +18,7 @@ import { motion } from "framer-motion";
 import userService from "../../services/userService";
 import { EditOutlined, UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
+import { login } from "../../redux/features/userSlice";
 const { Title, Text } = Typography;
 
 export default function UserProfilePage() {
@@ -40,13 +41,22 @@ export default function UserProfilePage() {
     fetchUserProfile();
   }, []);
 
-  const handleUpdateProfile = async () => {
+  const handleUpdateProfile = async (values) => {
     console.log("Update Profile");
+    const requestData = {
+      fullName: values.fullName,
+      gender: values.gender,
+      phone: values.phone,
+    };
     try {
-      const response = await userService.updateProfile();
+      const response = await userService.updateProfile(requestData);
+      toast.success("Update profile successfully!");
+      setIsModalUpdateOpen(false);
+      formUpdate.resetFields();
       setUser(response.data);
       console.log(response.data);
     } catch (error) {
+      toast.error(error.response.data.message);
       console.log(error);
     }
   };
@@ -98,7 +108,6 @@ export default function UserProfilePage() {
               setIsModalUpdateOpen(true);
               formUpdate.setFieldsValue({
                 fullName: user.profile?.fullName,
-                email: user.email,
                 phone: user.profile?.phone,
                 gender: user.profile?.gender,
               });
@@ -127,21 +136,6 @@ export default function UserProfilePage() {
             label="Full Name"
             rules={[
               { required: true, message: "Please enter your full name!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item name="user_avatar" label="Avatar">
-            <Upload>
-              <Button icon={<UploadOutlined />}>Click to Upload</Button>
-            </Upload>
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: "Please enter your email!" },
-              { type: "email", message: "Please enter a valid email!" },
             ]}
           >
             <Input />

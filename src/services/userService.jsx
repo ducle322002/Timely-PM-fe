@@ -31,6 +31,7 @@ const request = async (method, url, data = null, headers = {}, params = {}) => {
 
 const userService = {
   getUserProfile: () => request("GET", "user"),
+  updateProfile: (data) => request("POST", "user/update-profile", data),
 };
 
 export default userService;

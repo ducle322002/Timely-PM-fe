@@ -35,6 +35,8 @@ const questionService = {
     request("GET", `question/${id}`, null, {}, params),
   createQuestion: (questionData, topicParams) =>
     request("POST", `question/create`, questionData, null, topicParams),
+  updateQuestionStatus: (questionId, params) =>
+    request("PUT", `question/${questionId}`, null, {}, params),
 };
 
 export default questionService;

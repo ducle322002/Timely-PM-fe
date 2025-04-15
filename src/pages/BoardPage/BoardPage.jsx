@@ -7,6 +7,8 @@ import projectService from "../../services/projectService";
 import toast from "react-hot-toast";
 import { UserOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
+import issueService from "../../services/issueService";
+import questionService from "../../services/questionService";
 
 export default function BoardPage() {
   const [tasksByStatus, setTasksByStatus] = useState({
@@ -21,6 +23,7 @@ export default function BoardPage() {
   const [topics, setTopics] = useState([]);
   const [defaultTabKey, setDefaultTabKey] = useState("");
   const [activeTabKey, setActiveTabKey] = useState(null);
+  const [activeTopicType, setActiveTopicType] = useState(null);
 
   const fetchProjectDetail = async () => {
     try {
@@ -34,32 +37,48 @@ export default function BoardPage() {
       if (sortedTopics.length > 0) {
         setDefaultTabKey(sortedTopics[0].id); // Default to the first topic's ID
         setActiveTabKey(sortedTopics[0].id); // Set active tab to the first topic
+        setActiveTopicType(sortedTopics[0].type); // Ensure type is set
       }
     } catch (error) {
       console.error(error.response.data);
     }
   };
 
-  const fetchTasks = async () => {
+  const fetchByType = async () => {
+    if (!activeTabKey || !activeTopicType) return;
+
     try {
+      let response = null;
       const params = {
         projectId: id,
         topicId: activeTabKey,
       };
-      const response = await taskService.getTasks(params);
-      const tasks = response.data;
+      switch (activeTopicType) {
+        case "TASK":
+          response = await taskService.getTasks(params);
+          break;
+        case "ISSUE":
+          response = await issueService.getIssues(params);
+          break;
+        case "QUESTION":
+          response = await questionService.getQuestions(params);
+          break;
+        default:
+          return;
+      }
 
-      // Group tasks by status
-      const groupedTasks = {
-        PENDING: tasks.filter((task) => task.status === "PENDING"),
-        TODO: tasks.filter((task) => task.status === "TODO"),
-        INPROGRESS: tasks.filter((task) => task.status === "INPROGRESS"),
-        DONE: tasks.filter((task) => task.status === "DONE"),
+      const data = response.data;
+      console.log("data", data);
+      const grouped = {
+        PENDING: data.filter((t) => t.status === "PENDING"),
+        TODO: data.filter((t) => t.status === "TODO"),
+        INPROGRESS: data.filter((t) => t.status === "INPROGRESS"),
+        DONE: data.filter((t) => t.status === "DONE"),
       };
 
-      setTasksByStatus(groupedTasks);
+      setTasksByStatus(grouped);
     } catch (error) {
-      console.error(error.response.data);
+      console.error(error.response?.data || error.message);
     }
   };
 
@@ -67,11 +86,25 @@ export default function BoardPage() {
     fetchProjectDetail();
   }, [id]);
 
+  // useEffect(() => {
+  //   if (activeTabKey) {
+  //     fetchTasks();
+  //     fetchIssue();
+  //     fetchQuestion();
+  //   }
+  // }, [activeTabKey]);
+
   useEffect(() => {
-    if (activeTabKey) {
-      fetchTasks();
+    if (activeTabKey && activeTopicType) {
+      console.log(
+        "activeTabKey:",
+        activeTabKey,
+        "activeTopicType:",
+        activeTopicType
+      );
+      fetchByType();
     }
-  }, [activeTabKey]);
+  }, [activeTabKey, activeTopicType]);
 
   const onDragEnd = async (result) => {
     if (!result.destination) {
@@ -102,16 +135,34 @@ export default function BoardPage() {
           [sourceStatus]: sourceTasks,
           [destinationStatus]: destinationTasks,
         }));
-        const response = await taskService.updateTaskStatus(
-          result.draggableId,
-          {
-            projectId: id,
-            topicId: activeTabKey,
-            status: destinationStatus,
-          }
-        );
-        console.log(response.data);
-        toast.success("Task status updated successfully!");
+        const updatePayload = {
+          projectId: id,
+          topicId: activeTabKey,
+          status: destinationStatus,
+        };
+
+        switch (activeTopicType) {
+          case "TASK":
+            await taskService.updateTaskStatus(
+              result.draggableId,
+              updatePayload
+            );
+            break;
+          case "ISSUE":
+            await issueService.updateIssueStataus(
+              result.draggableId,
+              updatePayload
+            );
+            break;
+          case "QUESTION":
+            await questionService.updateQuestionStatus(
+              result.draggableId,
+              updatePayload
+            );
+            break;
+        }
+
+        toast.success("Status updated successfully!");
       } catch (error) {
         console.log(error.response.data);
         toast.error(error.response.data.message);
@@ -186,7 +237,7 @@ export default function BoardPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      {task.reporter.username && (
+                      {task.reporter?.username && (
                         <p className="text-sm text-gray-500">
                           Reporter: {task.reporter.username}
                         </p>
@@ -252,7 +303,11 @@ export default function BoardPage() {
       <Tabs
         defaultActiveKey={defaultTabKey}
         activeKey={activeTabKey}
-        onChange={setActiveTabKey}
+        onChange={(key) => {
+          const selected = topics.find((topic) => topic.id === key);
+          setActiveTabKey(key);
+          setActiveTopicType(selected?.type); // capture type of topic
+        }}
         items={items}
         size="large"
         className="w-[100%]"

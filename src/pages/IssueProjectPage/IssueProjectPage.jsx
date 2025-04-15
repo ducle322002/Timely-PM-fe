@@ -1,11 +1,13 @@
-import { Table, Avatar, Tooltip } from "antd";
+import { Table, Avatar, Tooltip, Button } from "antd";
 import React, { useEffect, useState } from "react";
 import projectService from "../../services/projectService";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { route } from "../../routes";
 
 export default function IssueProjectPage() {
   const { id } = useParams();
   const [tasks, setTasks] = useState([]);
+  const navigate = useNavigate();
 
   const [issues, setIssues] = useState([]);
 
@@ -200,6 +202,23 @@ export default function IssueProjectPage() {
       title: "Reporter",
       dataIndex: "reporter",
       key: "reporter",
+    },
+    {
+      title: "Details",
+      key: "details",
+      render: (text, record) => (
+        <Button
+          type="link"
+          onClick={() =>
+            navigate(
+              `${route.workspace}/${route.project}/${id}/task-detail/${record.key}`,
+              { state: { data: record } }
+            )
+          }
+        >
+          View Details
+        </Button>
+      ),
     },
   ];
   return (

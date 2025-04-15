@@ -32,6 +32,7 @@ import BlogDetailPage from "./pages/BlogDetailPage/BlogDetailPage";
 import OTPLoginPage from "./pages/OTPLoginPage/OTPLoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ProjectLogHistory from "./pages/ProjectLogHistory/ProjectLogHistory";
+import DetailPage from "./pages/DetailPage/DetailPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -129,6 +130,10 @@ function App() {
           path: `${route.workspace}/${route.project}/:id/${route.projectHistory}`,
           element: <ProjectLogHistory />,
         },
+        {
+          path: `${route.workspace}/${route.project}/:id/task-detail/:taskId`,
+          element: <DetailPage />,
+        },
       ],
     },
 
@@ -160,10 +165,10 @@ function App() {
       ],
     },
 
-    {
-      path: "*",
-      element: <Navigate to={route.welcome} />,
-    },
+    // {
+    //   path: "*",
+    //   element: <Navigate to={route.welcome} />,
+    // },
   ]);
   return (
     <ThemeProvider>

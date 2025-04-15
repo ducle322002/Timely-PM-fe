@@ -148,7 +148,8 @@ export default function IntroWorkspacePage() {
       // navigate(`${route.workspace}/${route.project}/${response.data.id}`);
     } catch (error) {
       console.log(error);
-      toast.error("Create project failed");
+
+      toast.error(error.response.data.message);
     }
   };
 

@@ -35,6 +35,8 @@ const issueService = {
     request("GET", `issue/${id}`, null, {}, params),
   createIssue: (issueData, topicParams) =>
     request("POST", `issue/create`, issueData, null, topicParams),
+  updateIssueStataus: (issueId, params) =>
+    request("PUT", `issue/${issueId}`, null, {}, params),
 };
 
 export default issueService;
