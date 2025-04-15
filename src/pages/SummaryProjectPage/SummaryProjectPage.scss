@@ -1,0 +1,15 @@
+.striped-progress .ant-progress-circle-path {
+  /* Use dashed stroke for a striped look */
+  stroke-dasharray: 4, 4;
+  /* Animate the dashes to move along the path */
+  animation: progress-stripe 1.5s linear infinite;
+}
+
+@keyframes progress-stripe {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 8;
+  }
+}

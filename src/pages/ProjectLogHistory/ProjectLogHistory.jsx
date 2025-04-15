@@ -52,7 +52,7 @@ export default function ProjectLogHistory() {
 
   return (
     <motion.div
-      className="w-full max-w-7xl mx-auto p-6 rounded-xl shadow-lg px-10"
+      className="w-full max-w-8xl mx-auto p-6 rounded-xl shadow-lg px-10"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -71,7 +71,7 @@ export default function ProjectLogHistory() {
         <Timeline
           items={timelineItems}
           mode="left"
-          className="overflow-y-auto max-h-[60vh]"
+          className="overflow-y-auto max-h-[60vh] overflow-x-hidden"
         />
       )}
     </motion.div>

@@ -1,14 +1,13 @@
-import React, { use, useEffect, useState } from "react";
-import { Card, Row, Col, Statistic, Table } from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Row, Col, Statistic, Table, Progress } from "antd";
 import { motion } from "framer-motion";
-import { Bar, Pie, Line } from "react-chartjs-2";
+import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import { useParams } from "react-router-dom";
 import projectService from "../../services/projectService";
 
 export default function SummaryProjectPage() {
   const { id } = useParams();
-  const [chartData, setChartData] = useState([]);
   const [stats, setStats] = useState({
     totalTasks: 0,
     pendingTasks: 0,
@@ -42,9 +41,8 @@ export default function SummaryProjectPage() {
     fetchData();
   }, [id]);
 
-  console.log(chartData);
   const barData = {
-    labels: ["PENDING", "TODO", "INPROGRESS", "DONE"],
+    labels: ["Pending", "To Do", "In Progress", "Done"],
     datasets: [
       {
         label: "Tasks by Status",
@@ -80,24 +78,16 @@ export default function SummaryProjectPage() {
   const progress =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
-  const columns = [
-    {
-      title: "Metric",
-      dataIndex: "label",
-      key: "label",
-    },
-    {
-      title: "Quantity",
-      dataIndex: "value",
-      key: "value",
-    },
-  ];
+  // Prepare a data source with group header rows.
+  // For group header rows, use a property (for example, "group") and no "label/value" pair.
   const dataSource = [
     { key: "1", label: "Total Tasks", value: totalTasks },
+    { key: "group1", group: "Task Status Metrics" },
     { key: "2", label: "Pending Tasks", value: pendingTasks },
     { key: "3", label: "In Progress Tasks", value: stats.progressTasks || 0 },
     { key: "4", label: "To Do Tasks", value: stats.toDoTasks || 0 },
     { key: "5", label: "Completed Tasks", value: completedTasks },
+    { key: "group2", group: "Priority Distribution Metrics" },
     {
       key: "6",
       label: "High Priority Tasks",
@@ -115,6 +105,45 @@ export default function SummaryProjectPage() {
     },
   ];
 
+  // Define table columns with onCell adjustments.
+  const columns = [
+    {
+      title: "Metric",
+      dataIndex: "label",
+      key: "label",
+      // Render group header if "group" exists.
+      render: (text, record) => {
+        if (record.group) {
+          return (
+            <strong style={{ fontSize: "1.1rem", color: "#1890ff" }}>
+              {record.group}
+            </strong>
+          );
+        }
+        return text;
+      },
+      // If row is a group header, span both columns.
+      onCell: (record) => {
+        if (record.group) {
+          return { colSpan: 2 };
+        }
+        return {};
+      },
+    },
+    {
+      title: "Quantity",
+      dataIndex: "value",
+      key: "value",
+      // Hide this cell if it's a group header.
+      onCell: (record) => {
+        if (record.group) {
+          return { colSpan: 0 };
+        }
+        return {};
+      },
+    },
+  ];
+
   return (
     <motion.div
       className="min-h-screen p-[5%]"
@@ -125,6 +154,25 @@ export default function SummaryProjectPage() {
       <h1 className="text-3xl font-bold text-center text-blue-600 mb-8">
         Project Summary
       </h1>
+
+      {/* Overall Progress */}
+      <Row className="mb-8">
+        <Col span={24}>
+          <Card className="shadow-md rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Overall Progress</h2>
+            <Progress
+              percent={progress}
+              status={progress === 100 ? "success" : "active"}
+              strokeColor={{
+                from: "#1890ff",
+                to: "#52c41a",
+              }}
+              size="large"
+              showInfo
+            />
+          </Card>
+        </Col>
+      </Row>
 
       {/* Widgets */}
       <Row gutter={[16, 16]} className="mb-8">
@@ -195,12 +243,13 @@ export default function SummaryProjectPage() {
               className="shadow-lg rounded-lg "
             >
               <div className="flex justify-center items-center h-full">
-                <Pie data={pieData} className="!h-[500px]" />
+                <Pie data={pieData} className="!h-[620px]" />
               </div>
             </Card>
           </motion.div>
         </Col>
 
+        {/* Grouped Metrics Table */}
         <Col xs={24} md={12}>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -213,7 +262,7 @@ export default function SummaryProjectPage() {
                 dataSource={dataSource}
                 pagination={false}
                 bordered
-                className="!h-[500px]"
+                className="!h-[620px]"
               />
             </Card>
           </motion.div>
