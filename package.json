@@ -16,6 +16,7 @@
     "@reduxjs/toolkit": "^2.6.1",
     "@tailwindcss/vite": "^4.0.14",
     "antd": "^5.24.3",
+    "antd-img-crop": "^4.24.0",
     "axios": "^1.8.3",
     "chart.js": "^4.4.8",
     "dayjs": "^1.11.13",

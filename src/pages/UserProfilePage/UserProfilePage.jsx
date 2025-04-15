@@ -11,33 +11,35 @@ import {
   Form,
   Modal,
   Input,
-  Upload,
   Select,
+  Badge,
+  Upload,
 } from "antd";
 import { motion } from "framer-motion";
 import userService from "../../services/userService";
-import { EditOutlined, UploadOutlined, UserOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
-import { login } from "../../redux/features/userSlice";
+import { EditOutlined, UserOutlined } from "@ant-design/icons";
+
 const { Title, Text } = Typography;
 
 export default function UserProfilePage() {
   const [user, setUser] = useState({});
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
-
-  const dispatch = useDispatch();
+  const [fileList, setFileList] = useState([]);
   const [formUpdate] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  // Create a function to fetch and update the user profile.
+  const fetchUserProfile = async () => {
+    try {
+      const response = await userService.getUserProfile();
+      setUser(response.data);
+      console.log("Profile refreshed", response.data);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.message);
+    }
+  };
+
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await userService.getUserProfile();
-        setUser(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.log(error);
-        toast.error(error.response.data.message);
-      }
-    };
     fetchUserProfile();
   }, []);
 
@@ -60,6 +62,41 @@ export default function UserProfilePage() {
       console.log(error);
     }
   };
+
+  // Upload avatar and refresh profile upon success.
+  const handleUploadAvatar = async (file) => {
+    setLoading(true);
+    console.log("Upload Avatar");
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await userService.uploadAvatar(formData);
+      toast.success("Upload avatar successfully!");
+      console.log(response.data);
+      // Refresh the profile after successful upload
+      await fetchUserProfile();
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Called when file selection changes.
+  const handleFileChange = (info) => {
+    // Set the file list to only the current file.
+    setFileList(info.fileList);
+    // Automatically call the upload function if a file is selected.
+    if (info.fileList.length > 0) {
+      const file = info.fileList[0].originFileObj;
+      toast.success(`${file.name} selected for upload!`);
+      handleUploadAvatar(file);
+    }
+    console.log(info);
+  };
+
   return (
     <div className="flex justify-center items-center">
       <motion.div
@@ -69,14 +106,26 @@ export default function UserProfilePage() {
         className="p-4"
       >
         <Card className="text-center w-[400px]">
-          <Avatar
-            size={120}
-            src={
-              user.profile?.avatarUrl || "https://joeschmoe.io/api/v1/random"
-            }
-            // icon={<UserOutlined />}
-            style={{ marginBottom: 20 }}
-          />
+          <Badge.Ribbon text="Upload Avatar">
+            <Upload
+              maxCount={1}
+              fileList={fileList}
+              beforeUpload={() => false}
+              onChange={handleFileChange}
+              showUploadList={false}
+              accept="image/*"
+            >
+              <Avatar
+                shape="square"
+                size={120}
+                src={loading ? "" : user.profile?.avatarUrl}
+                icon={<UserOutlined />}
+                style={{ marginBottom: 20 }}
+                className="cursor-pointer"
+              />
+            </Upload>
+          </Badge.Ribbon>
+
           <Title level={4}>{user.profile?.fullName}</Title>
           <Text type="secondary">{user.email}</Text>
           <Divider />

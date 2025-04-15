@@ -33,6 +33,10 @@ const userService = {
   getUserProfile: () => request("GET", "user"),
   updateProfile: (data) => request("POST", "user/update-profile", data),
   sendFeedback: (data) => request("POST", "feedback/create", data),
+  uploadAvatar: (data) =>
+    request("POST", "user/upload-avatar", data, {
+      "Content-Type": "multipart/form-data",
+    }),
 };
 
 export default userService;

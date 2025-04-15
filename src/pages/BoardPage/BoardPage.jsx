@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import taskService from "../../services/taskService";
-import { Avatar, Tabs } from "antd";
+import { Avatar, Spin, Tabs } from "antd";
 import projectService from "../../services/projectService";
 import toast from "react-hot-toast";
 import { UserOutlined } from "@ant-design/icons";
@@ -24,7 +24,8 @@ export default function BoardPage() {
   const [defaultTabKey, setDefaultTabKey] = useState("");
   const [activeTabKey, setActiveTabKey] = useState(null);
   const [activeTopicType, setActiveTopicType] = useState(null);
-
+  const [loading, setLoading] = useState(false);
+  const [loadingTopic, setLoadingTopic] = useState(false);
   const fetchProjectDetail = async () => {
     try {
       const response = await projectService.getProjectsById(id);
@@ -46,6 +47,7 @@ export default function BoardPage() {
 
   const fetchByType = async () => {
     if (!activeTabKey || !activeTopicType) return;
+    setLoading(true);
 
     try {
       let response = null;
@@ -79,6 +81,8 @@ export default function BoardPage() {
       setTasksByStatus(grouped);
     } catch (error) {
       console.error(error.response?.data || error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -300,18 +304,24 @@ export default function BoardPage() {
       className="container mx-auto"
     >
       <h1 className="text-2xl font-bold">Task Status Management Board</h1>
-      <Tabs
-        defaultActiveKey={defaultTabKey}
-        activeKey={activeTabKey}
-        onChange={(key) => {
-          const selected = topics.find((topic) => topic.id === key);
-          setActiveTabKey(key);
-          setActiveTopicType(selected?.type); // capture type of topic
-        }}
-        items={items}
-        size="large"
-        className="w-[100%]"
-      />
+      {loading ? (
+        <div className="flex justify-center items-center">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Tabs
+          defaultActiveKey={defaultTabKey}
+          activeKey={activeTabKey}
+          onChange={(key) => {
+            const selected = topics.find((topic) => topic.id === key);
+            setActiveTabKey(key);
+            setActiveTopicType(selected?.type); // capture type of topic
+          }}
+          items={items}
+          size="large"
+          className="w-[100%]"
+        />
+      )}
     </motion.div>
   );
 }

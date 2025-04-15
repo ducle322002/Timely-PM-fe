@@ -1,4 +1,4 @@
-import { Table, Avatar, Tooltip, Button } from "antd";
+import { Table, Avatar, Tooltip, Button, Spin } from "antd";
 import React, { useEffect, useState } from "react";
 import projectService from "../../services/projectService";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -8,26 +8,32 @@ export default function IssueProjectPage() {
   const { id } = useParams();
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
-
+  const [loadingTasks, setLoadingTasks] = useState(false);
   const [issues, setIssues] = useState([]);
 
   const fetchTasks = async () => {
+    setLoadingTasks(true);
     try {
       const response = await projectService.getTasksForProject(id);
       console.log("task", response.data);
       setTasks(response.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoadingTasks(false);
     }
   };
 
   const fetchIssues = async () => {
+    setLoadingTasks(true);
     try {
       const response = await projectService.getIssuesForProject(id);
       console.log("issue", response.data);
       setIssues(response.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoadingTasks(false);
     }
   };
 
@@ -224,12 +230,18 @@ export default function IssueProjectPage() {
   return (
     <>
       <h1 className="text-2xl font-bold">Overview </h1>
-      <Table
-        rowKey="id"
-        pagination={true}
-        columns={columns}
-        dataSource={allData}
-      />
+      {loadingTasks ? (
+        <div className="flex justify-center items-center">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Table
+          rowKey="id"
+          pagination={true}
+          columns={columns}
+          dataSource={allData}
+        />
+      )}
     </>
   );
 }
