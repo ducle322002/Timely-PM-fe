@@ -10,6 +10,7 @@ import { route } from "../../routes";
 import { CiViewBoard } from "react-icons/ci";
 import { IoRocketOutline } from "react-icons/io5";
 import { FaHistory } from "react-icons/fa";
+import { MdSummarize } from "react-icons/md";
 
 export default function SidebarProject() {
   function getItem(label, key, icon, children) {
@@ -29,6 +30,16 @@ export default function SidebarProject() {
   useEffect(() => {
     setItems([
       getItem(
+        "Summary",
+        `${route.workspace}/${route.project}/${id}/summary`,
+        <MdSummarize />
+      ),
+      getItem(
+        "Overview",
+        `${route.workspace}/${route.project}/${id}/${route.projectIssue}`,
+        <ProjectOutlined />
+      ),
+      getItem(
         "Go to Project",
         `${route.workspace}/${route.project}/${id}`,
         <IoRocketOutline />
@@ -37,12 +48,6 @@ export default function SidebarProject() {
         "Board",
         `${route.workspace}/${route.project}/${id}/${route.board}`,
         <CiViewBoard />
-      ),
-
-      getItem(
-        "Overview",
-        `${route.workspace}/${route.project}/${id}/${route.projectIssue}`,
-        <ProjectOutlined />
       ),
       getItem(
         "Project Setting",

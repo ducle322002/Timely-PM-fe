@@ -9,7 +9,6 @@ export const route = {
   otpPage: "/otp",
   emailVerified: "/email-verified",
   introWorkspace: "intro-workspace",
-
   workspace: "/workspace",
   project: "project",
   board: "board",
@@ -17,6 +16,7 @@ export const route = {
   setting: "setting",
   projectSetting: "project-setting",
   projectHistory: "project-history",
+  summary: "summary",
 
   admin: "/admin",
   dashboard: "dashboard",

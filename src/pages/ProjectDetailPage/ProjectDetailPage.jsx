@@ -44,6 +44,8 @@ import issueService from "../../services/issueService";
 import questionService from "../../services/questionService";
 import TabPane from "antd/es/tabs/TabPane";
 import Cookies from "js-cookie";
+import { IoSettingsOutline } from "react-icons/io5";
+
 export default function ProjectDetailPage() {
   const { id } = useParams();
   const [projectDetail, setProjectDetail] = useState({});
@@ -1061,6 +1063,7 @@ export default function ProjectDetailPage() {
       dateRange: [dayjs(task.startDate), dayjs(task.dueDate)],
 
       priority: task.priority,
+      severity: task.severity ? task.severity : "MINOR",
     });
   };
 
@@ -1253,7 +1256,7 @@ export default function ProjectDetailPage() {
                         overlay={getMenu(taskDetail)}
                         trigger={["click"]}
                       >
-                        <Button icon={<EllipsisOutlined />} />
+                        <Button icon={<IoSettingsOutline />} />
                       </Dropdown>
                     )}
                   </div>
@@ -1586,8 +1589,8 @@ export default function ProjectDetailPage() {
         >
           <Form.Item
             name="summer"
-            label="Task Summer"
-            rules={[{ required: true, message: "Please Enter Summer" }]}
+            label="Task Summary"
+            rules={[{ required: true, message: "Please Enter Summary" }]}
           >
             <TextArea rows={3} />
           </Form.Item>
@@ -1715,8 +1718,8 @@ export default function ProjectDetailPage() {
         >
           <Form.Item
             name="summer"
-            label="Issue Summer"
-            rules={[{ required: true, message: "Please Enter Summer" }]}
+            label="Issue Summary"
+            rules={[{ required: true, message: "Please Enter Summary" }]}
           >
             <TextArea rows={3} />
           </Form.Item>
@@ -1854,9 +1857,9 @@ export default function ProjectDetailPage() {
           requiredMark={false}
         >
           <Form.Item
-            name="summer"
-            label="Question Summer"
-            rules={[{ required: true, message: "Please Enter Summer" }]}
+            name="Summary"
+            label="Question Summary"
+            rules={[{ required: true, message: "Please Enter Summary" }]}
           >
             <TextArea rows={3} />
           </Form.Item>
@@ -2231,8 +2234,8 @@ export default function ProjectDetailPage() {
           </Form.Item>
           <Form.Item
             name="summer"
-            label="Issue Summer"
-            rules={[{ required: true, message: "Please Enter Summer" }]}
+            label="Issue Summary"
+            rules={[{ required: true, message: "Please Enter Summary" }]}
           >
             <TextArea rows={3} />
           </Form.Item>
@@ -2372,7 +2375,7 @@ export default function ProjectDetailPage() {
       <Modal
         visible={isModalUpdateTask}
         onCancel={() => setIsModalUpdateTask(false)}
-        title={`Update Task ${taskDetail?.label}`}
+        title={`${taskDetail?.label}`}
         footer={
           <>
             <Button onClick={() => setIsModalUpdateTask(false)}>Cancel</Button>
@@ -2390,8 +2393,8 @@ export default function ProjectDetailPage() {
         >
           <Form.Item
             name="summer"
-            label="Task Summer"
-            rules={[{ required: true, message: "Please Enter Summer" }]}
+            label="Task Summary"
+            rules={[{ required: true, message: "Please Enter Summary" }]}
           >
             <TextArea rows={3} />
           </Form.Item>
@@ -2429,6 +2432,20 @@ export default function ProjectDetailPage() {
               <Select.Option value="LOW">Low</Select.Option>
             </Select>
           </Form.Item>
+
+          {taskDetail?.severity && (
+            <Form.Item
+              name="severity"
+              label="Severity"
+              rules={[{ required: true, message: "Please Select Severity" }]}
+            >
+              <Select placeholder="Select severity" size="large">
+                <Select.Option value="MINOR">Minor</Select.Option>
+                <Select.Option value="MAJOR">Major</Select.Option>
+                <Select.Option value="CRITICAL">Critical</Select.Option>
+              </Select>
+            </Form.Item>
+          )}
         </Form>
       </Modal>
 

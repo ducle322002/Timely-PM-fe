@@ -33,6 +33,7 @@ import OTPLoginPage from "./pages/OTPLoginPage/OTPLoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ProjectLogHistory from "./pages/ProjectLogHistory/ProjectLogHistory";
 import DetailPage from "./pages/DetailPage/DetailPage";
+import SummaryProjectPage from "./pages/SummaryProjectPage/SummaryProjectPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -133,6 +134,10 @@ function App() {
         {
           path: `${route.workspace}/${route.project}/:id/task-detail/:taskId`,
           element: <DetailPage />,
+        },
+        {
+          path: `${route.workspace}/${route.project}/:id/summary`,
+          element: <SummaryProjectPage />,
         },
       ],
     },
