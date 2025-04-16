@@ -35,6 +35,7 @@ import ProjectLogHistory from "./pages/ProjectLogHistory/ProjectLogHistory";
 import DetailPage from "./pages/DetailPage/DetailPage";
 import SummaryProjectPage from "./pages/SummaryProjectPage/SummaryProjectPage";
 import Feedback from "./pages/AdminPage/Feedback/Feedback";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage/ForgotPasswordPage";
 function App() {
   const router = createBrowserRouter([
     {
@@ -68,6 +69,11 @@ function App() {
         {
           path: route.blogDetail,
           element: <BlogDetailPage />,
+        },
+
+        {
+          path: route.forgotPassword,
+          element: <ForgotPasswordPage />,
         },
       ],
     },

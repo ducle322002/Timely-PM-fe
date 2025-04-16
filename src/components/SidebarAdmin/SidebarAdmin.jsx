@@ -62,8 +62,8 @@ export default function SidebarAdmin() {
         width={270}
         className="!bg-[#001529] shadow-lg transition-all duration-300 !fixed !top-0 !left-0 !h-screen !z-1000"
       >
-        <div className="py-4 px-6 border-b border-gray-700">
-          <img src={logoNoBG} alt="Logo" className="w-30 h-30 mx-auto" />
+        <div className="py-4 px-6 border-b border-gray-700 items-center flex justify-center">
+          <img src={logoNoBG} alt="Logo" />
         </div>
         <div className="text-white text-center font-semibold text-lg py-4 px-6 border-b border-gray-700">
           {collapsed ? "🌐" : "Admin Panel"}

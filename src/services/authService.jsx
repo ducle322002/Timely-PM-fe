@@ -29,6 +29,8 @@ const authService = {
 
   verifyOTP: (params) => request("POST", "user/verify-email", null, {}, params),
   resendOTP: (params) => request("POST", "user/resend-email", null, {}, params),
+  forgotPassword: (params) =>
+    request("POST", "user/forgot-password", null, {}, params),
 };
 
 export default authService;

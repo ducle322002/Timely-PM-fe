@@ -60,7 +60,7 @@ export default function WelcomePage() {
   return (
     <>
       <motion.div
-        className="flex flex-col items-center justify-center flex-grow px-[1%] h-full "
+        className="flex flex-col items-center justify-center flex-grow px-[1%] h-full bg-gradient-to-br from-blue-100 via-white to-blue-200"
         animate={{ opacity: 1, y: 0 }}
         initial={{ opacity: 0, y: -50 }}
         transition={{ duration: 0.6 }}

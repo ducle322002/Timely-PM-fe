@@ -25,7 +25,7 @@ export default function BlogPage() {
   }, []);
   return (
     <motion.div
-      className="p-6 md:p-10 min-h-screen"
+      className="p-6 md:p-10 min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}

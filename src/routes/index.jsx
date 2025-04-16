@@ -7,6 +7,8 @@ export const route = {
   blogDetail: "/blog/:id",
   home: "/home",
   otpPage: "/otp",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
   emailVerified: "/email-verified",
   introWorkspace: "intro-workspace",
   workspace: "/workspace",

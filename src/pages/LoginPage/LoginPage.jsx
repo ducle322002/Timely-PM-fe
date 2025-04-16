@@ -87,12 +87,12 @@ export default function LoginPage() {
     }
   };
   return (
-    <div className="flex items-center justify-center min-h-screen  px-4">
+    <div className="flex items-center justify-center min-h-screen  px-4 bg-gradient-to-br from-blue-100 via-white to-blue-200 ">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="flex flex-col md:flex-row bg-white rounded-3xl overflow-hidden w-full max-w-6xl shadow-md"
+        className="flex flex-col md:flex-row bg-white rounded-3xl overflow-hidden w-full max-w-6xl shadow-md "
       >
         <div className="w-full hidden md:block">
           <img
@@ -145,7 +145,10 @@ export default function LoginPage() {
             </Form.Item>
 
             <div className="text-right text-sm mb-4">
-              <Link className="text-blue-500 hover:underline">
+              <Link
+                className="text-blue-500 hover:underline"
+                to={route.forgotPassword}
+              >
                 Forgot Password?
               </Link>
             </div>

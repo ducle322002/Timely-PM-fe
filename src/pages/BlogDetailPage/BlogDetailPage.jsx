@@ -18,7 +18,9 @@ export default function BlogDetailPage() {
       console.error("There was a problem with the fetch operation:", error);
       toast.error(error?.response?.message || "Failed to fetch blog detail.");
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000); // Simulate a delay for loading effect
     }
   };
 
@@ -28,7 +30,7 @@ export default function BlogDetailPage() {
 
   return (
     <motion.div
-      className="p-6 md:p-10  min-h-screen"
+      className="p-6 md:p-10  min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
