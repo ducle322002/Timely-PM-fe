@@ -49,10 +49,6 @@ export default function HeaderWelcome() {
                 </Link>
               </Menu.Item>
             )}
-
-            <Menu.Item key="News" icon={<FaRegNewspaper />}>
-              <Link to={`${route.blog}`}>News & Update</Link>
-            </Menu.Item>
             {user.role === "ADMIN" && (
               <Menu.Item key="Admin" icon={<MdAdminPanelSettings />}>
                 <Link to={`${route.admin}/${route.dashboard}`}>
@@ -60,6 +56,10 @@ export default function HeaderWelcome() {
                 </Link>
               </Menu.Item>
             )}
+
+            <Menu.Item key="News" icon={<FaRegNewspaper />}>
+              <Link to={`${route.blog}`}>News & Update</Link>
+            </Menu.Item>
           </Menu>
         </div>
       )}

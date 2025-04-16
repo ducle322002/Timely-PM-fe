@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import DOMPurify from "dompurify";
-import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 export default function NewsManagement() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -74,7 +74,8 @@ export default function NewsManagement() {
       render: (_, record) => (
         <Button
           icon={<DeleteOutlined />}
-          danger
+          color="danger"
+          variant="solid"
           onClick={() => handleDeleteNews(record)}
         >
           Delete
@@ -170,10 +171,14 @@ export default function NewsManagement() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6  min-h-screen">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-700">News Management</h1>
-        <Button type="primary" onClick={() => setIsModalCreateNewsOpen(true)}>
+        <Button
+          type="primary"
+          onClick={() => setIsModalCreateNewsOpen(true)}
+          icon={<PlusOutlined />}
+        >
           Create News
         </Button>
       </div>
@@ -247,7 +252,7 @@ export default function NewsManagement() {
       >
         {selectedNews && (
           <div
-            className="p-4 bg-gray-100 rounded-lg"
+            className="p-8  rounded-lg"
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(
                 parseImageAlts(
