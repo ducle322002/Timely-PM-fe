@@ -6,3 +6,7 @@
   font-optical-sizing: auto;
   font-style: normal;
 }
+/* global.css */
+.avatar-shadow {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}

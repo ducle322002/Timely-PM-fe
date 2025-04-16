@@ -14,10 +14,19 @@ import {
   Select,
   Badge,
   Upload,
+  Tooltip,
 } from "antd";
 import { motion } from "framer-motion";
 import userService from "../../services/userService";
-import { EditOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  LoadingOutlined,
+  ManOutlined,
+  PhoneOutlined,
+  UserOutlined,
+  WomanOutlined,
+} from "@ant-design/icons";
+import { FaGenderless } from "react-icons/fa";
 
 const { Title, Text } = Typography;
 
@@ -98,61 +107,106 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="min-h-screen flex justify-center items-center py-10 px-4">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="p-4"
+        transition={{ duration: 0.6 }}
+        className=" border-gray-200 shadow-2xl rounded-3xl p-6 w-full max-w-md items-center justify-center flex flex-col"
       >
-        <Card className="text-center w-[400px]">
-          <Badge.Ribbon text="Upload Avatar">
-            <Upload
-              maxCount={1}
-              fileList={fileList}
-              beforeUpload={() => false}
-              onChange={handleFileChange}
-              showUploadList={false}
-              accept="image/*"
-            >
-              <Avatar
-                shape="square"
-                size={120}
-                src={loading ? "" : user.profile?.avatarUrl}
-                icon={<UserOutlined />}
-                style={{ marginBottom: 20 }}
-                className="cursor-pointer"
-              />
-            </Upload>
-          </Badge.Ribbon>
+        {/* Header */}
+        <div className="text-center mb-6">
+          <Title level={3} className="!mb-1">
+            User Profile
+          </Title>
+          <Text type="secondary">
+            Manage your profile and personal information
+          </Text>
+        </div>
 
-          <Title level={4}>{user.profile?.fullName}</Title>
+        {/* Avatar Upload */}
+        <Upload
+          maxCount={1}
+          fileList={fileList}
+          beforeUpload={() => false}
+          onChange={handleFileChange}
+          showUploadList={false}
+          accept="image/*"
+        >
+          <div className="relative group cursor-pointer mb-4">
+            <Avatar
+              shape="square"
+              size={120}
+              src={!loading ? user.profile?.avatarUrl : undefined}
+              icon={loading && <LoadingOutlined />}
+              className="avatar-shadow ease-in-out hover:scale-105 mx-auto border-2 border-gray-300 group-hover:opacity-75 transition-all duration-300"
+            />
+            <Tooltip title="Click to upload">
+              <div className="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 text-white text-xs shadow-md opacity-80 group-hover:opacity-100 transition">
+                <EditOutlined />
+              </div>
+            </Tooltip>
+          </div>
+        </Upload>
+
+        {/* Name + Email */}
+        <div className="text-center">
+          <Title level={4} className="!mb-0">
+            {user.profile?.fullName}
+          </Title>
           <Text type="secondary">{user.email}</Text>
-          <Divider />
+        </div>
 
-          {/* Profile Details */}
-          <Row gutter={[16, 16]} justify="center">
-            <Col xs={24} sm={12}>
-              <Text strong>Fullname</Text>
-              <br />
-              <Text>{user.profile?.fullName}</Text>
-            </Col>
-            <Col xs={24} sm={12}>
+        {/* Divider */}
+        <Divider className="my-4" />
+
+        {/* Info Section */}
+        <Row gutter={[16, 16]}>
+          <Col span={12} className="text-center">
+            <Text strong>
+              <UserOutlined className="mr-1" />
+              Full Name
+            </Text>
+            <br />
+            <Text>{user.profile?.fullName || "-"}</Text>
+          </Col>
+
+          {user.profile?.gender === "MALE" ? (
+            <Col span={12} className="text-center">
+              <ManOutlined className="mr-1" />
               <Text strong>Gender</Text>
               <br />
-              <Text>{user.profile?.gender}</Text>
+              <Text>Male</Text>
             </Col>
-
-            <Col xs={24} sm={12}>
-              <Text strong>Phone</Text>
+          ) : (
+            <Col span={12} className="text-center">
+              <WomanOutlined className="mr-1" />
+              <Text strong>Gender</Text>
               <br />
-              <Text>{user.profile?.phone}</Text>
+              <Text>Female</Text>
             </Col>
-          </Row>
-          <Divider />
+          )}
 
-          {/* Action Buttons */}
+          <Col span={24} className="text-center">
+            <Text strong>
+              <PhoneOutlined className="mr-1" />
+              Phone
+            </Text>
+            <br />
+            <Text>{user.profile?.phone || "-"}</Text>
+          </Col>
+        </Row>
+
+        {/* Optional: Description or bio block */}
+        <Divider />
+
+        {/* Button */}
+        <div className="text-center">
           <Button
+            type="primary"
+            shape="round"
+            size="middle"
+            icon={<EditOutlined />}
             onClick={() => {
               setIsModalUpdateOpen(true);
               formUpdate.setFieldsValue({
@@ -161,18 +215,23 @@ export default function UserProfilePage() {
                 gender: user.profile?.gender,
               });
             }}
-            icon={<EditOutlined />}
           >
             Edit Profile
           </Button>
-        </Card>
+        </div>
       </motion.div>
 
       <Modal
-        title="Edit Profile"
-        visible={isModalUpdateOpen}
+        title={
+          <span className="flex items-center gap-2">
+            <UserOutlined /> Edit Profile
+          </span>
+        }
+        open={isModalUpdateOpen}
         onCancel={() => setIsModalUpdateOpen(false)}
         onOk={() => formUpdate.submit()}
+        okText="Save Changes"
+        cancelText="Cancel"
       >
         <Form
           requiredMark={false}
@@ -187,23 +246,23 @@ export default function UserProfilePage() {
               { required: true, message: "Please enter your full name!" },
             ]}
           >
-            <Input />
+            <Input placeholder="Enter full name" />
           </Form.Item>
           <Form.Item
             name="phone"
-            label="Phone"
+            label="Phone Number"
             rules={[
               { required: true, message: "Please enter your phone number!" },
             ]}
           >
-            <Input />
+            <Input placeholder="Enter phone number" />
           </Form.Item>
           <Form.Item
             name="gender"
             label="Gender"
             rules={[{ required: true, message: "Please select your gender!" }]}
           >
-            <Select placeholder="Select Gender">
+            <Select placeholder="Select gender">
               <Select.Option value="MALE">Male</Select.Option>
               <Select.Option value="FEMALE">Female</Select.Option>
             </Select>
