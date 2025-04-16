@@ -12,6 +12,8 @@ const { TextArea } = Input;
 
 import toast from "react-hot-toast";
 import { route } from "../../routes";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../redux/features/userSlice";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
@@ -22,7 +24,7 @@ export default function WelcomePage() {
 
   // Simulate user login status (replace with actual logic)
   const isLoggedIn = !!Cookies.get("token"); // Check if the token exists in cookies
-
+  const user = useSelector(selectUser); // Get the user role from cookies
   const handleOpenModalFeedback = () => {
     if (isLoggedIn) {
       setIsModalFeedbackVisible(true);
@@ -94,13 +96,19 @@ export default function WelcomePage() {
           </p>
           <Button
             onClick={() =>
-              isLoggedIn
+              isLoggedIn && user.role === "ADMIN"
+                ? navigate(`${route.admin}/${route.dashboard}`)
+                : isLoggedIn
                 ? navigate(`${route.home}/${route.introWorkspace}`)
                 : navigate(route.register)
             }
             className="!bg-[#1968db] !px-[2%] !py-4 !font-bold !text-white !text-lg !rounded-lg"
           >
-            {isLoggedIn ? "Go to Your Workspace" : "Join Us Now"}
+            {isLoggedIn && user.role === "ADMIN"
+              ? "Go To Admin Panel"
+              : isLoggedIn
+              ? "Go to Your Workspace"
+              : "Join Us Now"}
           </Button>
         </div>
         <div className="container mx-auto">

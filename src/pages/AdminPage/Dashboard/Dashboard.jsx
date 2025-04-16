@@ -79,7 +79,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 min-h-screen">
       {loading ? (
         <div className="flex justify-center items-center min-h-[200px]">
           <Spin size="large" />

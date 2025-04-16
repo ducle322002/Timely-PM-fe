@@ -1,14 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Layout,
-  Menu,
-  Modal,
-  Tooltip,
-  Progress,
-} from "antd";
+import { useEffect, useState } from "react";
+import { Layout, Menu } from "antd";
 const { Sider } = Layout;
 import {
   BarChartOutlined,
@@ -17,10 +8,10 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectUser } from "../../redux/features/userSlice";
+
 import { route } from "../../routes";
 import logoNoBG from "../../assets/logoNoBG.png";
+import "./SidebarAdmin.scss";
 export default function SidebarAdmin() {
   function getItem(label, key, icon, children) {
     return { key, label, icon, children };
@@ -35,15 +26,9 @@ export default function SidebarAdmin() {
   const dataOpen = JSON.parse(localStorage.getItem("keys")) ?? [];
 
   const [openKeys, setOpenKeys] = useState(dataOpen);
-  const user = useSelector(selectUser);
 
   useEffect(() => {
     setItems([
-      // getItem("User", "", <DropboxOutlined />, [
-      //   getItem("User Profile", "", <DropboxOutlined />),
-      //   getItem("User Setting", "", <BarChartOutlined />),
-      //   getItem("User Role", "", <BarChartOutlined />),
-      // ]),
       getItem("Dashboard", route.dashboard, <BarChartOutlined />),
       getItem("Project Statistic", route.projectStatistic, <DropboxOutlined />),
       getItem("Manage User", route.adminUser, <UserOutlined />),
@@ -75,12 +60,10 @@ export default function SidebarAdmin() {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
         width={270}
-        className="!bg-[#001529] shadow-lg transition-all duration-300"
+        className="!bg-[#001529] shadow-lg transition-all duration-300 !fixed !top-0 !left-0 !h-screen !z-1000"
       >
-        {/* Logo Section */}
-
         <div className="py-4 px-6 border-b border-gray-700">
-          <img src={logoNoBG} alt="Logo" className="w-40 h-auto mx-auto" />
+          <img src={logoNoBG} alt="Logo" className="w-30 h-30 mx-auto" />
         </div>
         <div className="text-white text-center font-semibold text-lg py-4 px-6 border-b border-gray-700">
           {collapsed ? "🌐" : "Admin Panel"}

@@ -20,10 +20,6 @@ export default function NewsManagement() {
   const [isModalViewDetailOpen, setIsModalViewDetailOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
   const quillRef = useRef(null);
-  const [searchText, setSearchText] = useState("");
-  const filteredNews = news.filter((item) =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
 
   const fetchNews = async () => {
     setLoading(true);
@@ -47,7 +43,16 @@ export default function NewsManagement() {
       title: "Title",
       dataIndex: "title",
       key: "title",
+      filters: [
+        ...Array.from(new Set(news.map((item) => item.title))).map((title) => ({
+          text: title,
+          value: title,
+        })),
+      ],
+      onFilter: (value, record) => record.title === value,
+      filterSearch: true,
     },
+
     {
       title: "Content",
       key: "content",
