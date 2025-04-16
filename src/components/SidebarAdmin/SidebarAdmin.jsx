@@ -20,7 +20,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
 import { route } from "../../routes";
-
+import logoNoBG from "../../assets/logoNoBG.png";
 export default function SidebarAdmin() {
   function getItem(label, key, icon, children) {
     return { key, label, icon, children };
@@ -75,15 +75,24 @@ export default function SidebarAdmin() {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
         width={270}
+        className="!bg-[#001529] shadow-lg transition-all duration-300"
       >
+        {/* Logo Section */}
+
+        <div className="py-4 px-6 border-b border-gray-700">
+          <img src={logoNoBG} alt="Logo" className="w-40 h-auto mx-auto" />
+        </div>
+        <div className="text-white text-center font-semibold text-lg py-4 px-6 border-b border-gray-700">
+          {collapsed ? "🌐" : "Admin Panel"}
+        </div>
+
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
-          className="h-full"
-          selectedKeys={currentURI}
+          selectedKeys={[currentURI]}
           openKeys={openKeys}
           onOpenChange={handleSubMenuOpen}
+          className="h-full"
         >
           {items.map((item) =>
             item.children ? (
@@ -91,9 +100,7 @@ export default function SidebarAdmin() {
                 key={item.key}
                 icon={item.icon}
                 title={
-                  <div className="flex justify-between items-center ">
-                    {item.label}
-                  </div>
+                  <span className="text-sm font-medium">{item.label}</span>
                 }
               >
                 {item.children.map((subItem) => (
@@ -101,17 +108,23 @@ export default function SidebarAdmin() {
                     key={subItem.key}
                     icon={subItem.icon}
                     onClick={(e) => handleSelectKey(e.keyPath[1])}
-                    className="dark:!text-[#ffffff]"
+                    className="!text-white hover:!bg-blue-500/20 transition-all"
                   >
-                    <Link to={subItem.key}>{subItem.label}</Link>
+                    <Link to={subItem.key} className="pl-2 block">
+                      {subItem.label}
+                    </Link>
                   </Menu.Item>
                 ))}
               </Menu.SubMenu>
             ) : (
-              <Menu.Item key={item.key} icon={item.icon}>
-                <div className="flex justify-between items-center">
-                  <Link to={item.key}>{item.label}</Link>
-                </div>
+              <Menu.Item
+                key={item.key}
+                icon={item.icon}
+                className="!text-white hover:!bg-blue-500/20 transition-all"
+              >
+                <Link to={item.key} className="pl-2 block text-sm font-medium">
+                  {item.label}
+                </Link>
               </Menu.Item>
             )
           )}

@@ -11,6 +11,7 @@ import Cookies from "js-cookie"; // Import js-cookie
 const { TextArea } = Input;
 
 import toast from "react-hot-toast";
+import { route } from "../../routes";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ export default function WelcomePage() {
     try {
       // Call your API to send feedback here
       const response = await userService.sendFeedback(values);
+      toast.success("Feedback submitted successfully!");
       console.log("Feedback submitted:", values);
       console.log("API response:", response);
       form.resetFields();
@@ -91,10 +93,14 @@ export default function WelcomePage() {
             Become a part of our community and start managing your projects
           </p>
           <Button
-            onClick={() => navigate("/register")}
+            onClick={() =>
+              isLoggedIn
+                ? navigate(`${route.home}/${route.introWorkspace}`)
+                : navigate(route.register)
+            }
             className="!bg-[#1968db] !px-[2%] !py-4 !font-bold !text-white !text-lg !rounded-lg"
           >
-            Join Us
+            {isLoggedIn ? "Go to Your Workspace" : "Join Us Now"}
           </Button>
         </div>
         <div className="container mx-auto">

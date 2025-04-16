@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from "react";
 import adminService from "../../../services/adminService";
-import { Button, DatePicker, Image, Select, Spin, Table, Tag } from "antd";
+import {
+  Button,
+  DatePicker,
+  Select,
+  Spin,
+  Table,
+  Tag,
+  Typography,
+  Card,
+  Space,
+} from "antd";
 import moment from "moment";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+const { Title } = Typography;
 
 export default function ProjectStatistic() {
   const [projectData, setProjectData] = useState([]);
@@ -30,7 +41,6 @@ export default function ProjectStatistic() {
     fetchProjectData();
   }, []);
 
-  // Handle filters
   useEffect(() => {
     let data = [...projectData];
 
@@ -71,18 +81,22 @@ export default function ProjectStatistic() {
       dataIndex: "status",
       key: "status",
       render: (status) => (
-        <Tag color={status === "DONE" ? "green" : "orange"}>{status}</Tag>
+        <Tag color={status === "DONE" ? "green" : "gold"}>{status}</Tag>
       ),
     },
     {
       title: "Start Date",
       dataIndex: "startDate",
       key: "startDate",
+      render: (date) =>
+        date ? moment(date).format("DD/MM/YYYY") : <Tag color="gray">N/A</Tag>,
     },
     {
       title: "Due Date",
       dataIndex: "dueDate",
       key: "dueDate",
+      render: (date) =>
+        date ? moment(date).format("DD/MM/YYYY") : <Tag color="gray">N/A</Tag>,
     },
     {
       title: "Topics Count",
@@ -94,48 +108,56 @@ export default function ProjectStatistic() {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Project Statistics
-      </h1>
-      <div className="mb-4 flex flex-wrap gap-4 items-center">
-        <RangePicker
-          onChange={(values) => setDateRange(values ?? [])}
-          value={dateRange}
-          format={"DD/MM/YYYY"}
-        />
-        <Select
-          value={statusFilter}
-          placeholder="Select Status"
-          allowClear
-          style={{ width: 200 }}
-          onChange={(value) => setStatusFilter(value)}
-        >
-          <Option value="PENDING">Pending</Option>
-          <Option value="DONE">Done</Option>
-        </Select>
-        <Button
-          onClick={() => {
-            setDateRange([]);
-            setStatusFilter(null);
-            setFilteredData(projectData);
-          }}
-        >
-          Reset Filters
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center items-center h-40">
-          <Spin size="large" />
+      <Card bordered={false} className="shadow-md">
+        <div className="mb-6">
+          <Title level={3} className="!text-gray-800">
+            Project Statistics
+          </Title>
         </div>
-      ) : (
-        <Table
-          columns={projectColumns}
-          dataSource={filteredData}
-          rowKey="id"
-          bordered
-        />
-      )}
+
+        <Space size="middle" className="flex flex-wrap mb-6">
+          <RangePicker
+            onChange={(values) => setDateRange(values ?? [])}
+            value={dateRange}
+            format="DD/MM/YYYY"
+            className="w-fit"
+          />
+          <Select
+            value={statusFilter}
+            placeholder="Select Status"
+            allowClear
+            style={{ width: 200 }}
+            onChange={(value) => setStatusFilter(value)}
+          >
+            <Option value="PENDING">Pending</Option>
+            <Option value="DONE">Done</Option>
+          </Select>
+          <Button
+            onClick={() => {
+              setDateRange([]);
+              setStatusFilter(null);
+              setFilteredData(projectData);
+            }}
+            type="dashed"
+          >
+            Reset Filters
+          </Button>
+        </Space>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-[250px]">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table
+            columns={projectColumns}
+            dataSource={filteredData}
+            rowKey="id"
+            bordered
+            pagination={{ pageSize: 7 }}
+          />
+        )}
+      </Card>
     </div>
   );
 }

@@ -19,13 +19,23 @@ export default function AdminLayout() {
           {/* <Outlet /> */}
 
           <Content className="!p-4 flex flex-col">
-            <Breadcrumb>
+            <Breadcrumb className="mb-6 text-sm">
               {location.pathname.split("/").map((path, index, array) => (
                 <Breadcrumb.Item key={path}>
-                  {index === 0 ? path : <Link to={`/${path}`}>{path}</Link>}
+                  {index === 0 ? (
+                    path
+                  ) : (
+                    <Link
+                      className="text-blue-600 hover:text-blue-800"
+                      to={`/${path}`}
+                    >
+                      {path.charAt(0).toUpperCase() + path.slice(1)}
+                    </Link>
+                  )}
                 </Breadcrumb.Item>
               ))}
             </Breadcrumb>
+
             <div className="!p-8 !bg-[#ffffff] flex-1">
               <Outlet />
             </div>
