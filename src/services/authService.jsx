@@ -31,6 +31,9 @@ const authService = {
   resendOTP: (params) => request("POST", "user/resend-email", null, {}, params),
   forgotPassword: (params) =>
     request("POST", "user/forgot-password", null, {}, params),
+
+  changeForgotPassword: (data) =>
+    request("POST", "user/change-forgot-password", data),
 };
 
 export default authService;

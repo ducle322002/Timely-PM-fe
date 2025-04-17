@@ -12,6 +12,7 @@ import {
   Space,
 } from "antd";
 import moment from "moment";
+import ExcelExportButton from "../../../components/ExcelButton/ExcelButton";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -106,6 +107,21 @@ export default function ProjectStatistic() {
     },
   ];
 
+  const exportData = projectData.map((project) => {
+    return {
+      name: project.name,
+      createdBy: project.profile?.fullName,
+      status: project.status,
+      startDate: project.startDate
+        ? moment(project.startDate).format("DD/MM/YYYY")
+        : "N/A",
+      dueDate: project.dueDate
+        ? moment(project.dueDate).format("DD/MM/YYYY")
+        : "N/A",
+      topicsCount: project.topics?.length ?? 0,
+    };
+  });
+  console.log(exportData);
   return (
     <div className="p-6">
       <Card bordered={false} className="shadow-md">
@@ -114,6 +130,8 @@ export default function ProjectStatistic() {
             Project Statistics
           </Title>
         </div>
+
+        <div></div>
 
         <Space size="middle" className="flex flex-wrap mb-6">
           <RangePicker
@@ -142,6 +160,14 @@ export default function ProjectStatistic() {
           >
             Reset Filters
           </Button>
+
+          <ExcelExportButton
+            data={exportData}
+            filename="project-data.xlsx"
+            sheetName="Projects"
+            buttonType="primary"
+            showIcon={true}
+          />
         </Space>
 
         {loading ? (

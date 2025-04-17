@@ -27,9 +27,10 @@ export default function ForgotPasswordPage() {
     };
 
     try {
-      await authService.forgotPassword(params);
+      const response = await authService.forgotPassword(params);
+      console.log(response);
       setIsSubmitted(true);
-      toast.success("Password reset link sent to your email!");
+      navigate(`${route.otpPage}/${values.email}`);
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to send password reset link"

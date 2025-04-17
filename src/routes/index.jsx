@@ -8,6 +8,8 @@ export const route = {
   home: "/home",
   otpPage: "/otp",
   forgotPassword: "/forgot-password",
+  changeForgetPassword: "/change-forget-password/:email",
+
   resetPassword: "/reset-password",
   emailVerified: "/email-verified",
   introWorkspace: "intro-workspace",

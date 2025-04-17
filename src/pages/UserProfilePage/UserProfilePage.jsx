@@ -529,33 +529,6 @@ export default function UserProfilePage() {
             </Form.Item>
 
             <Form.Item
-              label="Confirm Old Password"
-              name="confirmpassword"
-              dependencies={["oldPassword"]}
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: "Please confirm your password!",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("oldPassword") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(new Error("Passwords do not match!"));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password
-                placeholder="Password"
-                prefix={<LockOutlined className="text-gray-400" />}
-                size="large"
-              />
-            </Form.Item>
-
-            <Form.Item
               name="newPassword"
               label="New Password"
               rules={[
@@ -565,6 +538,33 @@ export default function UserProfilePage() {
               <Input.Password
                 prefix={<LockOutlined className="text-gray-400" />}
                 placeholder="Enter new password"
+                size="large"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Confirm New Password"
+              name="confirmpassword"
+              dependencies={["newPassword"]}
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Please confirm your password!",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("newPassword") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Passwords do not match!"));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password
+                placeholder="Confirm new Password"
+                prefix={<LockOutlined className="text-gray-400" />}
                 size="large"
               />
             </Form.Item>
