@@ -51,7 +51,7 @@ function App() {
           element: <LoginPage />,
         },
         {
-          path: route.otpPage,
+          path: `${route.otpPage}/:email`,
           element: <OTPLoginPage />,
         },
         {

@@ -1,28 +1,40 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Card, Typography, message } from "antd";
+import { Form, Input, Button, Typography, Spin } from "antd";
 import { motion } from "framer-motion";
+import {
+  MailOutlined,
+  KeyOutlined,
+  ArrowLeftOutlined,
+} from "@ant-design/icons";
 import authService from "../../services/authService";
 import toast from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
+import { route } from "../../routes";
 
 const { Title, Text } = Typography;
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
 
   const handleForgotPassword = async (values) => {
     setLoading(true);
-    console.log("Email submitted:", values.email);
+    setEmail(values.email);
     const params = {
       email: values.email,
     };
+
     try {
-      // Simulate API call
-      const response = authService.forgotPassword(params);
-      console.log("API response:", response.data);
+      await authService.forgotPassword(params);
+      setIsSubmitted(true);
       toast.success("Password reset link sent to your email!");
     } catch (error) {
-      toast.error(error.response.data.message);
-      message.error("Failed to send password reset link. Please try again.");
+      toast.error(
+        error.response?.data?.message || "Failed to send password reset link"
+      );
+      console.error("Password reset error:", error);
     } finally {
       setLoading(false);
     }
@@ -30,63 +42,128 @@ export default function ForgotPasswordPage() {
 
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-200"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
+      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
     >
-      <Card
-        className="shadow-lg rounded-lg p-8 dark:bg-gray-800 dark:text-white"
-        style={{
-          maxWidth: "400px",
-          textAlign: "center",
-          backgroundColor: "#ffffff",
-        }}
+      <motion.div
+        className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md mx-auto border border-gray-100"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Title level={3} className="dark:text-white">
-            Forgot Password
-          </Title>
-          <Text className="text-gray-600 dark:text-gray-300 block mb-6">
-            Enter your email address to receive a password reset link.
-          </Text>
-          <Form
-            layout="vertical"
-            onFinish={handleForgotPassword}
-            className="text-left"
-            requiredMark={false}
+        {isSubmitted ? (
+          <motion.div
+            className="text-center py-6"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
           >
-            <Form.Item
-              label="Email Address"
-              name="email"
-              rules={[
-                {
-                  required: true,
-                  message: "Please enter your email address!",
-                },
-                {
-                  type: "email",
-                  message: "Please enter a valid email address!",
-                },
-              ]}
-            >
-              <Input placeholder="Enter your email" />
-            </Form.Item>
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+              <MailOutlined className="text-green-600 text-2xl" />
+            </div>
+
+            <Title level={3} className="mb-3">
+              Check Your Email
+            </Title>
+
+            <Text className="text-gray-600 block mb-6">
+              We've sent a password reset link to
+              <br />
+              <span className="font-medium text-gray-800">{email}</span>
+            </Text>
+
             <Button
+              onClick={() => navigate(route.login)}
               type="primary"
-              htmlType="submit"
-              loading={loading}
-              className="w-full !rounded-lg"
+              className="w-full rounded-lg h-12"
+              size="large"
             >
-              Send Reset Link
+              Back to Login
             </Button>
-          </Form>
-        </motion.div>
-      </Card>
+
+            <Button
+              type="link"
+              className="mt-4 text-gray-600"
+              onClick={() => setIsSubmitted(false)}
+            >
+              Didn't receive the email? Try again
+            </Button>
+          </motion.div>
+        ) : (
+          <>
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <KeyOutlined className="text-blue-600 text-2xl" />
+              </div>
+            </div>
+
+            <Title level={3} className="text-center mb-2">
+              Forgot Password
+            </Title>
+
+            <Text className="block text-center mb-6 text-gray-500">
+              Enter your email address and we'll send you a link to reset your
+              password
+            </Text>
+
+            <Form
+              layout="vertical"
+              onFinish={handleForgotPassword}
+              className="mb-4"
+              requiredMark={false}
+            >
+              <Form.Item
+                name="email"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter your email address",
+                  },
+                  {
+                    type: "email",
+                    message: "Please enter a valid email address",
+                  },
+                ]}
+              >
+                <Input
+                  prefix={<MailOutlined className="text-gray-400" />}
+                  placeholder="Email address"
+                  size="large"
+                  className="rounded-lg h-12"
+                />
+              </Form.Item>
+
+              <Form.Item className="mb-2">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  className="w-full rounded-lg h-12"
+                  size="large"
+                >
+                  {loading ? "Sending..." : "Send Reset Link"}
+                </Button>
+              </Form.Item>
+            </Form>
+
+            <div className="text-center mt-6">
+              <Link
+                to={route.login}
+                className="text-blue-600 hover:text-blue-800 flex items-center justify-center"
+              >
+                <ArrowLeftOutlined className="mr-1" />
+                Back to Login
+              </Link>
+            </div>
+          </>
+        )}
+      </motion.div>
+
+      <Text className="mt-6 text-gray-500 text-xs">
+        Contact support if you're having trouble with your account
+      </Text>
     </motion.div>
   );
 }

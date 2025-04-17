@@ -37,6 +37,8 @@ const userService = {
     request("POST", "user/upload-avatar", data, {
       "Content-Type": "multipart/form-data",
     }),
+
+  changePassword: (data) => request("POST", "user/change-password", data),
 };
 
 export default userService;

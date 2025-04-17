@@ -151,7 +151,6 @@ export default function ManageUser() {
         open={isModalBanUser}
         onCancel={() => setIsModalBanUser(false)}
         title={<span className="text-lg font-semibold">Ban User</span>}
-        centered
         footer={
           <div className="flex justify-end gap-2">
             <Button

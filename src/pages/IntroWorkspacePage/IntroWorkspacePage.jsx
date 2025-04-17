@@ -11,59 +11,76 @@ import {
   Menu,
   Modal,
   Progress,
-  Steps,
+  Empty,
+  Avatar,
+  Spin,
+  Tag,
+  Tooltip,
+  Typography,
 } from "antd";
+import {
+  SearchOutlined,
+  PlusCircleOutlined,
+  UserAddOutlined,
+  ArrowRightOutlined,
+  CalendarOutlined,
+  TeamOutlined,
+  FileProtectOutlined,
+} from "@ant-design/icons";
 import toast from "react-hot-toast";
 import projectService from "../../services/projectService";
 import { useNavigate } from "react-router-dom";
 import { route } from "../../routes";
 import moment from "moment/moment";
-import { SearchOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 export default function IntroWorkspacePage() {
   const user = useSelector(selectUser);
-
   const [isModalCreateProject, setIsModalCreateProject] = useState(false);
   const [isModalJoinProject, setIsModalJoinProject] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedProjectLog, setSelectedProjectLog] = useState({});
-
   const [projects, setProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [formCreateProject] = Form.useForm();
   const [formJoinProject] = Form.useForm();
 
   const navigate = useNavigate();
+
   const showModalCreateProject = () => {
     setIsModalCreateProject(true);
   };
+
   const handleCancelCreateProject = () => {
     setIsModalCreateProject(false);
   };
 
   const fetchProject = async () => {
+    setIsLoading(true);
     try {
       const response = await projectService.getProjectsForUser();
-
       console.log(response.data);
       setProjects(response.data);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching projects:", error);
+      toast.error("Failed to load your projects");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const fetchProjectLog = async (projectId) => {
     try {
       const response = await projectService.getProjectLog(projectId);
-      console.log(response.data);
       setSelectedProjectLog((prevLogs) => ({
         ...prevLogs,
         [projectId]: response.data,
       }));
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching project log:", error);
     }
   };
 
@@ -71,62 +88,98 @@ export default function IntroWorkspacePage() {
     project.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const items = filteredProjects.map((project) => ({
-    key: project.id,
-    label: (
-      <div className="flex justify-between items-center">
-        <span className="font-medium">{project.name}</span>
-        <span
-          className={`ml-2 px-2 py-1 text-xs rounded-full ${
-            project.status === "PENDING"
-              ? "bg-yellow-100 text-yellow-600"
-              : project.status === "PROCESSING"
-              ? "bg-blue-100 text-blue-600"
-              : project.status === "DONE"
-              ? "bg-green-100 text-green-600"
-              : "bg-gray-100 text-gray-600"
-          }`}
-        >
-          {project.status}
-        </span>
-      </div>
-    ),
-    children: (
-      <div className="rounded-xl">
-        <div className="flex justify-between items-center mt-2">
-          <div className="flex items-center gap-4">
-            <h3 className="text-gray-800 font-semibold">Project Manager:</h3>
-            <p className="text-gray-600 font-medium">
-              {project.profile.fullName}
-            </p>
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "PENDING":
+        return { bg: "bg-yellow-100", text: "text-yellow-600" };
+      case "PROCESSING":
+        return { bg: "bg-blue-100", text: "text-blue-600" };
+      case "DONE":
+        return { bg: "bg-green-100", text: "text-green-600" };
+      default:
+        return { bg: "bg-gray-100", text: "text-gray-600" };
+    }
+  };
+
+  const items = filteredProjects.map((project) => {
+    const statusColors = getStatusColor(project.status);
+
+    return {
+      key: project.id,
+      label: (
+        <div className="flex justify-between items-center py-2">
+          <div className="flex items-center gap-3">
+            <Avatar src={project.image} size="large" alt={project.name} />
+            <div>
+              <div className="font-medium text-lg">{project.name}</div>
+              <Text type="secondary" className="text-xs">
+                <CalendarOutlined className="mr-1" />
+                {moment(project.createdAt).format("MMM DD, YYYY")}
+              </Text>
+            </div>
           </div>
-          <Button
-            className="!bg-[#1968db] !text-white"
-            onClick={() =>
-              navigate(`${route.workspace}/${route.project}/${project.id}`)
-            }
-          >
-            Go To This Workspace
-          </Button>
+          <Tag className={`${statusColors.bg} ${statusColors.text} px-3 py-1`}>
+            {project.status}
+          </Tag>
         </div>
-      </div>
-    ),
-  }));
+      ),
+      children: (
+        <div className=" p-4 rounded-xl mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <TeamOutlined className="text-gray-500" />
+              <div>
+                <Text type="secondary" className="block text-xs">
+                  Project Manager
+                </Text>
+                <Text strong>{project.profile.fullName}</Text>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <FileProtectOutlined className="text-gray-500" />
+              <div>
+                <Text type="secondary" className="block text-xs">
+                  Project ID
+                </Text>
+                <Text copyable>{project.id}</Text>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-4">
+            <Button
+              type="primary"
+              icon={<ArrowRightOutlined />}
+              onClick={() =>
+                navigate(
+                  `${route.workspace}/${route.project}/${project.id}/${route.summary}`
+                )
+              }
+              className="hover:scale-105 transition-transform"
+            >
+              Go To Workspace
+            </Button>
+          </div>
+        </div>
+      ),
+    };
+  });
 
   useEffect(() => {
     fetchProject();
-    console.log("fetching");
   }, []);
 
   const handleCreateProject = async (values) => {
     values.status = "PENDING";
     values.image =
       "https://smartpro.vn/images/programes/768x1024/423247project_mobile.jpg";
-    console.log(values);
-    console.log(values.name);
+
     try {
+      setIsLoadingModalVisible(true);
+      setProgress(0);
+
       const response = await projectService.createProjects(values);
-      console.log(response);
 
       // Simulate loading progress
       const interval = setInterval(() => {
@@ -140,112 +193,168 @@ export default function IntroWorkspacePage() {
         });
       }, 500);
 
-      fetchProject();
+      await fetchProject();
       formCreateProject.resetFields();
       setIsModalCreateProject(false);
-      setIsLoadingModalVisible(true);
-      setProgress(0);
-      // navigate(`${route.workspace}/${route.project}/${response.data.id}`);
+      toast.success("Project created successfully!");
     } catch (error) {
-      console.log(error);
-
-      toast.error(error.response.data.message);
+      setIsLoadingModalVisible(false);
+      toast.error(error.response?.data?.message || "Failed to create project");
     }
   };
 
   const handleJoinProject = async (values) => {
-    const params = {
-      code: values.code,
-    };
+    const params = { code: values.code };
+
     try {
       const response = await projectService.joinProject(params);
-      console.log(response);
-      fetchProject();
+      await fetchProject();
       formJoinProject.resetFields();
       setIsModalJoinProject(false);
-      toast.success("Joining Project Request Sent, Please Wait For Approval");
+      toast.success("Join request sent. Waiting for approval.");
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Failed to join project");
     }
   };
 
   const handleCollapseChange = (key) => {
     if (key) {
-      fetchProjectLog(key); // key is the project ID
+      fetchProjectLog(key);
     }
   };
 
   return (
-    <div>
+    <div className="min-h-screen py-12">
       <motion.div
-        initial={{ opacity: 0, y: -50 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6 }}
+        className="container mx-auto px-4"
       >
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center">
-            <Card
-              title={<div className="text-center">Workspace</div>}
-              className="w-[55%] mt-[5%]"
-              style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
-            >
-              <div className="flex flex-col items-start justify-center gap-[5%]">
-                <Menu theme="light" mode="vertical" className="w-full">
-                  <Menu.Item onClick={() => showModalCreateProject()}>
-                    Create new Workspace
-                  </Menu.Item>
-                  <Menu.Item onClick={() => setIsModalJoinProject(true)}>
-                    Join an existing Workspace
-                  </Menu.Item>
-                </Menu>
-              </div>
-            </Card>
-          </div>
+        <div className="max-w-4xl mx-auto">
+          {/* Actions Card */}
+          <Card
+            className="mb-8 border-none rounded-xl shadow-md"
+            bodyStyle={{ padding: "24px" }}
+          >
+            <Title level={3} className="text-center mb-6">
+              Workspace Actions
+            </Title>
 
-          <div className="flex items-center justify-center mt-[5%]">
-            <Card
-              title={
-                <>
-                  <div className="flex justify-between items-center w-full">
-                    <div className="!w-[250px]"></div>
-                    <div className="text-center">Your Project</div>
-                    <Input
-                      placeholder="Search workspace..."
-                      prefix={<SearchOutlined />}
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="!w-[250px]"
-                    />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Card
+                  className="cursor-pointer h-full border border-blue-100 hover:border-blue-300 transition-all"
+                  onClick={showModalCreateProject}
+                >
+                  <div className="flex flex-col items-center text-center p-4">
+                    <div className="bg-blue-50 p-4 rounded-full mb-4">
+                      <PlusCircleOutlined className="text-blue-500 text-2xl" />
+                    </div>
+                    <Title level={4}>Create Workspace</Title>
+                    <Text type="secondary">Start a new project workspace</Text>
                   </div>
-                </>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Card
+                  className="cursor-pointer h-full border border-green-100 hover:border-green-300 transition-all"
+                  onClick={() => setIsModalJoinProject(true)}
+                >
+                  <div className="flex flex-col items-center text-center p-4">
+                    <div className="bg-green-50 p-4 rounded-full mb-4">
+                      <UserAddOutlined className="text-green-500 text-2xl" />
+                    </div>
+                    <Title level={4}>Join Workspace</Title>
+                    <Text type="secondary">Enter an existing project</Text>
+                  </div>
+                </Card>
+              </motion.div>
+            </div>
+          </Card>
+
+          {/* Projects List */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mt-8"
+          >
+            <Card
+              className="rounded-xl shadow-md border-none"
+              title={
+                <div className="flex justify-between items-center w-full py-2">
+                  <Title level={3} className="mb-0">
+                    Your Projects
+                  </Title>
+                  <Input
+                    placeholder="Search projects..."
+                    prefix={<SearchOutlined className="text-gray-400" />}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="max-w-xs"
+                    allowClear
+                  />
+                </div>
               }
-              className="w-[55%] mt-[5%]"
-              style={{ boxShadow: "0px 2px 8px 0px rgba(99, 99, 99, 0.2)" }}
+              bodyStyle={{
+                padding:
+                  isLoading || filteredProjects.length === 0 ? "40px" : "0px",
+              }}
             >
-              {items.length > 0 && projects ? (
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <Spin size="large" />
+                  <Text className="mt-4 text-gray-500">
+                    Loading your projects...
+                  </Text>
+                </div>
+              ) : filteredProjects.length > 0 ? (
                 <Collapse
                   accordion
                   items={items}
                   bordered={false}
-                  ghost={true}
+                  expandIconPosition="end"
+                  className="custom-collapse"
                   onChange={handleCollapseChange}
                 />
               ) : (
-                <div className="text-center text-2xl">
-                  You haven't created or joined any workspace yet
-                </div>
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={
+                    searchTerm ? (
+                      <Text>No projects match your search</Text>
+                    ) : (
+                      <div className="text-center">
+                        <Text className="text-lg">No projects found</Text>
+                        <div className="mt-2">
+                          <Text type="secondary">
+                            Create a new workspace or join an existing one
+                          </Text>
+                        </div>
+                      </div>
+                    )
+                  }
+                />
               )}
             </Card>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
 
+      {/* Create Project Modal */}
       <Modal
         visible={isModalCreateProject}
         open={isModalCreateProject}
         onCancel={handleCancelCreateProject}
-        title="Create Project"
+        title={<Title level={4}>Create New Project</Title>}
         footer={[
           <Button key="back" onClick={handleCancelCreateProject}>
             Cancel
@@ -255,7 +364,7 @@ export default function IntroWorkspacePage() {
             type="primary"
             onClick={() => formCreateProject.submit()}
           >
-            Create
+            Create Project
           </Button>,
         ]}
       >
@@ -271,19 +380,24 @@ export default function IntroWorkspacePage() {
             rules={[
               {
                 required: true,
-                message: "Please Enter Project Name",
+                message: "Please enter a project name",
               },
             ]}
           >
-            <Input type="text" />
+            <Input
+              placeholder="Enter your project name"
+              size="large"
+              prefix={<FileProtectOutlined className="text-gray-400" />}
+            />
           </Form.Item>
         </Form>
       </Modal>
 
+      {/* Join Project Modal */}
       <Modal
         open={isModalJoinProject}
-        onCancel={handleCancelCreateProject}
-        title="Join Project"
+        onCancel={() => setIsModalJoinProject(false)}
+        title={<Title level={4}>Join Existing Project</Title>}
         footer={[
           <Button key="back" onClick={() => setIsModalJoinProject(false)}>
             Cancel
@@ -293,7 +407,7 @@ export default function IntroWorkspacePage() {
             type="primary"
             onClick={() => formJoinProject.submit()}
           >
-            Join
+            Join Project
           </Button>,
         ]}
       >
@@ -309,33 +423,62 @@ export default function IntroWorkspacePage() {
             rules={[
               {
                 required: true,
-                message: "Please Enter Project Code",
+                message: "Please enter the project code",
               },
             ]}
           >
-            <Input type="text" />
+            <Input
+              placeholder="Enter the project invitation code"
+              size="large"
+              prefix={<TeamOutlined className="text-gray-400" />}
+            />
           </Form.Item>
         </Form>
       </Modal>
 
+      {/* Loading Modal */}
       <Modal
         visible={isLoadingModalVisible}
+        open={isLoadingModalVisible}
         footer={null}
         closable={false}
-        title={
-          <>
-            <h4 className="font-bold text-xl text-center">Creating Project</h4>
-          </>
-        }
+        title={null}
+        width={400}
       >
-        <div className="flex flex-col items-center justify-center gap-[5%]">
+        <div className="flex flex-col items-center justify-center py-6">
           <img
             src="https://ideascale.com/wp-content/uploads/2022/03/Task-Management-Advantages-scaled.jpg"
-            alt=""
+            alt="Creating Project"
+            className="w-3/4 mb-6 rounded-lg"
           />
-          <Progress percent={progress} />
+          <Title level={4} className="mb-4">
+            Creating Your Project
+          </Title>
+          <Progress
+            percent={progress}
+            status="active"
+            strokeColor={{
+              "0%": "#108ee9",
+              "100%": "#87d068",
+            }}
+            className="w-full"
+          />
+          <Text type="secondary" className="mt-4">
+            Please wait while we set up your workspace
+          </Text>
         </div>
       </Modal>
+
+      <style jsx>{`
+        .custom-collapse .ant-collapse-header {
+          padding: 12px 16px;
+          border-bottom: 1px solid #f0f0f0;
+        }
+
+        .custom-collapse .ant-collapse-content-box {
+          padding: 0;
+        }
+      `}</style>
     </div>
   );
 }

@@ -87,8 +87,6 @@ export default function ProjectDetailPage() {
 
   const [tasks, setTasks] = useState([]);
   const [taskDetail, setTaskDetail] = useState(null);
-  const [issueDetail, setIssueDetail] = useState({});
-  const [questionDetail, setQuestionDetail] = useState({});
 
   const [issueInTask, setIssueInTask] = useState([]);
 
@@ -97,7 +95,6 @@ export default function ProjectDetailPage() {
 
   const [selectedTask, setSelectedTask] = useState(null);
 
-  const [selectedMember, setSelectedMember] = useState(null);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [countdown, setCountdown] = useState(null);
   const [comments, setComments] = useState([]);

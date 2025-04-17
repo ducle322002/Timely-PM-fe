@@ -1,10 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Statistic, Table, Progress } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Table,
+  Progress,
+  Spin,
+  Alert,
+  Tooltip,
+} from "antd";
 import { motion } from "framer-motion";
 import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
 import { useParams } from "react-router-dom";
 import projectService from "../../services/projectService";
+import {
+  ArrowUpOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 
 export default function SummaryProjectPage() {
   const { id } = useParams();
@@ -17,13 +33,34 @@ export default function SummaryProjectPage() {
     tasksByStatus: {},
     priorityDistribution: {},
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [projectName, setProjectName] = useState("Project");
+
+  // Color scheme for consistency
+  const colors = {
+    primary: "#1890ff",
+    success: "#52c41a",
+    warning: "#faad14",
+    danger: "#ff4d4f",
+    pending: "#FF6384",
+    toDo: "#36A2EB",
+    inProgress: "#FFCE56",
+    done: "#4CAF50",
+    high: "#ff4d4f",
+    medium: "#faad14",
+    low: "#52c41a",
+  };
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const response = await projectService.getProjectsById(id);
         const data = response.data.chartData;
 
+        setProjectName(response.data.name || "Project");
         setStats({
           totalTasks: data.totalTasks || 0,
           pendingTasks: data.pendingTasks || 0,
@@ -35,6 +72,13 @@ export default function SummaryProjectPage() {
         });
       } catch (error) {
         console.error(error.response?.data || error.message);
+        setError(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to load project data"
+        );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -52,7 +96,12 @@ export default function SummaryProjectPage() {
           stats.tasksByStatus.INPROGRESS || 0,
           stats.doneTasks || 0,
         ],
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50"],
+        backgroundColor: [
+          colors.pending,
+          colors.toDo,
+          colors.inProgress,
+          colors.done,
+        ],
       },
     ],
   };
@@ -67,7 +116,7 @@ export default function SummaryProjectPage() {
           stats.priorityDistribution.MEDIUM || 0,
           stats.priorityDistribution.LOW || 0,
         ],
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+        backgroundColor: [colors.high, colors.medium, colors.low],
       },
     ],
   };
@@ -78,8 +127,42 @@ export default function SummaryProjectPage() {
   const progress =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+  // Prepare project status summary text
+  const getStatusSummary = () => {
+    if (totalTasks === 0)
+      return "No tasks have been created for this project yet.";
+    if (progress === 100)
+      return "All tasks have been completed! The project is done.";
+    if (progress > 75)
+      return "The project is nearing completion with most tasks done.";
+    if (progress > 50)
+      return "Good progress! More than half of the tasks are completed.";
+    if (progress > 25)
+      return "The project is underway with some completed tasks.";
+    return "The project is in early stages with most tasks still pending.";
+  };
+
+  // Add priority indicator
+  const getPriorityStatus = () => {
+    const highCount = stats.priorityDistribution.HIGH || 0;
+    const total = Object.values(stats.priorityDistribution).reduce(
+      (sum, current) => sum + current,
+      0
+    );
+
+    if (total === 0)
+      return { text: "No priority tasks", color: colors.primary };
+    if (highCount > 0)
+      return {
+        text: `${highCount} high priority tasks require attention`,
+        color: colors.high,
+      };
+    return { text: "No high priority tasks pending", color: colors.success };
+  };
+
+  const priorityStatus = getPriorityStatus();
+
   // Prepare a data source with group header rows.
-  // For group header rows, use a property (for example, "group") and no "label/value" pair.
   const dataSource = [
     { key: "1", label: "Total Tasks", value: totalTasks },
     { key: "group1", group: "Task Status Metrics" },
@@ -115,7 +198,7 @@ export default function SummaryProjectPage() {
       render: (text, record) => {
         if (record.group) {
           return (
-            <strong style={{ fontSize: "1.1rem", color: "#1890ff" }}>
+            <strong style={{ fontSize: "1.1rem", color: colors.primary }}>
               {record.group}
             </strong>
           );
@@ -144,130 +227,243 @@ export default function SummaryProjectPage() {
     },
   ];
 
+  // Set chart options
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        enabled: true,
+        intersect: false,
+        mode: "index",
+      },
+      legend: {
+        position: "top",
+      },
+    },
+  };
+
+  // Animation variants for staggered animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spin
+          indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />}
+          tip="Loading project dashboard..."
+          size="large"
+        />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <Alert
+          message="Error Loading Project"
+          description={error}
+          type="error"
+          showIcon
+        />
+      </div>
+    );
+  }
+
   return (
     <motion.div
-      className="min-h-screen p-[5%]"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      className="min-h-screen p-4  "
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      <h1 className="text-3xl font-bold text-center text-blue-600 mb-8">
-        Project Summary
-      </h1>
+      <motion.div
+        className="max-w-7xl mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants}>
+          <h1 className="text-3xl font-bold text-center text-blue-600 mb-4">
+            {projectName} Summary
+          </h1>
 
-      {/* Overall Progress */}
-      <Row className="mb-8">
-        <Col span={24}>
-          <Card className="shadow-md rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Overall Progress</h2>
+          <div className="bg-white p-4 rounded-lg shadow-md mb-8">
+            <p className="text-lg text-center text-gray-700">
+              {getStatusSummary()}
+            </p>
+            <p
+              className="text-center mt-2"
+              style={{ color: priorityStatus.color }}
+            >
+              {priorityStatus.text}
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Overall Progress */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <Card
+            className="shadow-md rounded-lg hover:shadow-lg transition-shadow"
+            bodyStyle={{ padding: "24px" }}
+          >
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Overall Progress</h2>
+              <div className="text-sm text-gray-500">
+                {completedTasks} of {totalTasks} tasks completed
+              </div>
+            </div>
             <Progress
               percent={progress}
               status={progress === 100 ? "success" : "active"}
               strokeColor={{
-                from: "#1890ff",
-                to: "#52c41a",
+                from: colors.primary,
+                to: colors.success,
               }}
               size="large"
               showInfo
+              format={(percent) => (
+                <Tooltip
+                  title={`${completedTasks}/${totalTasks} tasks completed`}
+                >
+                  <span>{percent}%</span>
+                </Tooltip>
+              )}
             />
           </Card>
-        </Col>
-      </Row>
+        </motion.div>
 
-      {/* Widgets */}
-      <Row gutter={[16, 16]} className="mb-8">
-        <Col xs={24} sm={12} md={6}>
-          <Card className="shadow-md rounded-lg text-center text-3xl font-bold">
-            <Statistic
-              title="Total Tasks"
-              value={totalTasks}
-              valueStyle={{ color: "#1890ff" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className="shadow-md rounded-lg text-center text-3xl font-bold">
-            <Statistic
-              title="Completed Tasks"
-              value={completedTasks}
-              valueStyle={{ color: "#52c41a" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className="shadow-md rounded-lg text-center text-3xl font-bold">
-            <Statistic
-              title="Pending Tasks"
-              value={pendingTasks}
-              valueStyle={{ color: "#faad14" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className="shadow-md rounded-lg text-center text-3xl font-bold">
-            <Statistic
-              title="Progress"
-              value={`${progress}%`}
-              valueStyle={{ color: "#1890ff" }}
-            />
-          </Card>
-        </Col>
-      </Row>
+        {/* Widgets */}
+        <motion.div variants={itemVariants} className="mb-8">
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} md={6}>
+              <Card
+                className="shadow-md rounded-lg hover:shadow-lg transition-all transform hover:-translate-y-1"
+                bodyStyle={{ padding: "20px" }}
+              >
+                <Statistic
+                  title={<span className="font-medium">Total Tasks</span>}
+                  value={totalTasks}
+                  valueStyle={{ color: colors.primary }}
+                  prefix={<ArrowUpOutlined />}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card
+                className="shadow-md rounded-lg hover:shadow-lg transition-all transform hover:-translate-y-1"
+                bodyStyle={{ padding: "20px" }}
+              >
+                <Statistic
+                  title={<span className="font-medium">Completed Tasks</span>}
+                  value={completedTasks}
+                  valueStyle={{ color: colors.success }}
+                  prefix={<CheckCircleOutlined />}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card
+                className="shadow-md rounded-lg hover:shadow-lg transition-all transform hover:-translate-y-1"
+                bodyStyle={{ padding: "20px" }}
+              >
+                <Statistic
+                  title={<span className="font-medium">Pending Tasks</span>}
+                  value={pendingTasks}
+                  valueStyle={{ color: colors.warning }}
+                  prefix={<ClockCircleOutlined />}
+                />
+              </Card>
+            </Col>
+            <Col xs={24} sm={12} md={6}>
+              <Card
+                className="shadow-md rounded-lg hover:shadow-lg transition-all transform hover:-translate-y-1"
+                bodyStyle={{ padding: "20px" }}
+              >
+                <Statistic
+                  title={<span className="font-medium">Progress</span>}
+                  value={progress}
+                  suffix="%"
+                  valueStyle={{
+                    color:
+                      progress < 30
+                        ? colors.warning
+                        : progress < 70
+                        ? colors.primary
+                        : colors.success,
+                  }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </motion.div>
 
-      {/* Charts */}
-      <Row gutter={[24, 24]}>
-        {/* Bar Chart */}
-        <Col xs={24} md={24}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card title="Tasks by Status" className="shadow-lg rounded-lg ">
-              <div className="flex justify-center items-center h-[600px]">
-                <Bar data={barData} />
-              </div>
-            </Card>
-          </motion.div>
-        </Col>
+        {/* Charts */}
+        <Row gutter={[24, 24]}>
+          {/* Bar Chart */}
+          <Col xs={24} lg={24}>
+            <motion.div variants={itemVariants}>
+              <Card
+                title="Tasks by Status"
+                className="shadow-lg rounded-lg hover:shadow-xl transition-shadow"
+                bodyStyle={{ padding: "24px" }}
+              >
+                <div className="h-64 md:h-80">
+                  <Bar data={barData} options={chartOptions} />
+                </div>
+              </Card>
+            </motion.div>
+          </Col>
 
-        {/* Pie Chart */}
-        <Col xs={24} md={12}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <Card
-              title="Priority Distribution"
-              className="shadow-lg rounded-lg "
-            >
-              <div className="flex justify-center items-center h-full">
-                <Pie data={pieData} className="!h-[620px]" />
-              </div>
-            </Card>
-          </motion.div>
-        </Col>
+          {/* Pie Chart */}
+          <Col xs={24} lg={12}>
+            <motion.div variants={itemVariants}>
+              <Card
+                title="Priority Distribution"
+                className="shadow-lg rounded-lg hover:shadow-xl transition-shadow"
+                bodyStyle={{ padding: "24px" }}
+              >
+                <div className="h-64 md:h-131">
+                  <Pie data={pieData} options={chartOptions} />
+                </div>
+              </Card>
+            </motion.div>
+          </Col>
 
-        {/* Grouped Metrics Table */}
-        <Col xs={24} md={12}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <Card title="Task Metrics" className="shadow-lg rounded-lg">
-              <Table
-                columns={columns}
-                dataSource={dataSource}
-                pagination={false}
-                bordered
-                className="!h-[620px]"
-              />
-            </Card>
-          </motion.div>
-        </Col>
-      </Row>
+          {/* Grouped Metrics Table */}
+          <Col xs={24} lg={12}>
+            <motion.div variants={itemVariants}>
+              <Card
+                title="Task Metrics"
+                className="shadow-lg rounded-lg hover:shadow-xl transition-shadow"
+              >
+                <Table
+                  columns={columns}
+                  dataSource={dataSource}
+                  pagination={false}
+                  bordered
+                  size="middle"
+                  className="overflow-hidden"
+                />
+              </Card>
+            </motion.div>
+          </Col>
+        </Row>
+      </motion.div>
     </motion.div>
   );
 }
