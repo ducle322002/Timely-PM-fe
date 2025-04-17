@@ -62,7 +62,7 @@ export default function WelcomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-100 via-white to-blue-200">
       {/* Hero Section */}
       <motion.div
         className="container mx-auto px-4 py-12 md:py-20"
