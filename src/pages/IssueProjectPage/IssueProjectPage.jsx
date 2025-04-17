@@ -234,7 +234,11 @@ export default function IssueProjectPage() {
               ? "warning"
               : "default"
           }
-          text={<Tag color={getStatusColor(status)}>{status}</Tag>}
+          text={
+            <Tag color={getStatusColor(status)}>
+              {status === "PENDING" ? "NEW" : status}
+            </Tag>
+          }
         />
       ),
     },

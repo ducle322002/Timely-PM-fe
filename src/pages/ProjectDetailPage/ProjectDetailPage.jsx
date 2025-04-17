@@ -1379,7 +1379,9 @@ export default function ProjectDetailPage() {
                                 : "bg-[#ddeafe]"
                             }`}
                           >
-                            {taskDetail.status}
+                            {taskDetail.status === "PENDING"
+                              ? "NEW"
+                              : taskDetail.status}
                           </span>
                         </p>
                       </div>

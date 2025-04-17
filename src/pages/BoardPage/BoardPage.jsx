@@ -286,7 +286,7 @@ export default function BoardPage() {
               alignItems: "flex-start",
             }}
           >
-            {renderTaskColumn("PENDING", "Pending", "#ddeafe")}
+            {renderTaskColumn("PENDING", "New", "#ddeafe")}
             {renderTaskColumn("TODO", "To Do", "#ddeafe")}
             {renderTaskColumn("INPROGRESS", "In Progress", "#fef3c7")}
             {renderTaskColumn("DONE", "Done", "#d1fae5")}

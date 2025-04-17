@@ -46,7 +46,7 @@ export default function DetailPage() {
     PENDING: {
       tagColor: "default",
       badgeStatus: "default",
-      label: "Pending",
+      label: "New",
       progress: 0,
       color: "#d9d9d9",
     },
