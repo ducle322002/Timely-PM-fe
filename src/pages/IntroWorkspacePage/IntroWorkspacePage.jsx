@@ -91,13 +91,13 @@ export default function IntroWorkspacePage() {
   const getStatusColor = (status) => {
     switch (status) {
       case "PENDING":
-        return { bg: "bg-yellow-100", text: "text-yellow-600" };
+        return { bg: "!bg-yellow-100", text: "!text-yellow-600" };
       case "PROCESSING":
-        return { bg: "bg-blue-100", text: "text-blue-600" };
+        return { bg: "!bg-blue-100", text: "!text-blue-600" };
       case "DONE":
-        return { bg: "bg-green-100", text: "text-green-600" };
+        return { bg: "!bg-green-100", text: "!text-green-600" };
       default:
-        return { bg: "bg-gray-100", text: "text-gray-600" };
+        return { bg: "!bg-gray-100", text: "!text-gray-600" };
     }
   };
 
@@ -109,7 +109,12 @@ export default function IntroWorkspacePage() {
       label: (
         <div className="flex justify-between items-center py-2">
           <div className="flex items-center gap-3">
-            <Avatar src={project.image} size="large" alt={project.name} />
+            <Avatar
+              shape="square"
+              src={project.image}
+              size="large"
+              alt={project.name}
+            />
             <div>
               <div className="font-medium text-lg">{project.name}</div>
               <Text type="secondary" className="text-xs">
@@ -322,7 +327,7 @@ export default function IntroWorkspacePage() {
                   items={items}
                   bordered={false}
                   expandIconPosition="end"
-                  className="custom-collapse"
+                  className="custom-collapse !bg-white"
                   onChange={handleCollapseChange}
                 />
               ) : (
