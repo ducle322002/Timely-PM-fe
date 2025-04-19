@@ -86,7 +86,7 @@ export default function SummaryProjectPage() {
   }, [id]);
 
   const barData = {
-    labels: ["Pending", "To Do", "In Progress", "Done"],
+    labels: ["New", "To Do", "In Progress", "Done"],
     datasets: [
       {
         label: "Tasks by Status",
@@ -166,7 +166,7 @@ export default function SummaryProjectPage() {
   const dataSource = [
     { key: "1", label: "Total Tasks", value: totalTasks },
     { key: "group1", group: "Task Status Metrics" },
-    { key: "2", label: "Pending Tasks", value: pendingTasks },
+    { key: "2", label: "New Tasks", value: pendingTasks },
     { key: "3", label: "In Progress Tasks", value: stats.progressTasks || 0 },
     { key: "4", label: "To Do Tasks", value: stats.toDoTasks || 0 },
     { key: "5", label: "Completed Tasks", value: completedTasks },
@@ -382,7 +382,7 @@ export default function SummaryProjectPage() {
                 bodyStyle={{ padding: "20px" }}
               >
                 <Statistic
-                  title={<span className="font-medium">Pending Tasks</span>}
+                  title={<span className="font-medium">New Tasks</span>}
                   value={pendingTasks}
                   valueStyle={{ color: colors.warning }}
                   prefix={<ClockCircleOutlined />}

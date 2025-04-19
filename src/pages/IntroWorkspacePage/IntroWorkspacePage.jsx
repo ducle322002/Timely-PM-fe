@@ -140,16 +140,6 @@ export default function IntroWorkspacePage() {
                 <Text strong>{project.profile.fullName}</Text>
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <FileProtectOutlined className="text-gray-500" />
-              <div>
-                <Text type="secondary" className="block text-xs">
-                  Project ID
-                </Text>
-                <Text copyable>{project.id}</Text>
-              </div>
-            </div>
           </div>
 
           <div className="flex justify-end mt-4">
