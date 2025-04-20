@@ -82,7 +82,9 @@ export default function ProjectStatistic() {
       dataIndex: "status",
       key: "status",
       render: (status) => (
-        <Tag color={status === "DONE" ? "green" : "gold"}>{status}</Tag>
+        <Tag color={status === "DONE" ? "green" : "gold"}>
+          {status === "PENDING" ? "NEW" : status}
+        </Tag>
       ),
     },
     {
@@ -147,7 +149,7 @@ export default function ProjectStatistic() {
             style={{ width: 200 }}
             onChange={(value) => setStatusFilter(value)}
           >
-            <Option value="PENDING">Pending</Option>
+            <Option value="PENDING">New</Option>
             <Option value="DONE">Done</Option>
           </Select>
           <Button
