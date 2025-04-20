@@ -126,7 +126,6 @@ export default function SummaryProjectPage() {
   const pendingTasks = stats.pendingTasks || 0;
   const progress =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-
   // Prepare project status summary text
   const getStatusSummary = () => {
     if (totalTasks === 0)

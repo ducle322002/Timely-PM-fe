@@ -21,6 +21,7 @@ import projectService from "../../services/projectService";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { route } from "../../routes";
 import moment from "moment";
+import { all } from "axios";
 
 export default function IssueProjectPage() {
   const { id } = useParams();
@@ -122,6 +123,7 @@ export default function IssueProjectPage() {
 
   const allData = [...mappedIssues, ...mappedTasks];
 
+  console.log(allData);
   // Filter data based on search text
   const filteredData = searchText
     ? allData.filter(

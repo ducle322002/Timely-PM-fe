@@ -46,6 +46,10 @@ export default function ProjectLogHistory() {
             <Activity className="w-4 h-4 text-blue-500" />
             {log.activityType}
           </div>
+          <div className="flex items-center gap-2 text-gray-700 font-medium">
+            <Activity className="w-4 h-4 text-blue-500" />
+            {log.content}
+          </div>
         </motion.div>
       ),
     }));
