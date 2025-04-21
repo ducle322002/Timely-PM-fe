@@ -124,7 +124,7 @@ export default function IntroWorkspacePage() {
             </div>
           </div>
           <Tag className={`${statusColors.bg} ${statusColors.text} px-3 py-1`}>
-            {project.status}
+            {project.status === "PENDING" ? "NEW" : project.status}
           </Tag>
         </div>
       ),

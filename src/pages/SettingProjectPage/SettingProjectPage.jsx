@@ -225,7 +225,9 @@ export default function SettingProjectPage() {
                     projectDetail.status ? "text-red-500" : "text-green-500"
                   }
                 >
-                  {projectDetail.status}
+                  {projectDetail.status === "PENDING"
+                    ? "NEW"
+                    : projectDetail.status}
                 </span>
               </div>
 
