@@ -873,7 +873,9 @@ export default function ProjectDetailPage() {
             >
               {topic.labels}
             </p>
-            <SettingOutlined onClick={() => showUpdateTopicModal(topic)} />
+            {projectDetail.userId === user.id && (
+              <SettingOutlined onClick={() => showUpdateTopicModal(topic)} />
+            )}
           </div>
         ),
         children: (
@@ -2160,75 +2162,77 @@ export default function ProjectDetailPage() {
               ))}
             </div>
           </TabPane>
-          <TabPane tab="Pending Request" key="2">
-            <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 pb-2">
-              {memberRequest.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
-                >
-                  <div className="flex items-center gap-4">
-                    <Avatar
-                      icon={<UserOutlined />}
-                      src={member.avatarUrl}
-                      size="large"
-                    />
-                    <div>
-                      <p className="font-medium text-base text-gray-800">
-                        {member.fullName}
-                      </p>
-                      <p className="text-sm text-gray-500">{member.email}</p>
+          {projectDetail.userId === user.id && (
+            <TabPane tab="Pending Request" key="2">
+              <div className="max-h-[60vh] overflow-y-auto space-y-4 pr-2 pb-2">
+                {memberRequest.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
+                  >
+                    <div className="flex items-center gap-4">
+                      <Avatar
+                        icon={<UserOutlined />}
+                        src={member.avatarUrl}
+                        size="large"
+                      />
+                      <div>
+                        <p className="font-medium text-base text-gray-800">
+                          {member.fullName}
+                        </p>
+                        <p className="text-sm text-gray-500">{member.email}</p>
+                      </div>
                     </div>
+
+                    <Popconfirm
+                      title={`Are you sure to Approve ${member.fullName} to join the project?`}
+                      description={
+                        <>
+                          <p>This action cannot be undone.</p>
+                          <Form
+                            requiredMark={false}
+                            layout="vertical"
+                            title="Role"
+                            onFinish={(values) =>
+                              handleStatusMember(values, member, "APPROVED")
+                            }
+                            form={formUpdateStatusMember}
+                          >
+                            <Form.Item name="role" required>
+                              <Select placeholder="Select Role" size="large">
+                                <Select.Option value="DEV">Dev</Select.Option>
+                                <Select.Option value="QA">Qa</Select.Option>
+                              </Select>
+                            </Form.Item>
+                          </Form>
+                        </>
+                      }
+                      onConfirm={() => formUpdateStatusMember.submit()}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button type="primary">Approve</Button>
+                    </Popconfirm>
+
+                    <Popconfirm
+                      title={`Are you sure to Reject ${member.fullName} from the project?`}
+                      description="This action cannot be undone."
+                      onConfirm={() =>
+                        handleStatusMember(null, member, "REJECTED")
+                      }
+                      okText="Yes"
+                      okType="danger"
+                      cancelText="No"
+                    >
+                      <Button color="danger" variant="solid">
+                        Rejected
+                      </Button>
+                    </Popconfirm>
                   </div>
-
-                  <Popconfirm
-                    title={`Are you sure to Approve ${member.fullName} to join the project?`}
-                    description={
-                      <>
-                        <p>This action cannot be undone.</p>
-                        <Form
-                          requiredMark={false}
-                          layout="vertical"
-                          title="Role"
-                          onFinish={(values) =>
-                            handleStatusMember(values, member, "APPROVED")
-                          }
-                          form={formUpdateStatusMember}
-                        >
-                          <Form.Item name="role" required>
-                            <Select placeholder="Select Role" size="large">
-                              <Select.Option value="DEV">Dev</Select.Option>
-                              <Select.Option value="QA">Qa</Select.Option>
-                            </Select>
-                          </Form.Item>
-                        </Form>
-                      </>
-                    }
-                    onConfirm={() => formUpdateStatusMember.submit()}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button type="primary">Approve</Button>
-                  </Popconfirm>
-
-                  <Popconfirm
-                    title={`Are you sure to Reject ${member.fullName} from the project?`}
-                    description="This action cannot be undone."
-                    onConfirm={() =>
-                      handleStatusMember(null, member, "REJECTED")
-                    }
-                    okText="Yes"
-                    okType="danger"
-                    cancelText="No"
-                  >
-                    <Button color="danger" variant="solid">
-                      Rejected
-                    </Button>
-                  </Popconfirm>
-                </div>
-              ))}
-            </div>
-          </TabPane>
+                ))}
+              </div>
+            </TabPane>
+          )}
         </Tabs>
       </Modal>
 

@@ -58,6 +58,9 @@ const projectService = {
 
   updateProject: (projectId, projectData) =>
     request("PUT", `project/${projectId}`, projectData),
+
+  deleteTopic: (topicId, params) =>
+    request("DELETE", `topic/${topicId}`, null, {}, params),
 };
 
 export default projectService;
