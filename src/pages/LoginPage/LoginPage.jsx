@@ -10,8 +10,13 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import "./LoginPage.scss";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/features/userSlice";
-import { GoogleAuthProvider, signInWithPopup } from "@firebase/auth";
-import { auth } from "../../config/firebase";
+import {
+  auth,
+  provider,
+  facebookProvider,
+  signInWithPopup,
+  githubProvider,
+} from "../../config/firebase";
 
 export default function LoginPage() {
   const [form] = Form.useForm();
@@ -19,6 +24,8 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [loadingGG, setLoadingGG] = useState(false);
+  const [loadingFb, setLoadingFb] = useState(false);
+  const [loadingGit, setLoadingGit] = useState(false);
 
   const onFinish = async (values) => {
     setLoading(true);
@@ -54,9 +61,9 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoadingGG(true);
     try {
-      const provider = new GoogleAuthProvider();
       const response = await signInWithPopup(auth, provider);
       const accessToken = await response.user.getIdToken(true);
+      console.log(response);
       const params = { accessToken };
       const responseLogin = await authService.loginWithGoogle(params);
 
@@ -75,6 +82,59 @@ export default function LoginPage() {
       toast.error("Google login failed");
     } finally {
       setLoadingGG(false);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    setLoadingFb(true);
+    try {
+      const response = await signInWithPopup(auth, facebookProvider);
+      const accessToken = await response.user.getIdToken(true);
+      console.log(response);
+      const params = { accessToken };
+      const responseLogin = await authService.loginWithFacebook(params);
+
+      Cookies.set("token", responseLogin.data.token);
+      const user = {
+        username: responseLogin.data.username,
+        id: responseLogin.data.id,
+        role: responseLogin.data.role,
+      };
+      Cookies.set("user", JSON.stringify(user));
+      dispatch(login(user));
+      navigate(`${route.home}/${route.introWorkspace}`);
+      toast.success("Logged in with Facebook!");
+    } catch (error) {
+      console.error("Facebook login failed:", error);
+      toast.error("Facebook login failed");
+    } finally {
+      setLoadingFb(false);
+    }
+  };
+  const handleGithubLogin = async () => {
+    setLoadingGit(true);
+    try {
+      const response = await signInWithPopup(auth, githubProvider);
+      const accessToken = await response.user.getIdToken(true);
+      console.log(response);
+      const params = { accessToken };
+      const responseLogin = await authService.loginWithFacebook(params);
+
+      Cookies.set("token", responseLogin.data.token);
+      const user = {
+        username: responseLogin.data.username,
+        id: responseLogin.data.id,
+        role: responseLogin.data.role,
+      };
+      Cookies.set("user", JSON.stringify(user));
+      dispatch(login(user));
+      navigate(`${route.home}/${route.introWorkspace}`);
+      toast.success("Logged in with Google!");
+    } catch (error) {
+      console.error("Google login failed:", error);
+      toast.error("Google login failed");
+    } finally {
+      setLoadingGit(false);
     }
   };
 
@@ -198,19 +258,33 @@ export default function LoginPage() {
               </Button>
 
               <Button
-                disabled
-                className="w-full !h-12 flex items-center justify-center gap-3 !rounded-xl border border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                className="w-full !h-12 flex items-center justify-center gap-3 !rounded-xl border border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-colors shadow-sm"
                 icon={
                   <img
                     src="https://github.githubassets.com/favicons/favicon.png"
                     alt="GitHub"
-                    className="w-5 h-5 opacity-50"
+                    className="w-5 h-5 "
                   />
                 }
+                onClick={handleGithubLogin}
+                loading={loadingGit}
               >
-                <span className="font-medium">
-                  Sign in with GitHub (Coming soon)
-                </span>
+                <span className="font-medium">Sign in with GitHub</span>
+              </Button>
+
+              <Button
+                className="w-full !h-12 flex items-center justify-center gap-3 !rounded-xl border border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-colors shadow-sm"
+                icon={
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png"
+                    alt="Facebook"
+                    className="w-5 h-5"
+                  />
+                }
+                loading={loadingFb}
+                onClick={handleFacebookLogin}
+              >
+                <span className="font-medium">Sign in with Facebook</span>
               </Button>
             </div>
 

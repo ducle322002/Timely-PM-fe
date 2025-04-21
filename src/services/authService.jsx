@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { login } from "../redux/features/userSlice";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const request = async (method, url, data = null, headers = {}, params = {}) => {
@@ -26,6 +27,9 @@ const authService = {
   register: (registerData) => request("POST", `user/register`, registerData),
   loginWithGoogle: (params) =>
     request("POST", `user/google-auth/login`, null, {}, params),
+
+  loginWithFacebook: (params) =>
+    request("POST", `user/facebook-auth/login`, null, {}, params),
 
   verifyOTP: (params) => request("POST", "user/verify-email", null, {}, params),
   resendOTP: (params) => request("POST", "user/resend-email", null, {}, params),
