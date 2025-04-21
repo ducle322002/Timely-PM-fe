@@ -17,6 +17,7 @@ import {
   signInWithPopup,
   githubProvider,
 } from "../../config/firebase";
+import { GithubAuthProvider } from "@firebase/auth";
 
 export default function LoginPage() {
   const [form] = Form.useForm();
@@ -116,9 +117,10 @@ export default function LoginPage() {
     try {
       const response = await signInWithPopup(auth, githubProvider);
       const accessToken = await response.user.getIdToken(true);
+
       console.log(response);
       const params = { accessToken };
-      const responseLogin = await authService.loginWithFacebook(params);
+      const responseLogin = await authService.loginGithub(params);
 
       Cookies.set("token", responseLogin.data.token);
       const user = {
@@ -129,10 +131,10 @@ export default function LoginPage() {
       Cookies.set("user", JSON.stringify(user));
       dispatch(login(user));
       navigate(`${route.home}/${route.introWorkspace}`);
-      toast.success("Logged in with Google!");
+      toast.success("Logged in with Github!");
     } catch (error) {
-      console.error("Google login failed:", error);
-      toast.error("Google login failed");
+      console.error("Github login failed:", error);
+      toast.error("Github login failed");
     } finally {
       setLoadingGit(false);
     }

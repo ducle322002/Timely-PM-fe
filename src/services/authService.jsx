@@ -31,6 +31,9 @@ const authService = {
   loginWithFacebook: (params) =>
     request("POST", `user/facebook-auth/login`, null, {}, params),
 
+  loginGithub: (params) =>
+    request("POST", `user/github-auth/login`, null, {}, params),
+
   verifyOTP: (params) => request("POST", "user/verify-email", null, {}, params),
   resendOTP: (params) => request("POST", "user/resend-email", null, {}, params),
   forgotPassword: (params) =>
