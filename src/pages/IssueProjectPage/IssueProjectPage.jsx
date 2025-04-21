@@ -188,7 +188,7 @@ export default function IssueProjectPage() {
       ...new Set(allData.map((item) => item[fieldName]).filter(Boolean)),
     ];
     return uniqueValues.map((value) => ({
-      text: value,
+      text: value === "PENDING" ? "NEW" : value,
       value: value,
     }));
   };
