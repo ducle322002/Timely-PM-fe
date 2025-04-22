@@ -2042,7 +2042,7 @@ export default function ProjectDetailPage() {
       <Modal
         visible={isUpdateTopicModal}
         onCancel={() => setIsUpdateTopicModal(false)}
-        title="Update Topic"
+        title="Update Module"
         footer={
           <>
             <Button type="primary" onClick={() => formUpdateTopic.submit()}>
@@ -2065,7 +2065,7 @@ export default function ProjectDetailPage() {
             rules={[
               {
                 required: true,
-                message: "Please Enter Labels Topic",
+                message: "Please Enter Labels Module",
               },
             ]}
           >
@@ -2074,7 +2074,7 @@ export default function ProjectDetailPage() {
           <Form.Item
             name="type"
             label="Type"
-            rules={[{ required: true, message: "Please Select Type Topic" }]}
+            rules={[{ required: true, message: "Please Select Type Module" }]}
           >
             <Select placeholder="Select Type" size="large" allowClear>
               <Select.Option value="TASK">Task</Select.Option>
@@ -2086,7 +2086,7 @@ export default function ProjectDetailPage() {
             name="description"
             label="Description"
             rules={[
-              { required: true, message: "Please Enter Topic Description" },
+              { required: true, message: "Please Enter Module Description" },
             ]}
           >
             <TextArea rows={3} />

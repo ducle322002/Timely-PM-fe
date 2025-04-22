@@ -102,7 +102,7 @@ export default function ProjectStatistic() {
         date ? moment(date).format("DD/MM/YYYY") : <Tag color="gray">N/A</Tag>,
     },
     {
-      title: "Topics Count",
+      title: "Modules Count",
       dataIndex: "topics",
       key: "topics",
       render: (topics) => topics?.length ?? 0,
