@@ -182,8 +182,9 @@ export default function BoardPage() {
             break;
           case "ISSUE":
             if (
-              destinationStatus === "NOT_BUG" ||
-              destinationStatus === "CLOSED"
+              (destinationStatus === "NOT_BUG" ||
+                destinationStatus === "CLOSED") &&
+              sourceStatus === "VERIFIED"
             ) {
               // Fixed the condition here - it was checking result.draggableId instead of destinationStatus
               await new Promise((resolve, reject) => {
@@ -345,11 +346,11 @@ export default function BoardPage() {
                 <>
                   {renderTaskColumn("OPEN", "Open", "#fee2e2")}
                   {renderTaskColumn("RE_OPENED", "Re Opened", "#fee2e2")}
-                  {renderTaskColumn("NOT_BUG", "Not Bug", "#d1fae5")}
+                  {renderTaskColumn("NOT_BUG", "Rejected", "#d1fae5")}
                   {renderTaskColumn("FIXED", "Fixed", "#fef3c7")}
                   {renderTaskColumn(
                     "PENDING_RETEST",
-                    "Pending Retest",
+                    "Waiting Retest",
                     "#e0e7ff"
                   )}{" "}
                   {renderTaskColumn("RETEST", "Retest", "#e0e7ff")}

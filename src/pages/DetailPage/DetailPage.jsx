@@ -71,6 +71,63 @@ export default function DetailPage() {
       progress: 100,
       color: "#52c41a",
     },
+
+    OPEN: {
+      tagColor: "red",
+      badgeStatus: "error",
+      label: "Open",
+      progress: 0,
+      color: "#f5222d",
+    },
+    RE_OPENED: {
+      tagColor: "red",
+      badgeStatus: "error",
+      label: "Re Opened",
+      progress: 0,
+      color: "#ff4d4f",
+    },
+    NOT_BUG: {
+      tagColor: "green",
+      badgeStatus: "success",
+      label: "Not Bug",
+      progress: 100,
+      color: "#52c41a",
+    },
+    FIXED: {
+      tagColor: "gold",
+      badgeStatus: "warning",
+      label: "Fixed",
+      progress: 30,
+      color: "#faad14",
+    },
+    PENDING_RETEST: {
+      tagColor: "purple",
+      badgeStatus: "processing",
+      label: "Pending Retest",
+      progress: 50,
+      color: "#722ed1",
+    },
+    RETEST: {
+      tagColor: "geekblue",
+      badgeStatus: "processing",
+      label: "Retest",
+      progress: 70,
+      color: "#2f54eb",
+    },
+    VERIFIED: {
+      tagColor: "cyan",
+      badgeStatus: "processing",
+      label: "Verified",
+      progress: 90,
+      color: "#13c2c2",
+    },
+    CLOSED: {
+      tagColor: "green",
+      badgeStatus: "success",
+      label: "Closed",
+      progress: 100,
+      color: "#389e0d",
+    },
   };
 
   // Priority indicators
