@@ -1969,7 +1969,7 @@ export default function ProjectDetailPage() {
       <Modal
         visible={isCreateTopicModal}
         onCancel={() => setIsCreateTopicModal(false)}
-        title="Create Topic"
+        title="Create Module"
         footer={
           <>
             <Button
