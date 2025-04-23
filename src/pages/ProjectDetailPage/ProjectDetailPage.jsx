@@ -1762,14 +1762,16 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Select Assignee" }]}
           >
             <Select placeholder="Select Team member" size="large">
-              {members.map((member) => (
-                <Select.Option value={member.id}>
-                  <div className="!flex !justify-start !items-center !gap-[5%]">
-                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
-                    <span>{member.fullName}</span>
-                  </div>
-                </Select.Option>
-              ))}
+              {members
+                .filter((member) => member.role === "DEV")
+                .map((member) => (
+                  <Select.Option value={member.id}>
+                    <div className="!flex !justify-start !items-center !gap-[5%]">
+                      <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
+                      <span>{member.fullName}</span>
+                    </div>
+                  </Select.Option>
+                ))}
             </Select>
           </Form.Item>
 

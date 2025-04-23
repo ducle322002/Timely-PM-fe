@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import taskService from "../../services/taskService";
-import { Avatar, Spin, Tabs } from "antd";
+import { Avatar, Modal, Spin, Tabs } from "antd";
 import projectService from "../../services/projectService";
 import toast from "react-hot-toast";
 import { UserOutlined } from "@ant-design/icons";
@@ -16,6 +16,15 @@ export default function BoardPage() {
     TODO: [],
     INPROGRESS: [],
     DONE: [],
+
+    OPEN: [],
+    NOT_BUG: [],
+    FIXED: [],
+    PENDING_RETEST: [],
+    RETEST: [],
+    RE_OPENED: [],
+    VERIFIED: [],
+    CLOSED: [],
   });
 
   const { id } = useParams();
@@ -58,12 +67,15 @@ export default function BoardPage() {
       switch (activeTopicType) {
         case "TASK":
           response = await taskService.getTasks(params);
+
           break;
         case "ISSUE":
           response = await issueService.getIssues(params);
+
           break;
         case "QUESTION":
           response = await questionService.getQuestions(params);
+
           break;
         default:
           return;
@@ -71,14 +83,29 @@ export default function BoardPage() {
 
       const data = response.data;
       console.log("data", data);
-      const grouped = {
-        PENDING: data.filter((t) => t.status === "PENDING"),
-        TODO: data.filter((t) => t.status === "TODO"),
-        INPROGRESS: data.filter((t) => t.status === "INPROGRESS"),
-        DONE: data.filter((t) => t.status === "DONE"),
-      };
-
-      setTasksByStatus(grouped);
+      if (activeTopicType === "ISSUE") {
+        // Use issue-specific status grouping
+        const issueGrouped = {
+          OPEN: data.filter((t) => t.status === "OPEN"),
+          NOT_BUG: data.filter((t) => t.status === "NOT_BUG"),
+          FIXED: data.filter((t) => t.status === "FIXED"),
+          PENDING_RETEST: data.filter((t) => t.status === "PENDING_RETEST"),
+          RETEST: data.filter((t) => t.status === "RETEST"),
+          RE_OPENED: data.filter((t) => t.status === "RE_OPENED"),
+          VERIFIED: data.filter((t) => t.status === "VERIFIED"),
+          CLOSED: data.filter((t) => t.status === "CLOSED"),
+        };
+        setTasksByStatus(issueGrouped);
+      } else {
+        // Use standard task/question status grouping
+        const grouped = {
+          PENDING: data.filter((t) => t.status === "PENDING"),
+          TODO: data.filter((t) => t.status === "TODO"),
+          INPROGRESS: data.filter((t) => t.status === "INPROGRESS"),
+          DONE: data.filter((t) => t.status === "DONE"),
+        };
+        setTasksByStatus(grouped);
+      }
     } catch (error) {
       console.error(error.response?.data || error.message);
     } finally {
@@ -117,6 +144,7 @@ export default function BoardPage() {
 
     const sourceStatus = result.source.droppableId;
     const destinationStatus = result.destination.droppableId;
+    const originalTasksByStatus = JSON.parse(JSON.stringify(tasksByStatus));
 
     if (sourceStatus === destinationStatus) {
       const reorderedTasks = Array.from(tasksByStatus[sourceStatus]);
@@ -153,10 +181,39 @@ export default function BoardPage() {
             );
             break;
           case "ISSUE":
-            await issueService.updateIssueStataus(
-              result.draggableId,
-              updatePayload
-            );
+            if (
+              destinationStatus === "NOT_BUG" ||
+              destinationStatus === "CLOSED"
+            ) {
+              // Fixed the condition here - it was checking result.draggableId instead of destinationStatus
+              await new Promise((resolve, reject) => {
+                Modal.confirm({
+                  title: `Are you sure you want to move this issue to ${destinationStatus}?`,
+                  content: "This action cannot be undone.",
+                  onOk: async () => {
+                    try {
+                      await issueService.updateIssueStataus(
+                        result.draggableId,
+                        updatePayload
+                      );
+                      resolve();
+                    } catch (error) {
+                      reject(error);
+                    }
+                  },
+                  onCancel: () => {
+                    // Restore the original state if user cancels
+                    setTasksByStatus(originalTasksByStatus);
+                    reject(new Error("Operation cancelled"));
+                  },
+                });
+              });
+            } else {
+              await issueService.updateIssueStataus(
+                result.draggableId,
+                updatePayload
+              );
+            }
             break;
           case "QUESTION":
             await questionService.updateQuestionStatus(
@@ -170,6 +227,7 @@ export default function BoardPage() {
       } catch (error) {
         console.log(error.response.data);
         toast.error(error.response.data.message);
+        setTasksByStatus(originalTasksByStatus);
       }
     }
   };
@@ -186,7 +244,7 @@ export default function BoardPage() {
           className="space-y-4 min-w-[300px] rounded-2xl p-[2%] shadow-md flex-1 flex-grow"
         >
           <h2 className="text-xl font-bold mb-4">{title}</h2>
-          {tasksByStatus[status].map((task, index) => (
+          {tasksByStatus[status]?.map((task, index) => (
             <Draggable key={task.id} draggableId={task.id} index={index}>
               {(provided) => (
                 <div
@@ -214,11 +272,6 @@ export default function BoardPage() {
                       {task.priority}
                     </span>
                   </div>
-
-                  {/* Task Description */}
-                  <p className="text-sm text-gray-600 mb-3">
-                    {task.description}
-                  </p>
 
                   {/* Task Dates */}
                   <div className="flex justify-between text-xs text-gray-500">
@@ -278,20 +331,43 @@ export default function BoardPage() {
         </div>
       ),
       children: (
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div
-            style={{
-              display: "flex",
-              gap: "5%",
-              alignItems: "flex-start",
-            }}
-          >
-            {renderTaskColumn("PENDING", "New", "#ddeafe")}
-            {renderTaskColumn("TODO", "To Do", "#ddeafe")}
-            {renderTaskColumn("INPROGRESS", "In Progress", "#fef3c7")}
-            {renderTaskColumn("DONE", "Done", "#d1fae5")}
-          </div>
-        </DragDropContext>
+        <>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                gap: "5%",
+                alignItems: "flex-start",
+              }}
+            >
+              {topic.type === "ISSUE" ? (
+                <>
+                  {renderTaskColumn("OPEN", "Open", "#fee2e2")}
+                  {renderTaskColumn("RE_OPENED", "Re Opened", "#fee2e2")}
+                  {renderTaskColumn("NOT_BUG", "Not Bug", "#d1fae5")}
+                  {renderTaskColumn("FIXED", "Fixed", "#fef3c7")}
+                  {renderTaskColumn(
+                    "PENDING_RETEST",
+                    "Pending Retest",
+                    "#e0e7ff"
+                  )}{" "}
+                  {renderTaskColumn("RETEST", "Retest", "#e0e7ff")}
+                  {renderTaskColumn("VERIFIED", "Verified", "#f5f3ff")}
+                  {renderTaskColumn("CLOSED", "Closed", "#d1fae5")}
+                </>
+              ) : (
+                <>
+                  {" "}
+                  {renderTaskColumn("PENDING", "New", "#ddeafe")}
+                  {renderTaskColumn("TODO", "To Do", "#ddeafe")}
+                  {renderTaskColumn("INPROGRESS", "In Progress", "#fef3c7")}
+                  {renderTaskColumn("DONE", "Done", "#d1fae5")}
+                </>
+              )}
+            </div>
+          </DragDropContext>
+        </>
       ),
     })),
   ];
