@@ -31,14 +31,16 @@ export default function LoginPage() {
   const onFinish = async (values) => {
     setLoading(true);
     try {
+      console.log("loading");
       const response = await authService.login(values);
       Cookies.set("token", response.data.token);
-
+      console.log(response);
       const user = {
         username: response.data.username,
         id: response.data.id,
         role: response.data.role,
       };
+
       Cookies.set("user", JSON.stringify(user));
       if (response.data.role === "ADMIN") {
         navigate(`${route.admin}/${route.adminUser}`);

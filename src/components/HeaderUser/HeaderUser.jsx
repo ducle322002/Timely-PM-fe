@@ -26,7 +26,7 @@ export default function HeaderUser() {
     setItems([
       user
         ? getItem(
-            `Welcome ${user.username}`,
+            `Welcome ${user?.username}`,
             route.userProfile,
             <UserOutlined />
           )

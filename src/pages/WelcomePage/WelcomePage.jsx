@@ -150,7 +150,7 @@ export default function WelcomePage() {
           </p>
           <Button
             onClick={() =>
-              isLoggedIn && user.role === "ADMIN"
+              isLoggedIn && user?.role === "ADMIN"
                 ? navigate(`${route.admin}/${route.dashboard}`)
                 : isLoggedIn
                 ? navigate(`${route.home}/${route.introWorkspace}`)
@@ -158,7 +158,7 @@ export default function WelcomePage() {
             }
             className="!bg-white !text-indigo-700 !border-0 !px-8 !py-6 !h-auto !text-lg !font-bold !rounded-full !shadow-lg hover:!bg-indigo-50"
           >
-            {isLoggedIn && user.role === "ADMIN"
+            {isLoggedIn && user?.role === "ADMIN"
               ? "Go To Admin Panel"
               : isLoggedIn
               ? "Go to Your Workspace"

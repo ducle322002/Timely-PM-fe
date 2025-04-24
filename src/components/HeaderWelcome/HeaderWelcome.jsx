@@ -36,20 +36,20 @@ export default function HeaderWelcome() {
         </Link>
       </div>
 
-      {user && user.username && (
+      {user && user?.username && (
         <div className="flex justify-between items-center">
           <Menu
             mode="horizontal"
             className="!bg-none !border-none w-[800px] flex justify-center items-center "
           >
-            {user.role !== "ADMIN" && (
+            {user?.role !== "ADMIN" && (
               <Menu.Item key="setting" icon={<BsPersonWorkspace />}>
                 <Link to={`${route.home}/${route.introWorkspace}`}>
                   Go To Your Workspace
                 </Link>
               </Menu.Item>
             )}
-            {user.role === "ADMIN" && (
+            {user?.role === "ADMIN" && (
               <Menu.Item key="Admin" icon={<MdAdminPanelSettings />}>
                 <Link to={`${route.admin}/${route.dashboard}`}>
                   Go To Your Admin

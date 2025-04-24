@@ -14,8 +14,8 @@ export default function HeaderAdmin() {
         className="h-[50px] rounded-[100%] border border-black"
       />
       <div className="flex flex-col justify-start items-start">
-        <p className="font-bold text-xl">{user.username}</p>
-        <p className="text-sm">{user.role}</p>
+        <p className="font-bold text-xl">{user?.username}</p>
+        <p className="text-sm">{user?.role}</p>
       </div>
     </Header>
   );
