@@ -39,6 +39,7 @@ const userService = {
     }),
 
   changePassword: (data) => request("POST", "user/change-password", data),
+  getNotification: () => request("GET", "notification"),
 };
 
 export default userService;

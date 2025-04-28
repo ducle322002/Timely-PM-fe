@@ -187,6 +187,18 @@ export default function SettingProjectPage() {
     setPageSize(pageSize);
   };
   const user = useSelector(selectUser);
+
+  const handleActiveProject = async () => {
+    try {
+      const response = await projectService.activeProject(id);
+      console.log(response);
+      toast.success("Project activated successfully!");
+      fetchProjectDetail(); // Refresh project details after activation
+    } catch (error) {
+      console.error(error.response.data.message);
+      toast.error(error.response.data.message || "Failed to activate project.");
+    }
+  };
   return (
     <>
       <motion.div
@@ -235,10 +247,16 @@ export default function SettingProjectPage() {
                 <Button
                   danger
                   className="mt-4 w-full"
-                  onClick={() => handleCloseProject()}
+                  onClick={
+                    projectDetail.status === "PROCESSING"
+                      ? () => handleCloseProject()
+                      : () => handleActiveProject()
+                  }
                   disabled={projectDetail.status === "DONE"}
                 >
-                  Close Project
+                  {projectDetail.status === "PROCESSING"
+                    ? "Close Project"
+                    : "Active Project"}
                 </Button>
               )}
             </Card>
@@ -277,17 +295,17 @@ export default function SettingProjectPage() {
           </Tabs.TabPane>
 
           <Tabs.TabPane
-            tab="Topic Setting"
+            tab="Module Setting"
             key="3"
             className="p-6 max-w-2xl mx-auto"
           >
-            <Card title="Topic Management" className="shadow-md rounded-2xl">
+            <Card title="Module Management" className="shadow-md rounded-2xl">
               {/* Search and Filter Section */}
               <div className="mb-6">
                 <Row gutter={[16, 16]}>
                   <Col xs={24} sm={16}>
                     <Search
-                      placeholder="Search topics by description or labels"
+                      placeholder="Search Module by description or labels"
                       allowClear
                       enterButton={<SearchOutlined />}
                       size="large"
@@ -407,8 +425,8 @@ export default function SettingProjectPage() {
                   description={
                     <span className="text-gray-500">
                       {searchText || selectedType !== "ALL"
-                        ? "No topics match your search criteria"
-                        : "No topics available for this project"}
+                        ? "No modules match your search criteria"
+                        : "No modules available for this project"}
                     </span>
                   }
                   className="py-12"
