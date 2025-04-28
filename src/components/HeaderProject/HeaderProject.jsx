@@ -30,8 +30,6 @@ export default function HeaderProject() {
   const location = useLocation();
   const user = useSelector(selectUser);
   const ws = useRef(null);
-  const reconnectTimeoutRef = useRef(null);
-  const heartbeatIntervalRef = useRef(null);
 
   // Use full pathname without splitting
   const currentURI = location.pathname;
@@ -78,11 +76,6 @@ export default function HeaderProject() {
   const connectWebSocket = () => {
     const wsUrl = `ws://14.225.220.28:8080/notification`;
 
-    // Close existing connection if any
-    if (ws.current && ws.current.readyState !== WebSocket.CLOSED) {
-      ws.current.close();
-    }
-
     // Create new WebSocket connection
     ws.current = new WebSocket(wsUrl);
 
@@ -90,24 +83,11 @@ export default function HeaderProject() {
       console.log("WebSocket connected successfully");
       setIsConnected(true);
 
-      // Clear any pending reconnect timeouts
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
-
       // Send authentication token if available
       const token = Cookies.get("token")?.replaceAll('"', "");
       if (token) {
         ws.current.send(JSON.stringify({ type: "auth", token: token }));
       }
-
-      // Set up heartbeat to keep connection alive
-      // heartbeatIntervalRef.current = setInterval(() => {
-      //   if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      //     ws.current.send(JSON.stringify({ type: "heartbeat" }));
-      //   }
-      // }, 30000); // Send heartbeat every 30 seconds
     };
 
     ws.current.onmessage = (event) => {
@@ -141,22 +121,6 @@ export default function HeaderProject() {
         `WebSocket disconnected: code ${event.code}, reason: ${event.reason}`
       );
       setIsConnected(false);
-
-      // Clear heartbeat interval
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-        heartbeatIntervalRef.current = null;
-      }
-
-      // Attempt to reconnect after a delay, use exponential backoff if needed
-      if (!reconnectTimeoutRef.current) {
-        console.log("Scheduling reconnection attempt...");
-        reconnectTimeoutRef.current = setTimeout(() => {
-          console.log("Attempting to reconnect WebSocket...");
-          connectWebSocket();
-          reconnectTimeoutRef.current = null;
-        }, 3000); // Try to reconnect after 3 seconds
-      }
     };
   };
 
@@ -168,14 +132,6 @@ export default function HeaderProject() {
 
     // Cleanup function
     return () => {
-      // Clear any intervals and timeouts
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-      }
-      // Close WebSocket if open
       if (ws.current) {
         ws.current.close();
       }
@@ -193,7 +149,7 @@ export default function HeaderProject() {
 
   const getMenu = () => {
     return (
-      <Menu className="!w-80 !max-h-[40vh] !p-2 !shadow-lg !rounded-md !border !border-gray-200">
+      <Menu className="!w-100 !max-h-[40vh] !p-2 !shadow-lg !rounded-md !border !border-gray-200">
         {!isConnected && (
           <Menu.Item className="!p-3 !mb-1 !rounded-sm !bg-yellow-50">
             <Text className="text-sm text-yellow-600">
