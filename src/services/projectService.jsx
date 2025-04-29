@@ -61,6 +61,8 @@ const projectService = {
 
   deleteTopic: (topicId, params) =>
     request("DELETE", `topic/${topicId}`, null, {}, params),
+
+  activeProject: (projectId) => request("POST", `project/${projectId}/process`),
 };
 
 export default projectService;
