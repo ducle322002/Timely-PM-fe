@@ -524,7 +524,6 @@ export default function ProjectDetailPage() {
       setLoadingCreateIssue(false); // Set loading state to false
     }
   };
-  console.log(comments);
   const handleCreateQuestion = async (values) => {
     setLoadingCreateQuestion(true); // Set loading state to true
     const params = {

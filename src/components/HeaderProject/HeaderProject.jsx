@@ -200,7 +200,8 @@ export default function HeaderProject() {
             >
               <Button
                 icon={<NotificationOutlined />}
-                style={{ color: isConnected ? undefined : "#faad14" }}
+                color="default"
+                variant="text"
               />
             </Badge>
           </Menu.Item>
