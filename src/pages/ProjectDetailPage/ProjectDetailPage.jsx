@@ -71,6 +71,8 @@ export default function ProjectDetailPage() {
   const [loadingCreateQuestion, setLoadingCreateQuestion] = useState(false);
   const [loadingCreateTopic, setLoadingCreateTopic] = useState(false);
 
+  const [loadingCreateIssueInTask, setLoadingCreateIssueInTask] =
+    useState(false);
   const [formInviteMember] = Form.useForm();
   const [formCreateTopic] = Form.useForm();
   const [formCreateTask] = Form.useForm();
@@ -115,6 +117,7 @@ export default function ProjectDetailPage() {
       setNewComment(""); // Clear the input field
     }
   };
+
   useEffect(() => {
     if (ws.current && taskDetail) {
       const token = Cookies.get("token")?.replaceAll('"', "");
@@ -590,6 +593,7 @@ export default function ProjectDetailPage() {
 
   //tạo issue trong task
   const handleCreateIssueInTask = async (values) => {
+    setLoadingCreateIssueInTask(true); // Set loading state to true
     const params = {
       projectId: id,
       topicId: activeTabKey,
@@ -632,6 +636,26 @@ export default function ProjectDetailPage() {
     } catch (error) {
       console.log(error);
       toast.error(error.response.data.message);
+    } finally {
+      setLoadingCreateIssueInTask(false); // Set loading state to false
+    }
+  };
+
+  const handleUpdateIssueInTaskStatus = async (issue, status) => {
+    const params = {
+      projectId: id,
+      topicId: activeTabKey,
+      status: status,
+    };
+    try {
+      const response = await issueService.updateIssueStataus(issue.id, params);
+      console.log(response);
+      toast.success("Issue updated successfully!");
+      fetchTasks();
+      fetchTaskDetail(taskDetail);
+    } catch (error) {
+      toast.error(error.response.data.message || "Error updating issue status");
+      console.log(error.response.data);
     }
   };
 
@@ -829,24 +853,122 @@ export default function ProjectDetailPage() {
             </p>
           </div>
         </div>
-        <div className="mt-4">
-          <p className="text-sm text-gray-500">Reporter</p>
-          <div className="flex items-center gap-2">
-            <Avatar icon={<UserOutlined />} />
-            <span className="text-gray-700">
-              {issue.reporter?.username || "N/A"}
-            </span>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="mt-4">
+            <p className="text-sm text-gray-500">Reporter</p>
+            <div className="flex items-center gap-2">
+              <Avatar icon={<UserOutlined />} />
+              <span className="text-gray-700">
+                {issue.reporter?.username || "N/A"}
+              </span>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="text-sm text-gray-500">Assignee</p>
+            <div className="flex items-center gap-2">
+              <Avatar icon={<UserOutlined />} />
+              <span className="text-gray-700">
+                {issue.assignee?.username || "N/A"}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="mt-4">
-          <p className="text-sm text-gray-500">Assignee</p>
-          <div className="flex items-center gap-2">
-            <Avatar icon={<UserOutlined />} />
-            <span className="text-gray-700">
-              {issue.assignee?.username || "N/A"}
-            </span>
+
+        {issue.status !== "CLOSED" && (
+          <div className="mt-4">
+            <p className="text-sm text-gray-500">Update status</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="mt-2">
+                {taskDetail.assignee?.id === user.id &&
+                  issue.status === "OPEN" && (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() =>
+                          handleUpdateIssueInTaskStatus(issue, "NOT_BUG")
+                        }
+                      >
+                        Not bug
+                      </Button>
+
+                      <Button
+                        color=""
+                        onClick={() =>
+                          handleUpdateIssueInTaskStatus(issue, "FIXED")
+                        }
+                      >
+                        Fixed
+                      </Button>
+                    </div>
+                  )}
+
+                {taskDetail.assignee?.id === user.id &&
+                  issue.status === "FIXED" && (
+                    <Button
+                      color=""
+                      onClick={() =>
+                        handleUpdateIssueInTaskStatus(issue, "PENDING_RETEST")
+                      }
+                    >
+                      Waiting Retest
+                    </Button>
+                  )}
+
+                {taskDetail.reporter?.id === user.id &&
+                  issue.status === "PENDING_RETEST" && (
+                    <>
+                      <Button
+                        color=""
+                        onClick={() =>
+                          handleUpdateIssueInTaskStatus(issue, "RETEST")
+                        }
+                      >
+                        Retest
+                      </Button>
+                    </>
+                  )}
+
+                {taskDetail.reporter?.id === user.id &&
+                  issue.status === "RETEST" && (
+                    <div className="flex gap-2">
+                      <Button
+                        color=""
+                        onClick={() =>
+                          handleUpdateIssueInTaskStatus(issue, "VERIFIED")
+                        }
+                      >
+                        Verified
+                      </Button>
+
+                      <Button
+                        color=""
+                        onClick={() =>
+                          handleUpdateIssueInTaskStatus(issue, "RE_OPENED")
+                        }
+                      >
+                        Re Opened
+                      </Button>
+                    </div>
+                  )}
+
+                {taskDetail.reporter?.id === user.id &&
+                  issue.status === "VERIFIED" && (
+                    <>
+                      <Button
+                        color=""
+                        onClick={() =>
+                          handleUpdateIssueInTaskStatus(issue, "CLOSED")
+                        }
+                      >
+                        Closed
+                      </Button>
+                    </>
+                  )}
+              </div>
+
+              <div className="mt-2"></div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     ),
     style: {
@@ -2244,6 +2366,7 @@ export default function ProjectDetailPage() {
         footer={
           <>
             <Button
+              loading={loadingCreateIssueInTask}
               type="primary"
               onClick={() => formCreateIssueInTask.submit()}
             >

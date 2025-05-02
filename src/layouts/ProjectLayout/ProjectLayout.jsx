@@ -41,13 +41,13 @@ export default function ProjectLayout() {
 
           <Content className="!p-4 flex flex-col overflow-x-auto">
             <Breadcrumb>
-              {location.pathname.split("/").map((path, index, array) => {
+              {/* {location.pathname.split("/").map((path, index, array) => {
                 if (index === 0) {
                   return <Breadcrumb.Item key={path}>{path}</Breadcrumb.Item>;
                 } else if (path === id) {
                   return (
                     <Breadcrumb.Item key={path}>
-                      <Link to={`/${path}`}>{projectName}</Link>
+                      <Link to={`${path}`}>{projectName}</Link>
                     </Breadcrumb.Item>
                   );
                 } else {
@@ -57,7 +57,7 @@ export default function ProjectLayout() {
                     </Breadcrumb.Item>
                   );
                 }
-              })}
+              })} */}
             </Breadcrumb>
             <div className="!p-8 !bg-[#ffffff] flex-1">
               <Outlet />

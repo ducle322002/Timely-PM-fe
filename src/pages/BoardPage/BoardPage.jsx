@@ -18,6 +18,7 @@ export default function BoardPage() {
     DONE: [],
 
     OPEN: [],
+    WAITING_TEST: [],
     NOT_BUG: [],
     FIXED: [],
     PENDING_RETEST: [],
@@ -96,12 +97,13 @@ export default function BoardPage() {
           CLOSED: data.filter((t) => t.status === "CLOSED"),
         };
         setTasksByStatus(issueGrouped);
-      } else {
+      } else if (activeTopicType === "TASK") {
         // Use standard task/question status grouping
         const grouped = {
           PENDING: data.filter((t) => t.status === "PENDING"),
           TODO: data.filter((t) => t.status === "TODO"),
-          INPROGRESS: data.filter((t) => t.status === "INPROGRESS"),
+          IN_PROGRESS: data.filter((t) => t.status === "IN_PROGRESS"),
+          WAITING_TEST: data.filter((t) => t.status === "WAITING_TEST"),
           DONE: data.filter((t) => t.status === "DONE"),
         };
         setTasksByStatus(grouped);
@@ -357,12 +359,21 @@ export default function BoardPage() {
                   {renderTaskColumn("VERIFIED", "Verified", "#f5f3ff")}
                   {renderTaskColumn("CLOSED", "Closed", "#d1fae5")}
                 </>
+              ) : topic.type === "TASK" ? (
+                <>
+                  {" "}
+                  {renderTaskColumn("PENDING", "New", "#ddeafe")}
+                  {renderTaskColumn("TODO", "To Do", "#ddeafe")}
+                  {renderTaskColumn("IN_PROGRESS", "In Progress", "#fef3c7")}
+                  {renderTaskColumn("WAITING_TEST", "Waiting Test", "#fef3c7")}
+                  {renderTaskColumn("DONE", "Done", "#d1fae5")}
+                </>
               ) : (
                 <>
                   {" "}
                   {renderTaskColumn("PENDING", "New", "#ddeafe")}
                   {renderTaskColumn("TODO", "To Do", "#ddeafe")}
-                  {renderTaskColumn("INPROGRESS", "In Progress", "#fef3c7")}
+                  {renderTaskColumn("IN_PROGRESS", "In Progress", "#fef3c7")}
                   {renderTaskColumn("DONE", "Done", "#d1fae5")}
                 </>
               )}
@@ -380,7 +391,7 @@ export default function BoardPage() {
       transition={{ duration: 0.4 }}
       className="container mx-auto"
     >
-      <h1 className="text-2xl font-bold">Task Status Management Board</h1>
+      <h1 className="text-2xl font-bold"> Status Management Board</h1>
       {loading ? (
         <div className="flex justify-center items-center">
           <Spin size="large" />

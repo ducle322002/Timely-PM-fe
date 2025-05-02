@@ -21,13 +21,13 @@ export default function UserLayout() {
           {/* <Outlet /> */}
 
           <Content className="!p-4 flex flex-col">
-            <Breadcrumb>
+            {/* <Breadcrumb>
               {location.pathname.split("/").map((path, index, array) => (
                 <Breadcrumb.Item key={path}>
                   {index === 0 ? path : <Link to={`/${path}`}>{path}</Link>}
                 </Breadcrumb.Item>
               ))}
-            </Breadcrumb>
+            </Breadcrumb> */}
             <div className="!p-8 !bg-[#ffffff] flex-1">
               <Outlet />
             </div>
