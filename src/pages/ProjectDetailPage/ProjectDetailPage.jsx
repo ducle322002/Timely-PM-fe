@@ -1094,43 +1094,6 @@ export default function ProjectDetailPage() {
         ),
       };
     }),
-    {
-      key: "assignedToMe",
-      label: "Assigned to Me",
-      children: (
-        <>
-          {/* {loadingTasks ? (
-            <div className="flex justify-center items-center">
-              <Spin size="large" />
-            </div>
-          ) : (
-            <>
-              <Table
-                className="table-task"
-                rowClassName="cursor-pointer hover:bg-gray-100"
-                dataSource={[
-                  ...tasks.filter((task) => task.user.id === user.id),
-                  ...issues.filter((issue) => issue.user.id === user.id),
-                  ...questions.filter(
-                    (question) => question.assignee.id === user.id
-                  ),
-                ]}
-                columns={taskColumns}
-                pagination={false}
-                bordered={false}
-                rowHoverable={false}
-                onRow={(record) => ({
-                  onClick: () => {
-                    setSelectedTask(record);
-                    fetchTaskDetail(record.id);
-                  },
-                })}
-              />
-            </>
-          )} */}
-        </>
-      ),
-    },
   ];
 
   const dateLeft = (dueDate) => {

@@ -17,6 +17,7 @@ export default function BoardPage() {
     INPROGRESS: [],
     DONE: [],
 
+    NEW: [],
     OPEN: [],
     WAITING_TEST: [],
     NOT_BUG: [],
@@ -104,6 +105,13 @@ export default function BoardPage() {
           TODO: data.filter((t) => t.status === "TODO"),
           IN_PROGRESS: data.filter((t) => t.status === "IN_PROGRESS"),
           WAITING_TEST: data.filter((t) => t.status === "WAITING_TEST"),
+          DONE: data.filter((t) => t.status === "DONE"),
+        };
+        setTasksByStatus(grouped);
+      } else if (activeTopicType === "QUESTION") {
+        // Use standard task/question status grouping
+        const grouped = {
+          NEW: data.filter((t) => t.status === "NEW"),
           DONE: data.filter((t) => t.status === "DONE"),
         };
         setTasksByStatus(grouped);
@@ -371,9 +379,7 @@ export default function BoardPage() {
               ) : (
                 <>
                   {" "}
-                  {renderTaskColumn("PENDING", "New", "#ddeafe")}
-                  {renderTaskColumn("TODO", "To Do", "#ddeafe")}
-                  {renderTaskColumn("IN_PROGRESS", "In Progress", "#fef3c7")}
+                  {renderTaskColumn("NEW", "New", "#ddeafe")}
                   {renderTaskColumn("DONE", "Done", "#d1fae5")}
                 </>
               )}
