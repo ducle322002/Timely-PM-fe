@@ -59,7 +59,11 @@ export default function SidebarProject() {
         `${route.workspace}/${route.project}/${id}/${route.projectHistory}`,
         <FaHistory />
       ),
-
+      getItem(
+        "Project Documents",
+        `${route.workspace}/${route.project}/${id}/project-documents`,
+        <HomeOutlined />
+      ),
       getItem(
         "Back to Workspace",
         `${route.home}/${route.introWorkspace}`,

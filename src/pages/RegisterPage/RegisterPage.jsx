@@ -188,7 +188,13 @@ export default function RegisterPage() {
                 ]}
               >
                 <Input
-                  prefix={<PhoneOutlined className="text-gray-400" />}
+                  prefix={
+                    <>
+                      <PhoneOutlined className="text-gray-400" />
+                      <p>+84</p>
+                    </>
+                  }
+                  type="number"
                   placeholder="Enter your phone number"
                   className="!py-2 !px-4 !rounded-lg !border-gray-300"
                 />
@@ -229,11 +235,16 @@ export default function RegisterPage() {
                       min: 6,
                       message: "Password must be at least 6 characters",
                     },
+                    {
+                      pattern: /^\S*$/,
+                      message: "Password cannot contain spaces",
+                    },
                   ]}
                 >
                   <Input.Password
                     prefix={<LockOutlined className="text-gray-400" />}
                     placeholder="Create a password"
+                    type="number"
                     className="!py-2 !px-4 !rounded-lg !border-gray-300"
                   />
                 </Form.Item>

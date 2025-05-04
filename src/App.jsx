@@ -37,6 +37,7 @@ import SummaryProjectPage from "./pages/SummaryProjectPage/SummaryProjectPage";
 import Feedback from "./pages/AdminPage/Feedback/Feedback";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage/ForgotPasswordPage";
 import ChangeForgetPassword from "./pages/ChangeForgetPassword/ChangeForgetPassword";
+import ProjectDocument from "./pages/ProjectDocument/ProjectDocument";
 function App() {
   const router = createBrowserRouter([
     {
@@ -146,6 +147,11 @@ function App() {
           path: `${route.workspace}/${route.project}/:id/task-detail/:taskId`,
           element: <DetailPage />,
         },
+        {
+          path: `${route.workspace}/${route.project}/:id/project-documents`,
+          element: <ProjectDocument />,
+        },
+
         {
           path: `${route.workspace}/${route.project}/:id/summary`,
           element: <SummaryProjectPage />,
