@@ -1515,22 +1515,28 @@ export default function ProjectDetailPage() {
                     )}
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500 mb-2">Attachments</p>
-                    {/* Mock attachment display */}
-                    <div className="border rounded p-2 text-sm text-gray-600">
-                      {taskDetail.attachment ? (
-                        <Link
-                          to={taskDetail.attachment.downloadUrl}
-                          target="_blank"
-                        >
-                          <p className="text-blue-500 hover:underline cursor-pointer">
-                            {taskDetail.attachment.fileName}
-                          </p>
-                        </Link>
-                      ) : (
-                        <>No attachments uploaded.</>
-                      )}
-                    </div>
+                    {taskDetail.user && taskDetail.reporter && (
+                      <>
+                        <p className="text-sm text-gray-500 mb-2">
+                          Attachments
+                        </p>
+                        {/* Mock attachment display */}
+                        <div className="border rounded p-2 text-sm text-gray-600">
+                          {taskDetail.attachment ? (
+                            <Link
+                              to={taskDetail.attachment.downloadUrl}
+                              target="_blank"
+                            >
+                              <p className="text-blue-500 hover:underline cursor-pointer">
+                                {taskDetail.attachment.fileName}
+                              </p>
+                            </Link>
+                          ) : (
+                            <>No attachments uploaded.</>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
                   {issueInTask != null && (
                     <div className="mt-4">
