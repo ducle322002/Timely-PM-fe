@@ -11,6 +11,7 @@ import { CiViewBoard } from "react-icons/ci";
 import { IoRocketOutline } from "react-icons/io5";
 import { FaHistory } from "react-icons/fa";
 import { MdSummarize } from "react-icons/md";
+import { IoDocumentAttachOutline } from "react-icons/io5";
 
 export default function SidebarProject() {
   function getItem(label, key, icon, children) {
@@ -62,7 +63,7 @@ export default function SidebarProject() {
       getItem(
         "Project Documents",
         `${route.workspace}/${route.project}/${id}/project-documents`,
-        <HomeOutlined />
+        <IoDocumentAttachOutline />
       ),
       getItem(
         "Back to Workspace",

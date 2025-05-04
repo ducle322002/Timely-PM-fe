@@ -480,7 +480,7 @@ export default function ProjectDetailPage() {
       formCreateTask.resetFields();
     } catch (error) {
       console.log(error);
-      toast.error(error.response.data.message);
+      toast.error("Error Creating Task");
     } finally {
       setLoadingCreateTask(false); // Set loading state to false
     }
@@ -887,7 +887,7 @@ export default function ProjectDetailPage() {
                           handleUpdateIssueInTaskStatus(issue, "NOT_BUG")
                         }
                       >
-                        Not bug
+                        Rejected
                       </Button>
 
                       <Button
@@ -1211,7 +1211,11 @@ export default function ProjectDetailPage() {
         projectId: id,
         topicId: activeTabKey,
       };
-      const response = await taskService.updateTask(selectedTask.id, params);
+      const response = await taskService.updateTask(
+        selectedTask.id,
+        formDataUpdate,
+        params
+      );
       console.log(response);
       toast.success("Task Updated successfully!");
       fetchTasks();
@@ -1226,9 +1230,10 @@ export default function ProjectDetailPage() {
   };
 
   const handleRemoveMember = async (member) => {
+    console.log(member);
     try {
       const params = {
-        userId: member.id,
+        projectMemberId: member,
       };
       const response = await projectService.removeMember(id, params);
       console.log(response);
