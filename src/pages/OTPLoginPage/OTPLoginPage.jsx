@@ -102,16 +102,20 @@ export default function OTPLoginPage() {
 
         const response = await authService.verifyOTP(params);
         console.log(response.data);
-        setVerificationSuccess(true);
 
         // Show success animation before redirecting
-        setTimeout(() => {
-          navigate(route.login, {
-            state: { email: email },
-          });
-        }, 1200);
-
-        toast.success("OTP Verified Successfully");
+        if (response.data === true) {
+          setVerificationSuccess(true);
+          setTimeout(() => {
+            navigate(route.login, {
+              state: { email: email },
+            });
+          }, 1200);
+          toast.success("OTP Verified Successfully");
+        } else {
+          setVerificationSuccess(false);
+          toast.error("Invalid OTP. Please try again.");
+        }
       } catch (error) {
         console.error(
           "Verification Error:",
