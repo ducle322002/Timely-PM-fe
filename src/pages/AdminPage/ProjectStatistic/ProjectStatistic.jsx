@@ -88,20 +88,6 @@ export default function ProjectStatistic() {
       ),
     },
     {
-      title: "Start Date",
-      dataIndex: "startDate",
-      key: "startDate",
-      render: (date) =>
-        date ? moment(date).format("DD/MM/YYYY") : <Tag color="gray">N/A</Tag>,
-    },
-    {
-      title: "Due Date",
-      dataIndex: "dueDate",
-      key: "dueDate",
-      render: (date) =>
-        date ? moment(date).format("DD/MM/YYYY") : <Tag color="gray">N/A</Tag>,
-    },
-    {
       title: "Modules Count",
       dataIndex: "topics",
       key: "topics",
@@ -136,12 +122,6 @@ export default function ProjectStatistic() {
         <div></div>
 
         <Space size="middle" className="flex flex-wrap mb-6">
-          <RangePicker
-            onChange={(values) => setDateRange(values ?? [])}
-            value={dateRange}
-            format="DD/MM/YYYY"
-            className="w-fit"
-          />
           <Select
             value={statusFilter}
             placeholder="Select Status"
