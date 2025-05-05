@@ -1032,19 +1032,25 @@ export default function ProjectDetailPage() {
                     New Issue
                   </Button>
                 ) : (
-                  <Button
-                    icon={<FaPlus />}
-                    className={`!py-[3%] ${
-                      projectDetail.status === "DONE"
-                        ? "bg-gray-500"
-                        : "!bg-orange-500 !text-white"
-                    } `}
-                    onClick={() => showCreateQuestionModal(topic)}
-                    disabled={projectDetail.status === "DONE"}
-                  >
-                    New Question
-                  </Button>
+                  <></>
                 )}
+              </div>
+            )}
+
+            {topic.type === "QUESTION" && (
+              <div className="flex justify-end items-center mb-[1%]">
+                <Button
+                  icon={<FaPlus />}
+                  className={`!py-[3%] ${
+                    projectDetail.status === "DONE"
+                      ? "bg-gray-500"
+                      : "!bg-orange-500 !text-white"
+                  } `}
+                  onClick={() => showCreateQuestionModal(topic)}
+                  disabled={projectDetail.status === "DONE"}
+                >
+                  New Question
+                </Button>
               </div>
             )}
 
@@ -1136,13 +1142,16 @@ export default function ProjectDetailPage() {
   const getMenu = (task) => {
     return (
       <Menu>
-        <Menu.Item
-          key="update"
-          onClick={() => handleShowModalUpdateTask(task)}
-          icon={<EditOutlined />}
-        >
-          Update
-        </Menu.Item>
+        {task.assignee && task.reporter && !task.severity && (
+          <Menu.Item
+            key="update"
+            onClick={() => handleShowModalUpdateTask(task)}
+            icon={<EditOutlined />}
+          >
+            Update
+          </Menu.Item>
+        )}
+
         <Menu.Item
           key="delete"
           onClick={() => handleShowModalDeleteTask(task)}
@@ -2012,26 +2021,6 @@ export default function ProjectDetailPage() {
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>
-
-          <Form.Item name="attachment" label="Attachment">
-            <Dragger
-              maxCount={1}
-              fileList={fileList}
-              beforeUpload={() => false}
-              onChange={handleFileChange}
-            >
-              <p className="ant-upload-drag-icon">
-                <InboxOutlined />
-              </p>
-              <p className="ant-upload-text">
-                Click or drag file to this area to upload
-              </p>
-              <p className="ant-upload-hint">
-                Support for a single or bulk upload. Strictly prohibited from
-                uploading company data or other banned files.
-              </p>
-            </Dragger>
           </Form.Item>
 
           <Form.Item
