@@ -38,6 +38,7 @@ import Feedback from "./pages/AdminPage/Feedback/Feedback";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage/ForgotPasswordPage";
 import ChangeForgetPassword from "./pages/ChangeForgetPassword/ChangeForgetPassword";
 import ProjectDocument from "./pages/ProjectDocument/ProjectDocument";
+import OTPForgetPassword from "./pages/OTPForgetPassword/OTPForgetPassword";
 function App() {
   const router = createBrowserRouter([
     {
@@ -55,6 +56,10 @@ function App() {
         {
           path: `${route.otpPage}/:email`,
           element: <OTPLoginPage />,
+        },
+        {
+          path: `${route.otpForgetPassword}/:email`,
+          element: <OTPForgetPassword />,
         },
         {
           path: route.register,
@@ -78,7 +83,7 @@ function App() {
           element: <ForgotPasswordPage />,
         },
         {
-          path: `${route.changeForgetPassword}`,
+          path: `${route.changeForgetPassword}/:email`,
           element: <ChangeForgetPassword />,
         },
       ],
@@ -191,10 +196,10 @@ function App() {
       ],
     },
 
-    {
-      path: "*",
-      element: <Navigate to={route.welcome} />,
-    },
+    // {
+    //   path: "*",
+    //   element: <Navigate to={route.welcome} />,
+    // },
   ]);
   return (
     <ThemeProvider>

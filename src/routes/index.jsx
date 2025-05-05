@@ -7,8 +7,9 @@ export const route = {
   blogDetail: "/blog/:id",
   home: "/home",
   otpPage: "/otp",
+  otpForgetPassword: "/otp-forget-password",
   forgotPassword: "/forgot-password",
-  changeForgetPassword: "/change-forget-password/:email",
+  changeForgetPassword: "/change-forget-password",
 
   resetPassword: "/reset-password",
   emailVerified: "/email-verified",
