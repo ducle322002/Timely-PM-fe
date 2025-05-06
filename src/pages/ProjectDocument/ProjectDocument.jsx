@@ -33,6 +33,7 @@ export default function ProjectDocument() {
   const [isModalUploadFile, setIsModalUploadFile] = useState(false);
   const [formUploadFile] = Form.useForm();
   const user = useSelector(selectUser);
+  const [members, setMembers] = useState([]);
   const fetchProjectDocument = async () => {
     setLoading(true);
     try {
@@ -55,7 +56,7 @@ export default function ProjectDocument() {
         console.log(error.response.data);
       }
     };
-
+    fetchMemberProject();
     fetchProjectDetails();
     fetchProjectDocument();
   }, []);
@@ -162,19 +163,34 @@ export default function ProjectDocument() {
     toast.success(info.fileList[0].name + " uploaded successfully!");
     console.log(info);
   };
+  const fetchMemberProject = async () => {
+    try {
+      const response = await projectService.getMembers(id);
+      console.log("members", response.data);
+      setMembers(response.data);
+    } catch (error) {
+      console.error(error.response.data);
+    }
+  };
   return (
     <div className="p-6">
       <Card className="">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold m-0">Project Document</h1>
           <Space size="middle">
-            <Button
-              icon={<UploadOutlined />}
-              type="primary"
-              onClick={() => setIsModalUploadFile(true)}
-            >
-              Upload File
-            </Button>
+            {project.userId === user.id &&
+              members
+                .filter((member) => member.role === "QA")
+                .some((member) => member.fullName === user.fullName)(
+                <Button
+                  icon={<UploadOutlined />}
+                  type="primary"
+                  onClick={() => setIsModalUploadFile(true)}
+                >
+                  Upload File
+                </Button>
+              )}
+
             <Input
               placeholder="Search documents"
               prefix={<SearchOutlined />}
