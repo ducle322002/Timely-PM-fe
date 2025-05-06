@@ -252,7 +252,9 @@ export default function BoardPage() {
           style={{
             background: color,
           }}
-          className="space-y-4 min-w-[300px] rounded-2xl p-[2%] shadow-md flex-1 flex-grow"
+          className="space-y-4 min-w-[400px]  rounded-2xl p-[2%] shadow-md flex-1 flex-grow h-[55vh] !overflow-y-auto [&::-webkit-scrollbar]:w-2
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:bg-gray-300 "
         >
           <h2 className="text-xl font-bold mb-4">{title}</h2>
           {tasksByStatus[status]?.map((task, index) => (
@@ -262,7 +264,7 @@ export default function BoardPage() {
                   ref={provided.innerRef}
                   {...provided.draggableProps}
                   {...provided.dragHandleProps}
-                  className="bg-white rounded-lg shadow-md p-4 transition-transform transform hover:scale-105"
+                  className="bg-white rounded-lg shadow-md p-4 transition-transform transform hover:scale-105 "
                   style={{
                     userSelect: "none",
                     ...provided.draggableProps.style,

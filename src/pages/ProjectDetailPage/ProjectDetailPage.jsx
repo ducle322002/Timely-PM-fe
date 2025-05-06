@@ -2256,16 +2256,18 @@ export default function ProjectDetailPage() {
                     </span>
                   </div>
 
-                  <Popconfirm
-                    title={`Are you sure to remove ${member.fullName} from the project?`}
-                    description="This action cannot be undone."
-                    onConfirm={() => handleRemoveMember(member.id)}
-                    okText="Yes"
-                    okType="danger"
-                    cancelText="No"
-                  >
-                    <Button danger>Remove</Button>
-                  </Popconfirm>
+                  {member.role !== "PM" && (
+                    <Popconfirm
+                      title={`Are you sure to remove ${member.fullName} from the project?`}
+                      description="This action cannot be undone."
+                      onConfirm={() => handleRemoveMember(member.id)}
+                      okText="Yes"
+                      okType="danger"
+                      cancelText="No"
+                    >
+                      <Button danger>Remove</Button>
+                    </Popconfirm>
+                  )}
                 </div>
               ))}
             </div>

@@ -22,8 +22,7 @@ export default function RegisterPage() {
 
   const onFinish = async (values) => {
     setLoading(true);
-    const loadingToast = toast.loading("Creating your account...");
-
+    console.log(values);
     const requestData = {
       user: {
         username: values.username,
@@ -37,9 +36,8 @@ export default function RegisterPage() {
         fullName: values.fullName,
       },
     };
-
+    console.log("register request", requestData);
     try {
-      toast.dismiss(loadingToast);
       const response = await authService.register(requestData);
       navigate(`${route.otpPage}/${values.email}`, {
         state: { email: values.email },
@@ -49,7 +47,6 @@ export default function RegisterPage() {
       );
     } catch (error) {
       console.error("Register Error:", error);
-      toast.dismiss(loadingToast);
       toast.error(
         error.response?.data?.message ||
           "Registration failed. Please try again."
@@ -185,16 +182,36 @@ export default function RegisterPage() {
                 }
                 rules={[
                   { required: true, message: "Please enter your phone number" },
+                  {
+                    validator: (_, value) => {
+                      if (!value) return Promise.resolve();
+
+                      // Get only digits for validation
+                      const digits = value.replace(/\D/g, "");
+
+                      // Vietnamese mobile numbers are typically 9-10 digits
+                      if (digits.length < 9 || digits.length > 10) {
+                        return Promise.reject(
+                          new Error(
+                            "Please enter a valid Vietnamese phone number"
+                          )
+                        );
+                      }
+
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
               >
                 <Input
                   prefix={
                     <>
                       <PhoneOutlined className="text-gray-400" />
-                      <p>+84</p>
+                      <p className="ml-1">+84</p>
                     </>
                   }
-                  type="number"
+                  type="tel"
+                  maxLength={9} // Accounts for spaces in formatting: XXX XXX XXXX
                   placeholder="Enter your phone number"
                   className="!py-2 !px-4 !rounded-lg !border-gray-300"
                 />
