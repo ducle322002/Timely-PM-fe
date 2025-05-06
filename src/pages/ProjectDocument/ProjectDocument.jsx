@@ -182,7 +182,7 @@ export default function ProjectDocument() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold m-0">Project Document</h1>
           <Space size="middle">
-            {(project.userId === user.id || isQAMember) && (
+            {project.userId === user.id && (
               <Button
                 icon={<UploadOutlined />}
                 type="primary"
