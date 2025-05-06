@@ -345,36 +345,6 @@ export default function UserProfilePage() {
                 </div>
 
                 <Divider />
-
-                {/* Activity Section (Optional) */}
-                <div>
-                  <Title level={5} className="flex items-center mb-3">
-                    <IdcardOutlined className="mr-2 text-blue-500" /> Account
-                    Details
-                  </Title>
-                  <Row gutter={[16, 16]}>
-                    <Col span={12}>
-                      <Text type="secondary" className="block">
-                        Member Since
-                      </Text>
-                      <Text>
-                        {user.createdAt
-                          ? new Date(user.createdAt).toLocaleDateString()
-                          : "N/A"}
-                      </Text>
-                    </Col>
-                    <Col span={12}>
-                      <Text type="secondary" className="block">
-                        Last Updated
-                      </Text>
-                      <Text>
-                        {user.updatedAt
-                          ? new Date(user.updatedAt).toLocaleDateString()
-                          : "N/A"}
-                      </Text>
-                    </Col>
-                  </Row>
-                </div>
               </Card>
             </motion.div>
           </div>
