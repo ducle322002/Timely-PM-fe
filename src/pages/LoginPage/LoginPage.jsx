@@ -33,9 +33,10 @@ export default function LoginPage() {
       console.log("loading");
       const response = await authService.login(values);
       Cookies.set("token", response.data.token);
-      console.log(response);
+      console.log("login", response.data);
       const user = {
         username: response.data.username,
+        fullName: response.data.fullName,
         id: response.data.id,
         role: response.data.role,
       };
@@ -72,6 +73,7 @@ export default function LoginPage() {
       Cookies.set("token", responseLogin.data.token);
       const user = {
         username: responseLogin.data.username,
+        fullName: response.data.fullName,
         id: responseLogin.data.id,
         role: responseLogin.data.role,
       };
@@ -100,6 +102,7 @@ export default function LoginPage() {
       Cookies.set("token", responseLogin.data.token);
       const user = {
         username: responseLogin.data.username,
+        fullName: response.data.fullName,
         id: responseLogin.data.id,
         role: responseLogin.data.role,
       };

@@ -38,7 +38,7 @@ import dayjs from "dayjs";
 import taskService from "../../services/taskService";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../redux/features/userSlice";
-import { motion } from "framer-motion";
+import { m, motion } from "framer-motion";
 import "./ProjectDetailPage.scss";
 import issueService from "../../services/issueService";
 import questionService from "../../services/questionService";
@@ -197,7 +197,7 @@ export default function ProjectDetailPage() {
   const fetchMemberProject = async () => {
     try {
       const response = await projectService.getMembers(id);
-      console.log(response.data);
+      console.log("members", response.data);
       setMembers(response.data);
     } catch (error) {
       console.error(error.response.data);
@@ -469,6 +469,10 @@ export default function ProjectDetailPage() {
     // Append the file if it exists
     if (fileList.length > 0) {
       formData.append("file", fileList[0].originFileObj);
+    } else {
+      toast.error("Please upload a file!");
+      setLoadingCreateTask(false); // Set loading state to false
+      return;
     }
     console.log(formData);
     try {
@@ -512,6 +516,10 @@ export default function ProjectDetailPage() {
     // Append the file if it exists
     if (fileList.length > 0) {
       formDataIssue.append("file", fileList[0].originFileObj);
+    } else {
+      toast.error("Please upload a file!");
+      setLoadingCreateTask(false); // Set loading state to false
+      return;
     }
     console.log(formDataIssue);
     try {
@@ -618,6 +626,10 @@ export default function ProjectDetailPage() {
     formDataIssue.append("severity", values.severity);
     if (fileList.length > 0) {
       formDataIssue.append("file", fileList[0].originFileObj);
+    } else {
+      toast.error("Please upload a file!");
+      setLoadingCreateTask(false); // Set loading state to false
+      return;
     }
 
     console.log(formDataIssue);
@@ -1020,6 +1032,19 @@ export default function ProjectDetailPage() {
                     </Button>
                   </>
                 ) : topic.type === "ISSUE" ? (
+                  <></>
+                ) : (
+                  <></>
+                )}
+              </div>
+            )}
+
+            {topic.type === "ISSUE" &&
+              (projectDetail.userId === user.id ||
+                members
+                  .filter((member) => member.role === "QA")
+                  .some((member) => member.fullName === user.fullName)) && (
+                <div className="flex justify-end items-center mb-[1%]">
                   <Button
                     icon={<FaPlus />}
                     className={`  !py-[3%] ${
@@ -1032,12 +1057,8 @@ export default function ProjectDetailPage() {
                   >
                     New Issue
                   </Button>
-                ) : (
-                  <></>
-                )}
-              </div>
-            )}
-
+                </div>
+              )}
             {topic.type === "QUESTION" && (
               <div className="flex justify-end items-center mb-[1%]">
                 <Button
