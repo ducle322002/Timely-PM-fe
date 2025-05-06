@@ -73,7 +73,7 @@ export default function LoginPage() {
       Cookies.set("token", responseLogin.data.token);
       const user = {
         username: responseLogin.data.username,
-        fullName: response.data.fullName,
+        fullName: responseLogin.data.fullName,
         id: responseLogin.data.id,
         role: responseLogin.data.role,
       };
@@ -102,7 +102,7 @@ export default function LoginPage() {
       Cookies.set("token", responseLogin.data.token);
       const user = {
         username: responseLogin.data.username,
-        fullName: response.data.fullName,
+        fullName: responseLogin.data.fullName,
         id: responseLogin.data.id,
         role: responseLogin.data.role,
       };
