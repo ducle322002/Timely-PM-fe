@@ -25,7 +25,6 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [loadingGG, setLoadingGG] = useState(false);
-  const [loadingFb, setLoadingFb] = useState(false);
   const [loadingGit, setLoadingGit] = useState(false);
 
   const onFinish = async (values) => {
@@ -88,32 +87,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleFacebookLogin = async () => {
-    setLoadingFb(true);
-    try {
-      const response = await signInWithPopup(auth, facebookProvider);
-      const accessToken = await response.user.getIdToken(true);
-      console.log(response);
-      const params = { accessToken };
-      const responseLogin = await authService.loginWithFacebook(params);
-
-      Cookies.set("token", responseLogin.data.token);
-      const user = {
-        username: responseLogin.data.username,
-        id: responseLogin.data.id,
-        role: responseLogin.data.role,
-      };
-      Cookies.set("user", JSON.stringify(user));
-      dispatch(login(user));
-      navigate(`${route.home}/${route.introWorkspace}`);
-      toast.success("Logged in with Facebook!");
-    } catch (error) {
-      console.error("Facebook login failed:", error);
-      toast.error("Facebook login failed");
-    } finally {
-      setLoadingFb(false);
-    }
-  };
   const handleGithubLogin = async () => {
     setLoadingGit(true);
     try {
@@ -274,21 +247,6 @@ export default function LoginPage() {
                 loading={loadingGit}
               >
                 <span className="font-medium">Sign in with GitHub</span>
-              </Button>
-
-              <Button
-                className="w-full !h-12 flex items-center justify-center gap-3 !rounded-xl border border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-colors shadow-sm"
-                icon={
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1200px-Facebook_Logo_%282019%29.png"
-                    alt="Facebook"
-                    className="w-5 h-5"
-                  />
-                }
-                loading={loadingFb}
-                onClick={handleFacebookLogin}
-              >
-                <span className="font-medium">Sign in with Facebook</span>
               </Button>
             </div>
 

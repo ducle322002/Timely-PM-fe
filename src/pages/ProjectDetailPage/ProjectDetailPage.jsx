@@ -134,7 +134,7 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     // Connect to WebSocket server
-    ws.current = new WebSocket(`ws://14.225.220.28:8080/comment`);
+    ws.current = new WebSocket(`wws://14.225.220.28:8080/comment`);
 
     ws.current.onopen = () => {
       console.log("WebSocket connected");
