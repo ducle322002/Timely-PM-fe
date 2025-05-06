@@ -610,7 +610,6 @@ export default function ProjectDetailPage() {
 
     const formDataIssue = new FormData();
     formDataIssue.append("label", values.label);
-    formDataIssue.append("reporter", values.reporter);
     formDataIssue.append("summer", values.summer);
     formDataIssue.append("description", values.description);
     formDataIssue.append(
@@ -2399,25 +2398,6 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Enter Description" }]}
           >
             <TextArea rows={3} />
-          </Form.Item>
-
-          <Form.Item
-            name="reporter"
-            label="Reporter"
-            rules={[{ required: true, message: "Please Select Reporter" }]}
-          >
-            <Select placeholder="Select Reporter" size="large">
-              {members
-                .filter((member) => member.role === "QA")
-                .map((member) => (
-                  <Select.Option value={member.id}>
-                    <div className="!flex !justify-start !items-center !gap-[5%]">
-                      <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
-                      <span>{member.fullName}</span>
-                    </div>
-                  </Select.Option>
-                ))}
-            </Select>
           </Form.Item>
 
           <Form.Item name="attachment" label="Attachment">
