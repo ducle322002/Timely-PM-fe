@@ -178,10 +178,10 @@ export default function ProjectDocument() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold m-0">Project Document</h1>
           <Space size="middle">
-            {project.userId === user.id &&
-              members
+            {project.userId === user.id ||
+              (members
                 .filter((member) => member.role === "QA")
-                .some((member) => member.fullName === user.fullName)(
+                .some((member) => member.fullName === user.fullName) && (
                 <Button
                   icon={<UploadOutlined />}
                   type="primary"
@@ -189,7 +189,7 @@ export default function ProjectDocument() {
                 >
                   Upload File
                 </Button>
-              )}
+              ))}
 
             <Input
               placeholder="Search documents"
