@@ -74,8 +74,7 @@ export default function HeaderProject() {
   }, [user]);
 
   const connectWebSocket = () => {
-    const wsUrl = `wss://14.225.220.28:8080/notification`;
-
+    const wsUrl = `wss://api.timelypm.online/notification`;
     // Create new WebSocket connection
     ws.current = new WebSocket(wsUrl);
 

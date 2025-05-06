@@ -134,7 +134,8 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     // Connect to WebSocket server
-    ws.current = new WebSocket(`wss://14.225.220.28:8080/comment`);
+
+    ws.current = new WebSocket(`wss://api.timelypm.online/comment`);
 
     ws.current.onopen = () => {
       console.log("WebSocket connected");
