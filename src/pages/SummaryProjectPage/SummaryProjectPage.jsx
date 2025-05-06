@@ -209,7 +209,7 @@ export default function SummaryProjectPage() {
       else if (taskProgress > 75) taskSummary = "Most tasks are complete.";
       else if (taskProgress > 50) taskSummary = "Good progress on tasks.";
       else if (taskProgress > 25) taskSummary = "Some tasks are completed.";
-      else taskSummary = "Most tasks are still pending.";
+      else taskSummary = "Most tasks are new.";
     }
 
     let issueSummary = "";

@@ -130,6 +130,7 @@ export default function ProjectStatistic() {
             onChange={(value) => setStatusFilter(value)}
           >
             <Option value="PENDING">New</Option>
+            <Option value="PROCESSING">Processing</Option>
             <Option value="DONE">Done</Option>
           </Select>
           <Button
