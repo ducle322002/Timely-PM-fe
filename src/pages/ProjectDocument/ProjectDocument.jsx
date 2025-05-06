@@ -172,24 +172,25 @@ export default function ProjectDocument() {
       console.error(error.response.data);
     }
   };
+  const qaMembers = members.filter((member) => member.role === "QA");
+  const isQAMember = qaMembers.some(
+    (member) => member.fullName === user.fullName
+  );
   return (
     <div className="p-6">
       <Card className="">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold m-0">Project Document</h1>
           <Space size="middle">
-            {project.userId === user.id ||
-              (members
-                .filter((member) => member.role === "QA")
-                .some((member) => member.fullName === user.fullName) && (
-                <Button
-                  icon={<UploadOutlined />}
-                  type="primary"
-                  onClick={() => setIsModalUploadFile(true)}
-                >
-                  Upload File
-                </Button>
-              ))}
+            {(project.userId === user.id || isQAMember) && (
+              <Button
+                icon={<UploadOutlined />}
+                type="primary"
+                onClick={() => setIsModalUploadFile(true)}
+              >
+                Upload File
+              </Button>
+            )}
 
             <Input
               placeholder="Search documents"
