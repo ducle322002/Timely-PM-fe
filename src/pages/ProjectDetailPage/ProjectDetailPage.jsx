@@ -610,7 +610,6 @@ export default function ProjectDetailPage() {
 
     const formDataIssue = new FormData();
     formDataIssue.append("label", values.label);
-    formDataIssue.append("assigneeTo", values.assigneeTo);
     formDataIssue.append("reporter", values.reporter);
     formDataIssue.append("summer", values.summer);
     formDataIssue.append("description", values.description);
@@ -892,9 +891,8 @@ export default function ProjectDetailPage() {
             <p className="text-sm text-gray-500">Update status</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="mt-2">
-                {(taskDetail.assignee?.id === user.id &&
-                  issue.status === "OPEN") ||
-                  (issue.status === "RE_OPENED" && (
+                {taskDetail.assignee?.id === user.id &&
+                  (issue.status === "OPEN" || issue.status === "RE_OPENED") && (
                     <div className="flex gap-2">
                       <Button
                         onClick={() =>
@@ -913,7 +911,7 @@ export default function ProjectDetailPage() {
                         Fixed
                       </Button>
                     </div>
-                  ))}
+                  )}
 
                 {taskDetail.assignee?.id === user.id &&
                   issue.status === "FIXED" && (
@@ -2402,23 +2400,6 @@ export default function ProjectDetailPage() {
             rules={[{ required: true, message: "Please Enter Description" }]}
           >
             <TextArea rows={3} />
-          </Form.Item>
-
-          <Form.Item
-            name="assigneeTo"
-            label="Assign to"
-            rules={[{ required: true, message: "Please Select Assignee" }]}
-          >
-            <Select placeholder="Select Team member" size="large">
-              {members.map((member) => (
-                <Select.Option value={member.id}>
-                  <div className="!flex !justify-start !items-center !gap-[5%]">
-                    <Avatar icon={<UserOutlined />} src={member.avatarUrl} />
-                    <span>{member.fullName}</span>
-                  </div>
-                </Select.Option>
-              ))}
-            </Select>
           </Form.Item>
 
           <Form.Item
