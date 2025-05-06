@@ -2230,7 +2230,7 @@ export default function ProjectDetailPage() {
         footer={
           <Button onClick={() => setIsProjectMemberModal(false)}>Close</Button>
         }
-        width={800}
+        width={700}
       >
         <Tabs defaultActiveKey="1">
           <TabPane tab="Members" key="1">
@@ -2240,17 +2240,16 @@ export default function ProjectDetailPage() {
                   key={member.id}
                   className="flex justify-between items-center p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 !w-[300px]">
                     <Avatar
                       icon={<UserOutlined />}
                       src={member.avatarUrl}
                       size="large"
                     />
-                    <div>
-                      <p className="font-medium text-base text-gray-800">
+                    <div className="">
+                      <p className="font-medium text-base text-gray-800 ">
                         {member.fullName}
                       </p>
-                      <p className="text-sm text-gray-500">{member.email}</p>
                     </div>
                   </div>
 
