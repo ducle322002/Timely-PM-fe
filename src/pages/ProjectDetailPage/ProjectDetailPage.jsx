@@ -1536,20 +1536,23 @@ export default function ProjectDetailPage() {
                       )}
                     </div>
 
-                    {taskDetail.reporter?.id === user.id && (
-                      <div>
-                        <p className="text-sm text-gray-500 text-end">
-                          Having Issue ?
-                        </p>
-                        <Button
-                          color="danger"
-                          variant="solid"
-                          onClick={() => showCreateIssueInTaskModal(taskDetail)}
-                        >
-                          Create Issue
-                        </Button>
-                      </div>
-                    )}
+                    {taskDetail.reporter?.id === user.id &&
+                      taskDetail.status === "WAITING_TEST" && (
+                        <div>
+                          <p className="text-sm text-gray-500 text-end">
+                            Having Issue ?
+                          </p>
+                          <Button
+                            color="danger"
+                            variant="solid"
+                            onClick={() =>
+                              showCreateIssueInTaskModal(taskDetail)
+                            }
+                          >
+                            Create Issue
+                          </Button>
+                        </div>
+                      )}
                   </div>
                   <div>
                     {taskDetail.user && taskDetail.reporter && (
