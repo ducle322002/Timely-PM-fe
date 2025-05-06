@@ -117,10 +117,10 @@ export default function IssueProjectPage() {
         assignee: issue.assignee,
         reporter: issue.reporter,
       })) || [];
-
+    console.log(task);
     return [baseTask, ...issueItems];
   });
-
+  console.log(tasks);
   const allData = [...mappedIssues, ...mappedTasks];
 
   console.log(allData);

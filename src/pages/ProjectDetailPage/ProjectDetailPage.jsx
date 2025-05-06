@@ -892,8 +892,9 @@ export default function ProjectDetailPage() {
             <p className="text-sm text-gray-500">Update status</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="mt-2">
-                {taskDetail.assignee?.id === user.id &&
-                  issue.status === "OPEN" && (
+                {(taskDetail.assignee?.id === user.id &&
+                  issue.status === "OPEN") ||
+                  (issue.status === "RE_OPENED" && (
                     <div className="flex gap-2">
                       <Button
                         onClick={() =>
@@ -912,7 +913,7 @@ export default function ProjectDetailPage() {
                         Fixed
                       </Button>
                     </div>
-                  )}
+                  ))}
 
                 {taskDetail.assignee?.id === user.id &&
                   issue.status === "FIXED" && (
