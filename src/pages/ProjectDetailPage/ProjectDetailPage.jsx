@@ -1156,6 +1156,11 @@ export default function ProjectDetailPage() {
   };
 
   const handleFileChange = (info) => {
+    const isUnder20MB = info.fileList[0].size / 1024 / 1024 < 20;
+    if (!isUnder20MB) {
+      toast.error(`${info.fileList[0].name} is larger than 20MB`);
+      return;
+    }
     setFileList(info.fileList);
     toast.success(info.fileList[0].name + " uploaded successfully!");
     console.log(info);
@@ -2223,6 +2228,7 @@ export default function ProjectDetailPage() {
         footer={
           <Button onClick={() => setIsProjectMemberModal(false)}>Close</Button>
         }
+        width={800}
       >
         <Tabs defaultActiveKey="1">
           <TabPane tab="Members" key="1">
