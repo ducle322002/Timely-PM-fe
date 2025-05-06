@@ -122,7 +122,7 @@ export default function SummaryProjectPage() {
       status === "DONE"
         ? "Done"
         : status === "PENDING"
-        ? "Pending"
+        ? "New"
         : status === "TODO"
         ? "To Do"
         : status === "INPROGRESS"
